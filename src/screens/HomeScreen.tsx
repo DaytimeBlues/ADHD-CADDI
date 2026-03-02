@@ -4,7 +4,7 @@ import React, {
   useMemo,
   useRef,
   useState,
-} from "react";
+} from 'react';
 import {
   View,
   Text,
@@ -21,24 +21,24 @@ import {
   TouchableOpacity,
   NativeModules,
   Share,
-} from "react-native";
-import OverlayService from "../services/OverlayService";
-import StorageService from "../services/StorageService";
-import { LoggerService } from "../services/LoggerService";
+} from 'react-native';
+import OverlayService from '../services/OverlayService';
+import StorageService from '../services/StorageService';
+import { LoggerService } from '../services/LoggerService';
 import ActivationService, {
   ActivationDailyTrendPoint,
   ActivationSummary,
-} from "../services/ActivationService";
-import RetentionService from "../services/RetentionService";
-import { ReentryPromptLevel } from "../services/RetentionService";
-import useReducedMotion from "../hooks/useReducedMotion";
-import { Tokens } from "../theme/tokens";
-import { useTheme } from "../theme/ThemeProvider";
-import ModeCard, { ModeCardMode } from "../components/home/ModeCard";
-import { ReEntryPrompt } from "../components/ui/ReEntryPrompt";
-import { ROUTES } from "../navigation/routes";
-import { CosmicBackground, GlowCard } from "../ui/cosmic";
-import { getStyles } from "./HomeScreen.styles";
+} from '../services/ActivationService';
+import RetentionService from '../services/RetentionService';
+import { ReentryPromptLevel } from '../services/RetentionService';
+import useReducedMotion from '../hooks/useReducedMotion';
+import { Tokens } from '../theme/tokens';
+import { useTheme } from '../theme/ThemeProvider';
+import ModeCard, { ModeCardMode } from '../components/home/ModeCard';
+import { ReEntryPrompt } from '../components/ui/ReEntryPrompt';
+import { ROUTES } from '../navigation/routes';
+import { CosmicBackground, GlowCard } from '../ui/cosmic';
+import { getStyles } from './HomeScreen.styles';
 
 const ANIMATION_DURATION = 300;
 const ANIMATION_STAGGER = 50;
@@ -75,7 +75,7 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
     ActivationDailyTrendPoint[]
   >([]);
   const [reentryPromptLevel, setReentryPromptLevel] =
-    useState<ReentryPromptLevel>("none");
+    useState<ReentryPromptLevel>('none');
   const prefersReducedMotion = useReducedMotion();
 
   const trendMetrics = useMemo(() => {
@@ -125,12 +125,12 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
     }
 
     const diagnostics = [
-      `overlay_enabled=${isOverlayEnabled ? "yes" : "no"}`,
-      `permission_requesting=${isOverlayPermissionRequesting ? "yes" : "no"}`,
+      `overlay_enabled=${isOverlayEnabled ? 'yes' : 'no'}`,
+      `permission_requesting=${isOverlayPermissionRequesting ? 'yes' : 'no'}`,
       ...overlayEvents.map((event) => {
         return `${new Date(event.timestamp).toISOString()} ${event.label}`;
       }),
-    ].join("\n");
+    ].join('\n');
 
     try {
       const clipboardModule = NativeModules.Clipboard as
@@ -139,24 +139,24 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
 
       if (clipboardModule?.setString) {
         clipboardModule.setString(diagnostics);
-        addOverlayEvent("Diagnostics copied");
+        addOverlayEvent('Diagnostics copied');
         AccessibilityInfo.announceForAccessibility(
-          "Overlay diagnostics copied to clipboard",
+          'Overlay diagnostics copied to clipboard',
         );
         return;
       }
 
       await Share.share({
-        title: "Overlay diagnostics",
+        title: 'Overlay diagnostics',
         message: diagnostics,
       });
-      addOverlayEvent("Diagnostics shared");
-      AccessibilityInfo.announceForAccessibility("Overlay diagnostics shared");
+      addOverlayEvent('Diagnostics shared');
+      AccessibilityInfo.announceForAccessibility('Overlay diagnostics shared');
     } catch (error) {
-      console.warn("Failed to export diagnostics:", error);
-      addOverlayEvent("Diagnostics export failed");
+      console.warn('Failed to export diagnostics:', error);
+      addOverlayEvent('Diagnostics export failed');
       AccessibilityInfo.announceForAccessibility(
-        "Overlay diagnostics export failed",
+        'Overlay diagnostics export failed',
       );
     }
   }, [
@@ -166,58 +166,58 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
     overlayEvents,
   ]);
 
-  const cardWidth = "49%";
+  const cardWidth = '49%';
 
   const modes = useMemo<Mode[]>(
     () => [
       {
-        id: "resume",
-        name: "Resume",
-        icon: "play-circle",
-        desc: "CONTINUE",
-        accent: "#8B5CF6",
+        id: 'resume',
+        name: 'Resume',
+        icon: 'play-circle',
+        desc: 'CONTINUE',
+        accent: '#8B5CF6',
       },
       {
-        id: "ignite",
-        name: "Ignite",
-        icon: "fire",
-        desc: "START TASKS",
-        accent: "#8B5CF6",
+        id: 'ignite',
+        name: 'Ignite',
+        icon: 'fire',
+        desc: 'START TASKS',
+        accent: '#8B5CF6',
       },
       {
-        id: "fogcutter",
-        name: "Fog Cutter",
-        icon: "weather-windy",
-        desc: "BREAK IT DOWN",
-        accent: "#8B5CF6",
+        id: 'fogcutter',
+        name: 'Fog Cutter',
+        icon: 'weather-windy',
+        desc: 'BREAK IT DOWN',
+        accent: '#8B5CF6',
       },
       {
-        id: "pomodoro",
-        name: "Pomodoro",
-        icon: "timer-sand",
-        desc: "STAY ON TRACK",
-        accent: "#2DD4BF",
+        id: 'pomodoro',
+        name: 'Pomodoro',
+        icon: 'timer-sand',
+        desc: 'STAY ON TRACK',
+        accent: '#2DD4BF',
       },
       {
-        id: "anchor",
-        name: "Anchor",
-        icon: "anchor",
-        desc: "REGULATE",
-        accent: "#243BFF",
+        id: 'anchor',
+        name: 'Anchor',
+        icon: 'anchor',
+        desc: 'REGULATE',
+        accent: '#243BFF',
       },
       {
-        id: "checkin",
-        name: "Check In",
-        icon: "chart-bar",
-        desc: "TRACK MOOD",
-        accent: "#2DD4BF",
+        id: 'checkin',
+        name: 'Check In',
+        icon: 'chart-bar',
+        desc: 'TRACK MOOD',
+        accent: '#2DD4BF',
       },
       {
-        id: "cbtguide",
-        name: "CBT Guide",
-        icon: "brain",
-        desc: "LEARN",
-        accent: "#8B5CF6",
+        id: 'cbtguide',
+        name: 'CBT Guide',
+        icon: 'brain',
+        desc: 'LEARN',
+        accent: '#8B5CF6',
       },
     ],
     [],
@@ -229,12 +229,12 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
   ).current;
 
   const checkOverlayState = useCallback(async () => {
-    if (Platform.OS === "android") {
+    if (Platform.OS === 'android') {
       try {
         const running = await OverlayService.isRunning();
         setIsOverlayEnabled(running);
       } catch (error) {
-        console.warn("Failed to check overlay state:", error);
+        console.warn('Failed to check overlay state:', error);
         setIsOverlayEnabled(false);
       }
     }
@@ -265,20 +265,20 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
       setActivationTrend(trend);
       setReentryPromptLevel(reentryPrompt);
 
-      if (reentryPrompt === "gentle_restart") {
+      if (reentryPrompt === 'gentle_restart') {
         AccessibilityInfo.announceForAccessibility(
-          "Welcome back. Start with one small focus session.",
+          'Welcome back. Start with one small focus session.',
         );
-      } else if (reentryPrompt === "fresh_restart") {
+      } else if (reentryPrompt === 'fresh_restart') {
         AccessibilityInfo.announceForAccessibility(
-          "Fresh restart. Begin with a tiny step in Fog Cutter or Ignite.",
+          'Fresh restart. Begin with a tiny step in Fog Cutter or Ignite.',
         );
       }
     } catch (error) {
       LoggerService.error({
-        service: "HomeScreen",
-        operation: "loadStreak",
-        message: "Error loading streak",
+        service: 'HomeScreen',
+        operation: 'loadStreak',
+        message: 'Error loading streak',
         error,
       });
     }
@@ -322,14 +322,14 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
   ]);
 
   useEffect(() => {
-    if (Platform.OS !== "android") {
+    if (Platform.OS !== 'android') {
       return;
     }
 
     const appStateSubscription = AppState.addEventListener(
-      "change",
+      'change',
       (nextState: AppStateStatus) => {
-        if (nextState === "active") {
+        if (nextState === 'active') {
           checkOverlayState();
         }
       },
@@ -341,63 +341,63 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
   }, [checkOverlayState]);
 
   useEffect(() => {
-    if (Platform.OS !== "android") {
+    if (Platform.OS !== 'android') {
       return;
     }
 
     const unsubscribePermissionRequested = OverlayService.addEventListener(
-      "overlay_permission_requested",
+      'overlay_permission_requested',
       () => {
         setIsOverlayPermissionRequesting(true);
-        addOverlayEvent("Permission requested");
+        addOverlayEvent('Permission requested');
         AccessibilityInfo.announceForAccessibility(
-          "Overlay permission request started",
+          'Overlay permission request started',
         );
       },
     );
 
     const unsubscribePermissionResult = OverlayService.addEventListener(
-      "overlay_permission_result",
+      'overlay_permission_result',
       ({ granted }) => {
         setIsOverlayPermissionRequesting(false);
-        addOverlayEvent(`Permission result: ${granted ? "GRANTED" : "DENIED"}`);
+        addOverlayEvent(`Permission result: ${granted ? 'GRANTED' : 'DENIED'}`);
         AccessibilityInfo.announceForAccessibility(
-          granted ? "Overlay permission granted" : "Overlay permission denied",
+          granted ? 'Overlay permission granted' : 'Overlay permission denied',
         );
       },
     );
 
     const unsubscribePermissionTimeout = OverlayService.addEventListener(
-      "overlay_permission_timeout",
+      'overlay_permission_timeout',
       () => {
         setIsOverlayPermissionRequesting(false);
-        addOverlayEvent("Permission timeout");
+        addOverlayEvent('Permission timeout');
         AccessibilityInfo.announceForAccessibility(
-          "Overlay permission request timed out",
+          'Overlay permission request timed out',
         );
       },
     );
 
     const unsubscribePermissionError = OverlayService.addEventListener(
-      "overlay_permission_error",
+      'overlay_permission_error',
       () => {
         setIsOverlayPermissionRequesting(false);
-        addOverlayEvent("Permission error");
+        addOverlayEvent('Permission error');
         AccessibilityInfo.announceForAccessibility(
-          "Overlay permission request failed",
+          'Overlay permission request failed',
         );
       },
     );
 
     const unsubscribeOverlayStarted = OverlayService.addEventListener(
-      "overlay_started",
+      'overlay_started',
       () => {
         setIsOverlayEnabled(true);
       },
     );
 
     const unsubscribeOverlayStopped = OverlayService.addEventListener(
-      "overlay_stopped",
+      'overlay_stopped',
       () => {
         setIsOverlayEnabled(false);
       },
@@ -415,7 +415,7 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
 
   const toggleOverlay = useCallback(
     async (value: boolean) => {
-      if (Platform.OS !== "android") {
+      if (Platform.OS !== 'android') {
         return;
       }
 
@@ -448,9 +448,9 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
         setIsOverlayEnabled(false);
       } catch (error) {
         LoggerService.error({
-          service: "HomeScreen",
-          operation: "toggleOverlay",
-          message: "Failed to toggle overlay",
+          service: 'HomeScreen',
+          operation: 'toggleOverlay',
+          message: 'Failed to toggle overlay',
           error,
         });
         setIsOverlayPermissionRequesting(false);
@@ -480,15 +480,15 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
 
   const handlePress = useCallback(
     (modeId: string) => {
-      if (modeId === "checkin") {
+      if (modeId === 'checkin') {
         navigateByRouteName(ROUTES.CHECK_IN);
-      } else if (modeId === "cbtguide") {
+      } else if (modeId === 'cbtguide') {
         navigateByRouteName(ROUTES.CBT_GUIDE);
-      } else if (modeId === "fogcutter") {
+      } else if (modeId === 'fogcutter') {
         navigateByRouteName(ROUTES.FOG_CUTTER);
-      } else if (modeId === "pomodoro") {
+      } else if (modeId === 'pomodoro') {
         navigateByRouteName(ROUTES.POMODORO);
-      } else if (modeId === "anchor") {
+      } else if (modeId === 'anchor') {
         navigateByRouteName(ROUTES.ANCHOR);
       } else {
         navigateByRouteName(ROUTES.FOCUS);
@@ -530,14 +530,14 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
                   style={styles.streakBadge}
                   testID="home-streak-badge"
                   accessibilityRole="text"
-                  accessibilityLabel={`Streak: ${streak} ${streak !== 1 ? "days" : "day"}`}
+                  accessibilityLabel={`Streak: ${streak} ${streak !== 1 ? 'days' : 'day'}`}
                 >
                   <Text
                     style={styles.streakText}
                     testID="home-streak"
                     accessibilityLabel="home-streak"
                   >
-                    STREAK.{streak.toString().padStart(3, "0")}
+                    STREAK.{streak.toString().padStart(3, '0')}
                   </Text>
                 </View>
               </View>
@@ -596,8 +596,8 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
                   )}
                 </View>
 
-                {(reentryPromptLevel === "gentle_restart" ||
-                  reentryPromptLevel === "fresh_restart") && (
+                {(reentryPromptLevel === 'gentle_restart' ||
+                  reentryPromptLevel === 'fresh_restart') && (
                   <ReEntryPrompt
                     level={reentryPromptLevel}
                     onPrimaryAction={() => navigateByRouteName(ROUTES.FOCUS)}
@@ -607,10 +607,10 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
               </GlowCard>
             )}
 
-            {Platform.OS === "android" && (
+            {Platform.OS === 'android' && (
               <GlowCard
-                glow={isOverlayEnabled ? "medium" : "soft"}
-                tone={isOverlayEnabled ? "raised" : "base"}
+                glow={isOverlayEnabled ? 'medium' : 'soft'}
+                tone={isOverlayEnabled ? 'raised' : 'base'}
                 padding="sm"
                 style={[
                   styles.overlayCard,
@@ -627,10 +627,10 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
                     accessibilityLiveRegion="polite"
                   >
                     {isOverlayPermissionRequesting
-                      ? "REQ_PERM..."
+                      ? 'REQ_PERM...'
                       : isOverlayEnabled
-                        ? "ACTIVE"
-                        : "INACTIVE"}
+                        ? 'ACTIVE'
+                        : 'INACTIVE'}
                   </Text>
                 </View>
                 <Switch
@@ -656,7 +656,7 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
               </GlowCard>
             )}
 
-            {Platform.OS === "android" && __DEV__ && (
+            {Platform.OS === 'android' && __DEV__ && (
               <View style={styles.debugPanel}>
                 <Text style={styles.debugTitle}>LOGS</Text>
                 {overlayEvents.length === 0 ? (
@@ -666,10 +666,10 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
                     <Text key={event.id} style={styles.debugText}>
                       {new Date(event.timestamp).toLocaleTimeString([], {
                         hour12: false,
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        second: "2-digit",
-                      })}{" "}
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                      })}{' '}
                       :: {event.label}
                     </Text>
                   ))
