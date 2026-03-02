@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,186 +9,84 @@ import {
   FlatList,
   Platform,
   ActivityIndicator,
-  LayoutAnimation,
-  UIManager,
 } from 'react-native';
 import StorageService from '../services/StorageService';
-import UXMetricsService from '../services/UXMetricsService';
 import ActivationService from '../services/ActivationService';
 import { LoggerService } from '../services/LoggerService';
-import { generateId } from '../utils/helpers';
-import {
-  MicroStep,
-  advanceTaskProgress,
-  getTaskProgressSummary,
-  normalizeMicroSteps,
-} from '../utils/fogCutter';
+import { getTaskProgressSummary } from '../utils/fogCutter';
 import { LinearButton } from '../components/ui/LinearButton';
 import { EmptyState } from '../components/ui/EmptyState';
+import { ProgressBar } from '../components/ui/ProgressBar';
+import { AnimatedMicroStep } from '../components/ui/AnimatedMicroStep';
+import { Shimmer } from '../components/ui/Shimmer';
+import { EmptyStateExamples } from '../components/ui/EmptyStateExamples';
 import { Tokens } from '../theme/tokens';
 import { useTheme } from '../theme/ThemeProvider';
 import { ROUTES } from '../navigation/routes';
 import { CosmicBackground, GlowCard, RuneButton } from '../ui/cosmic';
-import FogCutterAIService from '../services/FogCutterAIService';
-
-interface Task {
-  id: string;
-  text: string;
-  completed: boolean;
-  microSteps: MicroStep[];
-}
+import { useFogCutter, Task } from '../hooks/useFogCutter';
+import { useFogCutterAI } from '../hooks/useFogCutterAI';
 
 type FogCutterNavigation = {
   navigate: (route: string) => void;
 };
 
-const FogCutterScreen = ({
-  navigation,
-}: {
+interface FogCutterScreenProps {
   navigation?: FogCutterNavigation;
-}) => {
-  const [task, setTask] = useState('');
-  const [microSteps, setMicroSteps] = useState<string[]>([]);
-  const [isAiLoading, setIsAiLoading] = useState(false);
-  const [newStep, setNewStep] = useState('');
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [focusedInput, setFocusedInput] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [showGuide, setShowGuide] = useState(false);
-  const [guideDismissed, setGuideDismissed] = useState(true);
-  const [latestSavedTaskId, setLatestSavedTaskId] = useState<string | null>(
-    null,
-  );
-  const taskInputRef = useRef<TextInput>(null);
+}
+
+const FogCutterScreen = ({ navigation }: FogCutterScreenProps) => {
   const { isCosmic } = useTheme();
+  const styles = getStyles(isCosmic);
+  const taskInputRef = useRef<TextInput>(null);
 
-  const handleAiBreakdown = async () => {
-    if (!task.trim() || isAiLoading) {
-      return;
-    }
-
-    setIsAiLoading(true);
-    UXMetricsService.track('fog_cutter_ai_breakdown_requested', {
-      taskLength: task.length,
-    });
-
-    try {
-      const steps = await FogCutterAIService.generateMicroSteps(task);
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-      setMicroSteps(steps.map((s) => s.text));
-
-      if (steps.length > 0) {
-        UXMetricsService.track('fog_cutter_ai_breakdown_success', {
-          stepCount: steps.length,
-        });
-      }
-    } catch (error) {
-      LoggerService.error({
-        service: 'FogCutterScreen',
-        operation: 'generateMicroSteps',
-        message: 'AI breakdown failed',
-        error,
+  const handleTaskSaved = useCallback(
+    async (taskId: string) => {
+      await ActivationService.requestPendingStart({
+        source: 'fogcutter_handoff',
+        requestedAt: new Date().toISOString(),
+        context: {
+          taskId,
+          reason: 'user_completed_fog_cutter_decomposition',
+        },
       });
-    } finally {
-      setIsAiLoading(false);
-    }
-  };
 
-  useEffect(() => {
-    if (Platform.OS === 'android') {
-      if (UIManager.setLayoutAnimationEnabledExperimental) {
-        UIManager.setLayoutAnimationEnabledExperimental(true);
-      }
-    }
-    const loadTasksAndGuide = async () => {
-      try {
-        const [storedTasks, guideState] = await Promise.all([
-          StorageService.getJSON<Task[]>(StorageService.STORAGE_KEYS.tasks),
-          StorageService.getJSON<{ fogCutterDismissed?: boolean }>(
-            StorageService.STORAGE_KEYS.firstSuccessGuideState,
-          ),
-        ]);
+      navigation?.navigate(ROUTES.FOCUS);
+    },
+    [navigation],
+  );
 
-        if (guideState) {
-          setGuideDismissed(!!guideState.fogCutterDismissed);
-        } else {
-          setGuideDismissed(false);
-        }
+  const {
+    task,
+    microSteps,
+    newStep,
+    tasks,
+    focusedInput,
+    isLoading,
+    showGuide,
+    guideDismissed,
+    latestSavedTaskId,
+    setTask,
+    setMicroSteps,
+    setNewStep,
+    setFocusedInput,
+    addMicroStep,
+    addTask,
+    toggleTask,
+    dismissGuide,
+  } = useFogCutter(handleTaskSaved);
 
-        if (storedTasks && Array.isArray(storedTasks)) {
-          const normalized = storedTasks
-            .filter((item) => {
-              return Boolean(
-                item?.id && item?.text && Array.isArray(item?.microSteps),
-              );
-            })
-            .map((item) => ({
-              ...item,
-              microSteps: normalizeMicroSteps(item.microSteps),
-            }));
-          setTasks(normalized);
-        }
-      } catch (error) {
-        LoggerService.error({
-          service: 'FogCutterScreen',
-          operation: 'loadTasksAndGuide',
-          message: 'Failed to load tasks',
-          error,
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const { isAiLoading, handleAiBreakdown } = useFogCutterAI({
+    onStepsGenerated: useCallback(
+      (steps: string[]) => {
+        setMicroSteps(steps);
+      },
+      [setMicroSteps],
+    ),
+  });
 
-    loadTasksAndGuide();
-  }, []);
-
-  useEffect(() => {
-    StorageService.setJSON(StorageService.STORAGE_KEYS.tasks, tasks);
-  }, [tasks]);
-
-  const addMicroStep = () => {
-    if (newStep.trim()) {
-      setMicroSteps([...microSteps, newStep.trim()]);
-      setNewStep('');
-    }
-  };
-
-  const addTask = () => {
-    if (task.trim() && microSteps.length > 0) {
-      const microStepModels = normalizeMicroSteps(microSteps);
-      const newTask: Task = {
-        id: generateId(),
-        text: task,
-        completed: false,
-        microSteps: microStepModels,
-      };
-      setTasks((prevTasks) => [...prevTasks, newTask]);
-      setLatestSavedTaskId(newTask.id);
-
-      if (!guideDismissed && !showGuide) {
-        UXMetricsService.track('fog_cutter_first_task_saved');
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-        setShowGuide(true);
-      }
-
-      setTask('');
-      setMicroSteps([]);
-    }
-  };
-
-  const dismissGuide = async () => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setShowGuide(false);
-    setGuideDismissed(true);
-    const currentState =
-      (await StorageService.getJSON<Record<string, boolean>>(
-        StorageService.STORAGE_KEYS.firstSuccessGuideState,
-      )) ?? {};
-    await StorageService.setJSON(
-      StorageService.STORAGE_KEYS.firstSuccessGuideState,
-      { ...currentState, fogCutterDismissed: true },
-    );
+  const handleDismissGuide = useCallback(async () => {
+    await dismissGuide();
 
     await ActivationService.requestPendingStart({
       source: 'fogcutter_handoff',
@@ -200,13 +98,11 @@ const FogCutterScreen = ({
     });
 
     navigation?.navigate(ROUTES.FOCUS);
-  };
+  }, [dismissGuide, latestSavedTaskId, navigation]);
 
-  const toggleTask = (id: string) => {
-    setTasks((prevTasks) =>
-      prevTasks.map((t) => (t.id === id ? advanceTaskProgress(t) : t)),
-    );
-  };
+  const handleAiBreakdownPress = useCallback(() => {
+    handleAiBreakdown(task);
+  }, [handleAiBreakdown, task]);
 
   const renderMicroStep = ({
     item,
@@ -215,15 +111,72 @@ const FogCutterScreen = ({
     item: string;
     index: number;
   }) => (
-    <View style={styles.microStep}>
-      <Text testID={`microstep-number-${index + 1}`} style={styles.stepNumber}>
-        {(index + 1).toString().padStart(2, '0')}
-      </Text>
-      <Text style={styles.stepText}>{item}</Text>
-    </View>
+    <AnimatedMicroStep
+      item={item}
+      index={index}
+      testID={`microstep-number-${index + 1}`}
+    />
   );
 
-  const styles = getStyles(isCosmic);
+  const renderTask = ({ item }: { item: Task }) => (
+    <Pressable
+      style={({
+        pressed,
+        hovered,
+      }: {
+        pressed: boolean;
+        hovered?: boolean;
+      }) => [
+        styles.taskCard,
+        item.completed && styles.taskCardCompleted,
+        hovered && !item.completed && styles.taskCardHovered,
+        pressed && !item.completed && styles.taskCardPressed,
+      ]}
+      onPress={() => toggleTask(item.id)}
+    >
+      <View style={styles.taskHeader}>
+        <Text style={[styles.taskText, item.completed && styles.completed]}>
+          {item.text}
+        </Text>
+        {item.completed ? (
+          <Text style={styles.doneBadge}>CMPLTD</Text>
+        ) : (
+          <Text style={styles.stepCountText}>
+            {getTaskProgressSummary(item.microSteps)}
+          </Text>
+        )}
+      </View>
+
+      {!item.completed && (
+        <View style={styles.progressContainer}>
+          <ProgressBar
+            current={item.microSteps.filter((s) => s.status === 'done').length}
+            total={item.microSteps.length}
+            size="sm"
+            color="brand"
+            style={styles.progressBar}
+          />
+          <View style={styles.activeStepContainer}>
+            <Text style={styles.activeStepLabel}>
+              {item.microSteps.find((s) => s.status === 'in_progress')
+                ? 'CURRENT_STEP >>'
+                : 'NEXT_STEP >>'}
+            </Text>
+            <Text style={styles.activeStepText} numberOfLines={1}>
+              {
+                (
+                  item.microSteps.find((s) => s.status === 'in_progress') ||
+                  item.microSteps.find((s) => s.status === 'next') || {
+                    text: '...',
+                  }
+                ).text
+              }
+            </Text>
+          </View>
+        </View>
+      )}
+    </Pressable>
+  );
 
   return (
     <CosmicBackground variant="ridge" dimmer>
@@ -278,7 +231,7 @@ const FogCutterScreen = ({
                   <RuneButton
                     variant="secondary"
                     size="sm"
-                    onPress={handleAiBreakdown}
+                    onPress={handleAiBreakdownPress}
                     disabled={!task.trim() || isAiLoading}
                     loading={isAiLoading}
                   >
@@ -310,7 +263,14 @@ const FogCutterScreen = ({
                 />
               </View>
 
-              {microSteps.length > 0 && (
+              {isAiLoading && (
+                <View style={styles.previewContainer}>
+                  <Text style={styles.previewTitle}>ANALYSING...</Text>
+                  <Shimmer width="100%" height={60} style={styles.shimmer} />
+                </View>
+              )}
+
+              {microSteps.length > 0 && !isAiLoading && (
                 <View style={styles.previewContainer}>
                   <Text style={styles.previewTitle}>SEQUENCE:</Text>
                   <FlatList
@@ -355,7 +315,7 @@ const FogCutterScreen = ({
                   </Text>
                 </View>
                 <Pressable
-                  onPress={dismissGuide}
+                  onPress={handleDismissGuide}
                   style={({ pressed }) => [
                     styles.guideButton,
                     pressed && styles.guideButtonPressed,
@@ -383,77 +343,25 @@ const FogCutterScreen = ({
                 data={tasks}
                 keyExtractor={(item) => item.id}
                 contentContainerStyle={styles.listContent}
-                renderItem={({ item }) => (
-                  <Pressable
-                    style={({
-                      pressed,
-                      hovered,
-                    }: {
-                      pressed: boolean;
-                      hovered?: boolean;
-                    }) => [
-                      styles.taskCard,
-                      item.completed && styles.taskCardCompleted,
-                      hovered && !item.completed && styles.taskCardHovered,
-                      pressed && !item.completed && styles.taskCardPressed,
-                    ]}
-                    onPress={() => toggleTask(item.id)}
-                  >
-                    <View style={styles.taskHeader}>
-                      <Text
-                        style={[
-                          styles.taskText,
-                          item.completed && styles.completed,
-                        ]}
-                      >
-                        {item.text}
-                      </Text>
-                      {item.completed ? (
-                        <Text style={styles.doneBadge}>CMPLTD</Text>
-                      ) : (
-                        <Text style={styles.stepCountText}>
-                          {getTaskProgressSummary(item.microSteps)}
-                        </Text>
-                      )}
-                    </View>
-
-                    {!item.completed && (
-                      <View style={styles.activeStepContainer}>
-                        <Text style={styles.activeStepLabel}>
-                          {item.microSteps.find(
-                            (s) => s.status === 'in_progress',
-                          )
-                            ? 'CURRENT_STEP >>'
-                            : 'NEXT_STEP >>'}
-                        </Text>
-                        <Text style={styles.activeStepText} numberOfLines={1}>
-                          {
-                            (
-                              item.microSteps.find(
-                                (s) => s.status === 'in_progress',
-                              ) ||
-                              item.microSteps.find(
-                                (s) => s.status === 'next',
-                              ) || {
-                                text: '...',
-                              }
-                            ).text
-                          }
-                        </Text>
-                      </View>
-                    )}
-                  </Pressable>
-                )}
+                renderItem={renderTask}
                 style={styles.taskList}
                 ListEmptyComponent={
-                  <EmptyState
-                    icon="◈"
-                    title="NO_ACTIVE_TASKS."
-                    primaryActionLabel="CREATE FIRST TASK"
-                    onPrimaryAction={() => taskInputRef.current?.focus()}
-                    primaryVariant="secondary"
-                    style={styles.emptyState}
-                  />
+                  <View>
+                    <EmptyState
+                      icon="◈"
+                      title="NO_ACTIVE_TASKS."
+                      primaryActionLabel="CREATE FIRST TASK"
+                      onPrimaryAction={() => taskInputRef.current?.focus()}
+                      primaryVariant="secondary"
+                      style={styles.emptyState}
+                    />
+                    <EmptyStateExamples
+                      onExamplePress={(example) => {
+                        setTask(example);
+                        taskInputRef.current?.focus();
+                      }}
+                    />
+                  </View>
                 }
               />
             )}
@@ -478,7 +386,7 @@ const getStyles = (isCosmic: boolean) =>
       flex: 1,
       width: '100%',
       maxWidth: Tokens.layout.maxWidth.prose,
-      padding: Tokens.spacing[4], // Reduced padding
+      padding: Tokens.spacing[4],
     },
     header: {
       marginBottom: Tokens.spacing[6],
@@ -546,8 +454,8 @@ const getStyles = (isCosmic: boolean) =>
       borderRadius: isCosmic ? 8 : 0,
       paddingHorizontal: Tokens.spacing[3],
       color: isCosmic ? '#EEF2FF' : Tokens.colors.text.primary,
-      fontFamily: Tokens.type.fontFamily.mono, // Mono for input
-      fontSize: Tokens.type.sm, // Smaller text
+      fontFamily: Tokens.type.fontFamily.mono,
+      fontSize: Tokens.type.sm,
       marginBottom: Tokens.spacing[3],
       height: 48,
       borderWidth: 1,
@@ -638,8 +546,10 @@ const getStyles = (isCosmic: boolean) =>
     },
     stepText: {
       fontFamily: Tokens.type.fontFamily.mono,
-      color: isCosmic ? '#B9C2D9' : Tokens.colors.text.secondary,
       fontSize: Tokens.type.sm,
+    },
+    shimmer: {
+      marginTop: Tokens.spacing[2],
     },
     saveButton: {
       marginTop: Tokens.spacing[2],
@@ -676,7 +586,7 @@ const getStyles = (isCosmic: boolean) =>
       borderColor: isCosmic
         ? 'rgba(42, 53, 82, 0.3)'
         : Tokens.colors.neutral.border,
-      minHeight: 64, // Reduced height
+      minHeight: 64,
       justifyContent: 'center',
       ...Platform.select({
         web: {
@@ -756,6 +666,12 @@ const getStyles = (isCosmic: boolean) =>
       color: Tokens.colors.text.tertiary,
       fontSize: Tokens.type.xs,
       letterSpacing: 1,
+    },
+    progressContainer: {
+      marginTop: Tokens.spacing[2],
+    },
+    progressBar: {
+      marginBottom: Tokens.spacing[2],
     },
     loadingContainer: {
       padding: Tokens.spacing[8],

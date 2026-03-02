@@ -1,0 +1,34 @@
+{
+  "project_info": {
+    "project_number": "123456789",
+    "project_id": "spark-adhd-debug",
+    "storage_bucket": "spark-adhd-debug.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:123456789:android:debug",
+        "android_client_info": {
+          "package_name": "com.sparkadhd"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "debug-client-id.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "debug-api-key"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

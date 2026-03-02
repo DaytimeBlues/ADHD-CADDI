@@ -1,8 +1,17 @@
-import { Vibration } from 'react-native';
+import { Vibration, Platform } from 'react-native';
 import { isIOS, isWeb } from '../utils/PlatformUtils';
+
+// Try to import expo-haptics if available
+let Haptics: typeof import('expo-haptics') | null = null;
+try {
+  Haptics = require('expo-haptics');
+} catch {
+  // expo-haptics not available, fall back to Vibration
+}
 
 // Detect if device has haptic engine (iOS 10+)
 const hasHapticEngine = isIOS;
+const hasExpoHaptics = Haptics !== null;
 
 // Light tap for UI feedback
 const LIGHT_TAP_MS = 10;
@@ -30,7 +39,7 @@ class HapticsService {
 
   /**
    * Light tap - for button presses, selections
-   * Uses native haptic on iOS, vibration on Android
+   * Uses expo-haptics on iOS, vibration on Android
    */
   tap(options?: TapOptions): void {
     if (isWeb) {
@@ -49,28 +58,32 @@ class HapticsService {
 
     this.lastTapByKey[key] = now;
 
-    if (hasHapticEngine) {
-      // iOS uses native haptics - these are much better than vibration
-      // Intensity is handled by the OS through different impact types
-      // For now, we use a simple vibration as fallback
-      // In production, you'd use expo-haptics or react-native-haptics
-      Vibration.vibrate(
+    // Use expo-haptics if available (much better on iOS)
+    if (hasExpoHaptics && Haptics) {
+      const impactStyle =
         intensity === 'heavy'
-          ? HEAVY_TAP_MS
+          ? Haptics.ImpactFeedbackStyle.Heavy
           : intensity === 'medium'
-            ? MEDIUM_TAP_MS
-            : LIGHT_TAP_MS,
-      );
+            ? Haptics.ImpactFeedbackStyle.Medium
+            : Haptics.ImpactFeedbackStyle.Light;
+
+      Haptics.impactAsync(impactStyle).catch(() => {
+        // Fall back to vibration if haptics fail
+        this.fallbackVibrate(intensity);
+      });
     } else {
-      // Android - use vibration with intensity
-      Vibration.vibrate(
-        intensity === 'heavy'
-          ? HEAVY_TAP_MS
-          : intensity === 'medium'
-            ? MEDIUM_TAP_MS
-            : LIGHT_TAP_MS,
-      );
+      this.fallbackVibrate(intensity);
     }
+  }
+
+  private fallbackVibrate(intensity: 'light' | 'medium' | 'heavy'): void {
+    Vibration.vibrate(
+      intensity === 'heavy'
+        ? HEAVY_TAP_MS
+        : intensity === 'medium'
+          ? MEDIUM_TAP_MS
+          : LIGHT_TAP_MS,
+    );
   }
 
   /**
@@ -111,13 +124,22 @@ class HapticsService {
   }
 
   /**
-   * Success feedback - double vibration pattern
+   * Success feedback - use expo-haptics if available
    */
   success(): void {
     if (isWeb) {
       return;
     }
-    Vibration.vibrate([0, 50, 50, 50]);
+
+    if (hasExpoHaptics && Haptics) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(
+        () => {
+          Vibration.vibrate([0, 50, 50, 50]);
+        },
+      );
+    } else {
+      Vibration.vibrate([0, 50, 50, 50]);
+    }
   }
 
   /**
