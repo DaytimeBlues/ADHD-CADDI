@@ -1,21 +1,13 @@
-/**
- * P5TasksScreen - Persona 5 Style Task Management
- * 
- * Task list with angular containers, priority indicators,
- * and swipe actions for organization.
- * 
- * @example
- * <P5TasksScreen />
- */
-
 import React, { memo, useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  Dimensions,
+  TouchableOpacity,
+  TextInput,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
   useSharedValue,
@@ -26,203 +18,223 @@ import Animated, {
   SlideInRight,
   Layout,
 } from 'react-native-reanimated';
-import {
-  P5Screen,
-  P5Header,
-  P5Button,
-  P5Card,
-  P5Input,
-  P5TabBar,
-} from '../ui/p5';
-import {
-  P5Colors,
-  P5Spacing,
-  P5Typography,
-  P5FontSizes,
-  P5Motion,
-} from '../theme/p5Tokens';
+import { CosmicBackground, GlowCard, RuneButton } from '../ui/cosmic';
+import { useTaskStore } from '../store/useTaskStore';
+import type { Task, TaskPriority } from '../types/task';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-
-// Task types
-type TaskPriority = 'normal' | 'important' | 'urgent';
-
-interface Task {
-  id: string;
-  title: string;
-  description?: string;
-  priority: TaskPriority;
-  dueDate?: string;
-  completed: boolean;
-  category?: string;
-}
-
+// Cosmic priority colors
 const PRIORITY_COLORS: Record<TaskPriority, string> = {
-  urgent: P5Colors.primary,
-  important: P5Colors.warning,
-  normal: P5Colors.textMuted,
+  urgent: '#FB7185', // cometRose
+  important: '#F6C177', // starlightGold
+  normal: '#8B5CF6', // nebulaViolet
 };
 
 const PRIORITY_LABELS: Record<TaskPriority, string> = {
   urgent: 'URGENT',
   important: 'IMPORTANT',
-  normal: 'NORMAL',
+  normal: 'STABLE',
 };
 
+/**
+ * CosmicTasksScreen
+ * 
+ * Refactored task manager with Cosmic UI aesthetic.
+ * Focuses on soft glows, nebula colors, and rounded corners.
+ */
 export const P5TasksScreen = memo(function P5TasksScreen() {
   const insets = useSafeAreaInsets();
-  
-  // State
-  const [tasks, setTasks] = useState<Task[]>([
-    { id: '1', title: 'Complete project proposal', priority: 'urgent', dueDate: 'Today', completed: false },
-    { id: '2', title: 'Review team deliverables', priority: 'urgent', dueDate: 'Today', completed: false },
-    { id: '3', title: 'Update documentation', priority: 'important', dueDate: 'Tomorrow', completed: false },
-    { id: '4', title: 'Client meeting prep', priority: 'important', dueDate: 'Fri', completed: false },
-    { id: '5', title: 'Weekly report', priority: 'normal', dueDate: 'Fri', completed: false },
-    { id: '6', title: 'Email follow-ups', priority: 'normal', completed: true },
-    { id: '7', title: 'Code review', priority: 'normal', completed: true },
-  ]);
-  
+  const navigation = useNavigation();
+
+  // Store
+  const tasks = useTaskStore((state) => state.tasks);
+  const addTaskStore = useTaskStore((state) => state.addTask);
+  const toggleTaskStore = useTaskStore((state) => state.toggleTask);
+  const deleteTaskStore = useTaskStore((state) => state.deleteTask);
+
+  // Local UI State
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
-  const [activeTab, setActiveTab] = useState('tasks');
-  
+  const [isSyncing, setIsSyncing] = useState(false);
+
   // Filter tasks
   const filteredTasks = useMemo(() => {
     switch (filter) {
       case 'active':
-        return tasks.filter(t => !t.completed);
+        return tasks.filter((t) => !t.completed);
       case 'completed':
-        return tasks.filter(t => t.completed);
+        return tasks.filter((t) => t.completed);
       default:
         return tasks;
     }
   }, [tasks, filter]);
-  
-  // Toggle task completion
-  const toggleTask = useCallback((taskId: string) => {
-    setTasks(prev => prev.map(task => 
-      task.id === taskId ? { ...task, completed: !task.completed } : task
-    ));
-  }, []);
-  
-  // Add new task
-  const addTask = useCallback(() => {
-    if (!newTaskTitle.trim()) return;
-    
-    const newTask: Task = {
-      id: Date.now().toString(),
+
+  // Actions
+  const handleToggle = useCallback(
+    (taskId: string) => {
+      toggleTaskStore(taskId);
+    },
+    [toggleTaskStore],
+  );
+
+  const handleAdd = useCallback(() => {
+    if (!newTaskTitle.trim()) {
+      return;
+    }
+    addTaskStore({
       title: newTaskTitle.trim(),
       priority: 'normal',
-      completed: false,
-    };
-    
-    setTasks(prev => [newTask, ...prev]);
+      source: 'manual',
+    });
     setNewTaskTitle('');
-  }, [newTaskTitle]);
-  
-  // Delete task
-  const deleteTask = useCallback((taskId: string) => {
-    setTasks(prev => prev.filter(task => task.id !== taskId));
+  }, [newTaskTitle, addTaskStore]);
+
+  const handleDelete = useCallback(
+    (taskId: string) => {
+      deleteTaskStore(taskId);
+    },
+    [deleteTaskStore],
+  );
+
+  const handleSync = useCallback(async () => {
+    setIsSyncing(true);
+    // Placeholder for actual sync logic in Phase 5
+    setTimeout(() => setIsSyncing(false), 1500);
   }, []);
-  
-  // Tabs
-  const tabs = [
-    { key: 'home', icon: 'home', label: 'Home' },
-    { key: 'tasks', icon: 'tasks', label: 'Tasks' },
-    { key: 'timer', icon: 'timer', label: 'Focus' },
-    { key: 'journal', icon: 'journal', label: 'Journal' },
-    { key: 'profile', icon: 'profile', label: 'Profile' },
-  ];
-  
+
   // Stats
-  const stats = useMemo(() => ({
-    total: tasks.length,
-    completed: tasks.filter(t => t.completed).length,
-    urgent: tasks.filter(t => t.priority === 'urgent' && !t.completed).length,
-  }), [tasks]);
-  
+  const stats = useMemo(
+    () => ({
+      total: tasks.length,
+      completed: tasks.filter((t) => t.completed).length,
+      urgent: tasks.filter((t) => t.priority === 'urgent' && !t.completed).length,
+    }),
+    [tasks],
+  );
+
   return (
-    <P5Screen>
-      <P5Header 
-        title="TASKS" 
-        subtitle="MISSION QUEUE"
-        showBack 
-        onBack={() => {}}
-      />
-      
+    <CosmicBackground variant="ridge">
+      {/* Header */}
+      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+        <View style={styles.headerRow}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={styles.backButton}
+          >
+            <Text style={styles.backIcon}>←</Text>
+          </TouchableOpacity>
+          <View>
+            <Text style={styles.headerTitle}>TASKS</Text>
+            <Text style={styles.headerSubtitle}>NEBULA QUEUE</Text>
+          </View>
+        </View>
+
+        <RuneButton
+          variant="secondary"
+          size="sm"
+          onPress={handleSync}
+          loading={isSyncing}
+          style={styles.syncButton}
+        >
+          {isSyncing ? 'SYNCING' : 'SYNC'}
+        </RuneButton>
+      </View>
+
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[
           styles.contentContainer,
-          { paddingBottom: insets.bottom + 80 },
+          { paddingBottom: insets.bottom + 40 },
         ]}
         showsVerticalScrollIndicator={false}
       >
         {/* Stats Dashboard */}
         <Animated.View entering={FadeIn.delay(100).duration(300)}>
           <View style={styles.statsRow}>
-            <P5Card accentPosition="left" intensity="alert" style={styles.statCard}>
-              <Text style={styles.statValue}>{stats.urgent}</Text>
+            <GlowCard
+              tone="raised"
+              glow="soft"
+              padding="sm"
+              style={styles.statCard}
+            >
+              <Text style={[styles.statValue, { color: PRIORITY_COLORS.urgent }]}>
+                {stats.urgent}
+              </Text>
               <Text style={styles.statLabel}>URGENT</Text>
-            </P5Card>
-            
-            <P5Card accentPosition="right" intensity="subtle" style={styles.statCard}>
-              <Text style={styles.statValue}>{stats.total - stats.completed}</Text>
+            </GlowCard>
+
+            <GlowCard
+              tone="raised"
+              glow="none"
+              padding="sm"
+              style={styles.statCard}
+            >
+              <Text style={[styles.statValue, { color: PRIORITY_COLORS.normal }]}>
+                {stats.total - stats.completed}
+              </Text>
               <Text style={styles.statLabel}>ACTIVE</Text>
-            </P5Card>
-            
-            <P5Card accentPosition="bottom" intensity="subtle" style={styles.statCard}>
-              <Text style={styles.statValue}>{stats.completed}</Text>
+            </GlowCard>
+
+            <GlowCard
+              tone="raised"
+              glow="none"
+              padding="sm"
+              style={styles.statCard}
+            >
+              <Text style={[styles.statValue, { color: '#EEF2FF' }]}>
+                {stats.completed}
+              </Text>
               <Text style={styles.statLabel}>DONE</Text>
-            </P5Card>
+            </GlowCard>
           </View>
         </Animated.View>
-        
+
         {/* Add Task */}
         <Animated.View entering={FadeIn.delay(200).duration(300)}>
-          <View style={styles.addTaskContainer}>
-            <P5Input
-              value={newTaskTitle}
-              onChangeText={setNewTaskTitle}
-              placeholder="New mission..."
-              onSubmitEditing={addTask}
-              returnKeyType="done"
-              style={styles.addTaskInput}
-            />
-            <P5Button
-              variant="primary"
-              size="md"
-              onPress={addTask}
-              disabled={!newTaskTitle.trim()}
-              style={styles.addTaskButton}
-            >
-              +
-            </P5Button>
-          </View>
+          <GlowCard tone="sunken" padding="none" style={styles.addTaskCard}>
+            <View style={styles.addTaskContent}>
+              <TextInput
+                value={newTaskTitle}
+                onChangeText={setNewTaskTitle}
+                placeholder="New objective..."
+                placeholderTextColor="rgba(238, 242, 255, 0.4)"
+                onSubmitEditing={handleAdd}
+                returnKeyType="done"
+                style={styles.addTaskInput}
+              />
+              <RuneButton
+                variant="primary"
+                size="sm"
+                onPress={handleAdd}
+                disabled={!newTaskTitle.trim()}
+                style={styles.addTaskButton}
+              >
+                +
+              </RuneButton>
+            </View>
+          </GlowCard>
         </Animated.View>
-        
+
         {/* Filter Tabs */}
         <Animated.View entering={FadeIn.delay(300).duration(300)}>
           <View style={styles.filterTabs}>
-            <FilterTab 
-              label="ALL" 
-              active={filter === 'all'} 
-              onPress={() => setFilter('all')} 
+            <FilterTab
+              label="ALL"
+              active={filter === 'all'}
+              onPress={() => setFilter('all')}
             />
-            <FilterTab 
-              label="ACTIVE" 
-              active={filter === 'active'} 
-              onPress={() => setFilter('active')} 
+            <FilterTab
+              label="ACTIVE"
+              active={filter === 'active'}
+              onPress={() => setFilter('active')}
             />
-            <FilterTab 
-              label="DONE" 
-              active={filter === 'completed'} 
-              onPress={() => setFilter('completed')} 
+            <FilterTab
+              label="DONE"
+              active={filter === 'completed'}
+              onPress={() => setFilter('completed')}
             />
           </View>
         </Animated.View>
-        
+
         {/* Task List */}
         <Animated.View layout={Layout.springify()}>
           {filteredTasks.map((task, index) => (
@@ -232,30 +244,24 @@ export const P5TasksScreen = memo(function P5TasksScreen() {
             >
               <TaskItem
                 task={task}
-                onToggle={() => toggleTask(task.id)}
-                onDelete={() => deleteTask(task.id)}
+                onToggle={() => handleToggle(task.id)}
+                onDelete={() => handleDelete(task.id)}
               />
             </Animated.View>
           ))}
-          
+
           {filteredTasks.length === 0 && (
             <View style={styles.emptyState}>
-              <Text style={styles.emptyIcon}>🎯</Text>
-              <Text style={styles.emptyText}>No missions here</Text>
-              <Text style={styles.emptySubtext}>Add a new task to get started</Text>
+              <Text style={styles.emptyIcon}>✨</Text>
+              <Text style={styles.emptyText}>Celestial Clear</Text>
+              <Text style={styles.emptySubtext}>
+                The nebula is waiting for its next mission
+              </Text>
             </View>
           )}
         </Animated.View>
       </ScrollView>
-      
-      {/* Bottom Tab Bar */}
-      <P5TabBar
-        tabs={tabs}
-        activeTab={activeTab}
-        onTabPress={setActiveTab}
-        showLabels={true}
-      />
-    </P5Screen>
+    </CosmicBackground>
   );
 });
 
@@ -266,18 +272,20 @@ interface FilterTabProps {
   onPress: () => void;
 }
 
-const FilterTab = memo(function FilterTab({ label, active, onPress }: FilterTabProps) {
+const FilterTab = memo(function FilterTab({
+  label,
+  active,
+  onPress,
+}: FilterTabProps) {
   return (
-    <Animated.View>
-      <P5Button
-        variant={active ? 'primary' : 'ghost'}
-        size="sm"
-        onPress={onPress}
-        style={styles.filterTab}
-      >
-        {label}
-      </P5Button>
-    </Animated.View>
+    <RuneButton
+      variant={active ? 'primary' : 'ghost'}
+      size="sm"
+      onPress={onPress}
+      style={styles.filterTab}
+    >
+      {label}
+    </RuneButton>
   );
 });
 
@@ -288,13 +296,17 @@ interface TaskItemProps {
   onDelete: () => void;
 }
 
-const TaskItem = memo(function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
+const TaskItem = memo(function TaskItem({
+  task,
+  onToggle,
+  onDelete,
+}: TaskItemProps) {
   const checkboxScale = useSharedValue(1);
-  
+
   const animatedCheckboxStyle = useAnimatedStyle(() => ({
     transform: [{ scale: checkboxScale.value }],
   }));
-  
+
   const handleToggle = useCallback(() => {
     checkboxScale.value = withSequence(
       withSpring(1.2, { stiffness: 300, damping: 10 }),
@@ -302,187 +314,258 @@ const TaskItem = memo(function TaskItem({ task, onToggle, onDelete }: TaskItemPr
     );
     onToggle();
   }, [checkboxScale, onToggle]);
-  
+
   return (
-    <P5Card
-      accentPosition="left"
-      intensity={task.priority === 'urgent' ? 'alert' : 'subtle'}
+    <GlowCard
+      tone="base"
+      glow={task.priority === 'urgent' && !task.completed ? 'soft' : 'none'}
       onPress={handleToggle}
       style={styles.taskCard}
     >
       <View style={styles.taskContent}>
-        {/* Priority indicator */}
-        <View style={[styles.priorityBar, { backgroundColor: PRIORITY_COLORS[task.priority] }]} />
-        
         {/* Checkbox */}
-        <Animated.View style={[styles.checkbox, task.completed && styles.checkboxChecked, animatedCheckboxStyle]}>
-          {task.completed && <Text style={styles.checkmark}>✓</Text>}
-        </Animated.View>
-        
+        <TouchableOpacity
+          onPress={handleToggle}
+          activeOpacity={0.7}
+        >
+          <Animated.View
+            style={[
+              styles.checkbox,
+              task.completed && {
+                backgroundColor: PRIORITY_COLORS[task.priority],
+                borderColor: PRIORITY_COLORS[task.priority]
+              },
+              { borderColor: 'rgba(185, 194, 217, 0.3)' },
+              animatedCheckboxStyle,
+            ]}
+          >
+            {task.completed && <Text style={styles.checkmark}>✓</Text>}
+          </Animated.View>
+        </TouchableOpacity>
+
         {/* Task info */}
         <View style={styles.taskInfo}>
-          <Text style={[styles.taskTitle, task.completed && styles.taskTitleCompleted]}>
+          <Text
+            style={[
+              styles.taskTitle,
+              task.completed && styles.taskTitleCompleted,
+            ]}
+          >
             {task.title}
           </Text>
           <View style={styles.taskMeta}>
-            <Text style={[styles.priorityLabel, { color: PRIORITY_COLORS[task.priority] }]}>
-              {PRIORITY_LABELS[task.priority]}
-            </Text>
+            <View
+              style={[
+                styles.priorityBadge,
+                { backgroundColor: `${PRIORITY_COLORS[task.priority]}15` }
+              ]}
+            >
+              <Text
+                style={[
+                  styles.priorityLabel,
+                  { color: PRIORITY_COLORS[task.priority] },
+                ]}
+              >
+                {PRIORITY_LABELS[task.priority]}
+              </Text>
+            </View>
             {task.dueDate && (
               <Text style={styles.dueDate}>• {task.dueDate}</Text>
             )}
           </View>
         </View>
-        
+
         {/* Delete button */}
-        <P5Button
-          variant="ghost"
-          size="sm"
+        <TouchableOpacity
           onPress={onDelete}
           style={styles.deleteButton}
         >
-          ✕
-        </P5Button>
+          <Text style={styles.deleteIcon}>✕</Text>
+        </TouchableOpacity>
       </View>
-    </P5Card>
+    </GlowCard>
   );
 });
 
 const styles = StyleSheet.create({
+  header: {
+    paddingHorizontal: 24,
+    paddingBottom: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#EEF2FF', // starlight
+    letterSpacing: 2,
+  },
+  headerSubtitle: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#8B5CF6', // nebulaViolet
+    letterSpacing: 3,
+    marginTop: -2,
+  },
+  backButton: {
+    marginRight: 16,
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  backIcon: {
+    color: '#EEF2FF',
+    fontSize: 24,
+  },
+  syncButton: {
+    paddingHorizontal: 12,
+  },
   scrollView: {
     flex: 1,
   },
   contentContainer: {
-    padding: P5Spacing.md,
+    padding: 20,
   },
   statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: P5Spacing.sm,
+    gap: 12,
   },
   statCard: {
     flex: 1,
     alignItems: 'center',
-    padding: P5Spacing.md,
   },
   statValue: {
-    fontSize: P5FontSizes.heading1,
-    fontWeight: '900',
-    color: P5Colors.text,
+    fontSize: 28,
+    fontWeight: '700',
   },
   statLabel: {
-    fontSize: P5FontSizes.caption,
+    fontSize: 9,
     fontWeight: '700',
-    color: P5Colors.textMuted,
-    letterSpacing: 1,
-    marginTop: 2,
+    color: 'rgba(238, 242, 255, 0.5)',
+    letterSpacing: 1.5,
+    marginTop: 4,
   },
-  addTaskContainer: {
+  addTaskCard: {
+    marginTop: 24,
+    borderRadius: 16,
+  },
+  addTaskContent: {
     flexDirection: 'row',
-    alignItems: 'flex-end',
-    marginTop: P5Spacing.lg,
-    gap: P5Spacing.sm,
+    alignItems: 'center',
+    paddingLeft: 16,
+    paddingRight: 8,
+    paddingVertical: 8,
   },
   addTaskInput: {
     flex: 1,
-    marginBottom: 0,
+    color: '#EEF2FF',
+    fontSize: 16,
+    paddingVertical: 8,
   },
   addTaskButton: {
-    width: 56,
-    height: 56,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
   },
   filterTabs: {
     flexDirection: 'row',
-    marginTop: P5Spacing.lg,
-    gap: P5Spacing.sm,
+    marginTop: 24,
+    gap: 8,
+    marginBottom: 8,
   },
   filterTab: {
     flex: 1,
   },
   taskCard: {
-    marginTop: P5Spacing.sm,
-    padding: P5Spacing.md,
+    marginTop: 12,
   },
   taskContent: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  priorityBar: {
-    width: 4,
-    height: 40,
-    marginRight: P5Spacing.md,
-  },
   checkbox: {
-    width: 28,
-    height: 28,
-    borderWidth: 2,
-    borderColor: P5Colors.stroke,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 1.5,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: P5Spacing.md,
-  },
-  checkboxChecked: {
-    backgroundColor: P5Colors.primary,
-    borderColor: P5Colors.primary,
+    marginRight: 16,
   },
   checkmark: {
-    color: P5Colors.text,
+    color: '#FFFFFF',
     fontWeight: '900',
-    fontSize: 16,
+    fontSize: 12,
   },
   taskInfo: {
     flex: 1,
   },
   taskTitle: {
-    fontSize: P5FontSizes.body,
-    fontWeight: '600',
-    color: P5Colors.text,
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#EEF2FF',
   },
   taskTitleCompleted: {
     textDecorationLine: 'line-through',
-    color: P5Colors.textMuted,
+    color: 'rgba(238, 242, 255, 0.4)',
   },
   taskMeta: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 4,
+    marginTop: 6,
+  },
+  priorityBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
   },
   priorityLabel: {
-    fontSize: P5FontSizes.caption,
+    fontSize: 10,
     fontWeight: '700',
     letterSpacing: 0.5,
   },
   dueDate: {
-    fontSize: P5FontSizes.caption,
-    fontWeight: '500',
-    color: P5Colors.textMuted,
-    marginLeft: 4,
+    fontSize: 11,
+    fontWeight: '400',
+    color: 'rgba(238, 242, 255, 0.4)',
+    marginLeft: 8,
   },
   deleteButton: {
     width: 32,
     height: 32,
-    paddingHorizontal: 0,
-    paddingVertical: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  deleteIcon: {
+    color: 'rgba(238, 242, 255, 0.3)',
+    fontSize: 18,
   },
   emptyState: {
     alignItems: 'center',
-    paddingVertical: P5Spacing.xxl,
+    paddingVertical: 60,
   },
   emptyIcon: {
     fontSize: 48,
-    marginBottom: P5Spacing.md,
+    marginBottom: 16,
   },
   emptyText: {
-    fontSize: P5FontSizes.heading1,
-    fontWeight: '900',
-    color: P5Colors.text,
-    textTransform: 'uppercase',
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#EEF2FF',
   },
   emptySubtext: {
-    fontSize: P5FontSizes.body,
-    fontWeight: '500',
-    color: P5Colors.textMuted,
-    marginTop: P5Spacing.xs,
+    fontSize: 14,
+    fontWeight: '400',
+    color: 'rgba(238, 242, 255, 0.5)',
+    marginTop: 4,
+    textAlign: 'center',
   },
 });
 
