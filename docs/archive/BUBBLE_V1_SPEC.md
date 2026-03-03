@@ -14,14 +14,14 @@ This is v1 — no system overlays (Android overlay = v2).
 
 ## 1. States
 
-| State | Visual | Badge | Interaction |
-|-------|--------|-------|-------------|
-| `idle` | Violet FAB, soft glow | None | Tap → opens drawer |
-| `recording` | Pulsing teal FAB, strong glow | Mic icon animates | Tap → stops recording |
-| `processing` | Spinning loader FAB | None | Non-interactive |
-| `needs-review` | Violet FAB + red badge | Count of unreviewed items | Tap → opens drawer (Inbox tab active) |
-| `failed` | Rose FAB, 1× shake | Error icon 3s | Tap → opens drawer with error toast |
-| `offline` | Muted FAB, no glow | Cloud-off icon | Tap → opens drawer, shows offline banner |
+| State          | Visual                        | Badge                     | Interaction                              |
+| -------------- | ----------------------------- | ------------------------- | ---------------------------------------- |
+| `idle`         | Violet FAB, soft glow         | None                      | Tap → opens drawer                       |
+| `recording`    | Pulsing teal FAB, strong glow | Mic icon animates         | Tap → stops recording                    |
+| `processing`   | Spinning loader FAB           | None                      | Non-interactive                          |
+| `needs-review` | Violet FAB + red badge        | Count of unreviewed items | Tap → opens drawer (Inbox tab active)    |
+| `failed`       | Rose FAB, 1× shake            | Error icon 3s             | Tap → opens drawer with error toast      |
+| `offline`      | Muted FAB, no glow            | Cloud-off icon            | Tap → opens drawer, shows offline banner |
 
 ---
 
@@ -30,25 +30,26 @@ This is v1 — no system overlays (Android overlay = v2).
 Bottom sheet that slides up over content. Dismissible by swipe-down or tapping backdrop.
 
 ### Header
+
 - Title: "CAPTURE" (caps, mist text)
 - Close button (×) top-right
 - If `needs-review` state: shows "INBOX (N)" tab highlighted
 
 ### Capture Modes (tab row)
 
-| Mode | Icon | Label | Behavior |
-|------|------|-------|----------|
-| `voice` | mic | VOICE | Starts/stops recording via RecordingService |
-| `text` | keyboard | TEXT | Multiline text input, auto-focus |
-| `photo` | camera | PHOTO | Camera + gallery picker (v1: web file input, native ImagePicker) |
-| `paste` | clipboard | PASTE | Auto-pastes clipboard content into text field |
-| `meeting` | people | MEETING | Pre-fills template: "Meeting: [date/time]\n\nNotes:" |
+| Mode      | Icon      | Label   | Behavior                                                         |
+| --------- | --------- | ------- | ---------------------------------------------------------------- |
+| `voice`   | mic       | VOICE   | Starts/stops recording via RecordingService                      |
+| `text`    | keyboard  | TEXT    | Multiline text input, auto-focus                                 |
+| `photo`   | camera    | PHOTO   | Camera + gallery picker (v1: web file input, native ImagePicker) |
+| `paste`   | clipboard | PASTE   | Auto-pastes clipboard content into text field                    |
+| `meeting` | people    | MEETING | Pre-fills template: "Meeting: [date/time]\n\nNotes:"             |
 
 ### Capture Flow (per mode)
 
 ```
-[Mode selected] → [User inputs] → [Confirm ▶ or Enter] 
-  → CaptureService.save(item) 
+[Mode selected] → [User inputs] → [Confirm ▶ or Enter]
+  → CaptureService.save(item)
   → item lands in Inbox with status: 'unreviewed'
   → drawer closes
   → bubble state → needs-review (badge++)
@@ -67,6 +68,7 @@ Bottom sheet that slides up over content. Dismissible by swipe-down or tapping b
 ## 3. Inbox Screen
 
 New screen (`InboxScreen`) accessible via:
+
 - Capture Bubble (needs-review state)
 - Navigation tab (future) or home card
 
@@ -91,20 +93,20 @@ INBOX  [N unreviewed]
 
 ```ts
 interface CaptureItem {
-  id: string;                          // uuid
-  source: CaptureSource;               // 'voice' | 'text' | 'photo' | 'paste' | 'meeting'
-  status: CaptureStatus;               // 'unreviewed' | 'promoted' | 'discarded'
-  raw: string;                         // original input (transcript text, user text, etc.)
-  attachmentUri?: string;              // photo URI
-  createdAt: number;                   // Date.now()
-  promotedTo?: 'task' | 'note';        // set on promotion
+  id: string; // uuid
+  source: CaptureSource; // 'voice' | 'text' | 'photo' | 'paste' | 'meeting'
+  status: CaptureStatus; // 'unreviewed' | 'promoted' | 'discarded'
+  raw: string; // original input (transcript text, user text, etc.)
+  attachmentUri?: string; // photo URI
+  createdAt: number; // Date.now()
+  promotedTo?: "task" | "note"; // set on promotion
   promotedAt?: number;
-  transcript?: string;                 // for voice mode, AI transcript
-  syncError?: string;                  // if offline save failed
+  transcript?: string; // for voice mode, AI transcript
+  syncError?: string; // if offline save failed
 }
 
-type CaptureSource = 'voice' | 'text' | 'photo' | 'paste' | 'meeting';
-type CaptureStatus = 'unreviewed' | 'promoted' | 'discarded';
+type CaptureSource = "voice" | "text" | "photo" | "paste" | "meeting";
+type CaptureStatus = "unreviewed" | "promoted" | "discarded";
 ```
 
 ---
@@ -116,7 +118,9 @@ New service: `src/services/CaptureService.ts`
 ```ts
 interface CaptureService {
   // Save a new capture item to Inbox
-  save(item: Omit<CaptureItem, 'id' | 'createdAt' | 'status'>): Promise<CaptureItem>;
+  save(
+    item: Omit<CaptureItem, "id" | "createdAt" | "status">,
+  ): Promise<CaptureItem>;
 
   // Get all capture items, optionally filtered by status
   getAll(filter?: { status?: CaptureStatus }): Promise<CaptureItem[]>;
@@ -125,7 +129,7 @@ interface CaptureService {
   getUnreviewedCount(): Promise<number>;
 
   // Promote item to task or note
-  promote(id: string, to: 'task' | 'note'): Promise<void>;
+  promote(id: string, to: "task" | "note"): Promise<void>;
 
   // Discard item
   discard(id: string): Promise<void>;
@@ -191,7 +195,7 @@ const AppNavigatorContent = () => (
 const TabNavigatorWithBubble = () => (
   <View style={{ flex: 1 }}>
     <TabNavigator />
-    <CaptureBubble />   {/* Rendered above all tabs */}
+    <CaptureBubble /> {/* Rendered above all tabs */}
   </View>
 );
 ```
@@ -200,15 +204,15 @@ const TabNavigatorWithBubble = () => (
 
 ## 8. Error Handling
 
-| Error | Handling |
-|-------|----------|
-| Mic permission denied | Show inline prompt in Voice mode with "Grant Permission" CTA |
-| Recording start fails | `failed` bubble state + drawer error message |
-| Recording stop/unload fails | Show error in drawer, keep raw audio URI if available |
-| Transcription fails | Show transcript error + allow manual text fallback |
-| Storage full / write error | Rose toast "Capture failed — storage error" |
-| Offline (no connectivity) | Amber banner, save to local queue, sync on reconnect |
-| Photo picker cancelled | Silent dismissal (no error) |
+| Error                       | Handling                                                     |
+| --------------------------- | ------------------------------------------------------------ |
+| Mic permission denied       | Show inline prompt in Voice mode with "Grant Permission" CTA |
+| Recording start fails       | `failed` bubble state + drawer error message                 |
+| Recording stop/unload fails | Show error in drawer, keep raw audio URI if available        |
+| Transcription fails         | Show transcript error + allow manual text fallback           |
+| Storage full / write error  | Rose toast "Capture failed — storage error"                  |
+| Offline (no connectivity)   | Amber banner, save to local queue, sync on reconnect         |
+| Photo picker cancelled      | Silent dismissal (no error)                                  |
 
 ---
 
@@ -226,25 +230,25 @@ const TabNavigatorWithBubble = () => (
 
 ## 10. Test IDs (for E2E)
 
-| Element | testID |
-|---------|--------|
-| Capture FAB | `capture-bubble` |
-| Bubble badge | `capture-bubble-badge` |
-| Capture drawer | `capture-drawer` |
-| Voice mode tab | `capture-mode-voice` |
-| Text mode tab | `capture-mode-text` |
-| Photo mode tab | `capture-mode-photo` |
-| Paste mode tab | `capture-mode-paste` |
-| Meeting mode tab | `capture-mode-meeting` |
-| Text input | `capture-text-input` |
-| Confirm button | `capture-confirm` |
-| Record toggle | `capture-record-toggle` |
-| Stop recording | `capture-stop-recording` |
-| Inbox screen | `inbox-screen` |
-| Inbox item (nth) | `inbox-item-{id}` |
-| Promote to task | `inbox-promote-task-{id}` |
-| Promote to note | `inbox-promote-note-{id}` |
-| Discard item | `inbox-discard-{id}` |
+| Element          | testID                    |
+| ---------------- | ------------------------- |
+| Capture FAB      | `capture-bubble`          |
+| Bubble badge     | `capture-bubble-badge`    |
+| Capture drawer   | `capture-drawer`          |
+| Voice mode tab   | `capture-mode-voice`      |
+| Text mode tab    | `capture-mode-text`       |
+| Photo mode tab   | `capture-mode-photo`      |
+| Paste mode tab   | `capture-mode-paste`      |
+| Meeting mode tab | `capture-mode-meeting`    |
+| Text input       | `capture-text-input`      |
+| Confirm button   | `capture-confirm`         |
+| Record toggle    | `capture-record-toggle`   |
+| Stop recording   | `capture-stop-recording`  |
+| Inbox screen     | `inbox-screen`            |
+| Inbox item (nth) | `inbox-item-{id}`         |
+| Promote to task  | `inbox-promote-task-{id}` |
+| Promote to note  | `inbox-promote-note-{id}` |
+| Discard item     | `inbox-discard-{id}`      |
 
 ---
 

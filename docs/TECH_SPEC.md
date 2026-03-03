@@ -1,4 +1,4 @@
-# Spark ADHD — Technical Specification
+# ADHD-CADDI — Technical Specification
 
 > **Philosophy**: Respect your time as a non-renewable resource. This document separates decision-making from implementation. When you code, you execute—you don't decide.
 
@@ -6,26 +6,26 @@
 
 ## I. Project Logistics
 
-| Key | Value |
-|-----|-------|
-| **Repo Name** | `spark-adhd-backup` |
-| **Goal** | Speed of delivery (not learning a new stack) |
-| **Primary Platforms** | Web/PWA first (Android Chrome priority) |
+| Key                     | Value                                           |
+| ----------------------- | ----------------------------------------------- |
+| **Repo Name**           | `adhd-caddi-v1`                                 |
+| **Goal**                | Speed of delivery (not learning a new stack)    |
+| **Primary Platforms**   | Web/PWA first (Android Chrome priority)         |
 | **Secondary Platforms** | Native Android bridge (optional, feature-gated) |
-| **Deployment** | GitHub Pages (responsive PWA) |
+| **Deployment**          | GitHub Pages (responsive PWA)                   |
 
 ### Tech Stack
 
-| Layer | Technology |
-|-------|------------|
-| **Framework** | React Native 0.74.3 + React Native Web |
-| **Language** | TypeScript |
-| **Navigation** | React Navigation 6 (Stack + Bottom Tabs) |
-| **State** | React `useState` / `useContext` (upgrade to Redux Toolkit if complexity grows) |
-| **Persistence** | `@react-native-async-storage/async-storage` (local-only) |
-| **Bundler (Web)** | Webpack |
-| **Testing** | Jest + RTL (unit), Playwright (web E2E), Detox (native E2E) |
-| **CI/CD** | GitHub Actions → GitHub Pages |
+| Layer             | Technology                                                                     |
+| ----------------- | ------------------------------------------------------------------------------ |
+| **Framework**     | React Native 0.74.3 + React Native Web                                         |
+| **Language**      | TypeScript                                                                     |
+| **Navigation**    | React Navigation 6 (Stack + Bottom Tabs)                                       |
+| **State**         | React `useState` / `useContext` (upgrade to Redux Toolkit if complexity grows) |
+| **Persistence**   | `@react-native-async-storage/async-storage` (local-only)                       |
+| **Bundler (Web)** | Webpack                                                                        |
+| **Testing**       | Jest + RTL (unit), Playwright (web E2E), Detox (native E2E)                    |
+| **CI/CD**         | GitHub Actions → GitHub Pages                                                  |
 
 > Native Android testing and Android Studio workflows are only required when changing native modules (`android/`, overlay bridge/services, or native permissions/build logic).
 
@@ -35,8 +35,8 @@
 
 ```typescript
 export const SECRETS = {
-  GOOGLE_CLIENT_ID: 'your-client-id.apps.googleusercontent.com',
-  GOOGLE_API_KEY: 'AIzaSy...',
+  GOOGLE_CLIENT_ID: "your-client-id.apps.googleusercontent.com",
+  GOOGLE_API_KEY: "AIzaSy...",
 };
 ```
 
@@ -60,16 +60,16 @@ This is not a general productivity app. It is a **friction-reducer** and **cogni
 
 ### Input → Output
 
-| Input | Output |
-|-------|--------|
-| User is paralyzed, can't start a task | **Ignite**: 5-minute timer with brown noise. Low commitment = lower barrier. |
-| User is overwhelmed by a big project | **Fog Cutter**: Breaks task into micro-steps they can actually do. |
-| User needs focus structure | **Pomodoro**: Classic 25/5 technique with visual/audio cues. |
-| User is emotionally dysregulated | **Anchor**: Guided breathing (4-7-8, Box, Energize). Immediate calm. |
-| User wants to track mood patterns | **Check-In**: Mood + energy tracking with personalized recommendations. |
-| User has racing thoughts | **Brain Dump**: Quick capture → clears working memory. |
-| User in crisis | **Crisis Mode**: Safety resources, coping strategies, emergency contacts. |
-| User needs to offload to Google | **Tasks/Calendar Integration**: Brain Dump → Google Tasks, events → Calendar. |
+| Input                                 | Output                                                                        |
+| ------------------------------------- | ----------------------------------------------------------------------------- |
+| User is paralyzed, can't start a task | **Ignite**: 5-minute timer with brown noise. Low commitment = lower barrier.  |
+| User is overwhelmed by a big project  | **Fog Cutter**: Breaks task into micro-steps they can actually do.            |
+| User needs focus structure            | **Pomodoro**: Classic 25/5 technique with visual/audio cues.                  |
+| User is emotionally dysregulated      | **Anchor**: Guided breathing (4-7-8, Box, Energize). Immediate calm.          |
+| User wants to track mood patterns     | **Check-In**: Mood + energy tracking with personalized recommendations.       |
+| User has racing thoughts              | **Brain Dump**: Quick capture → clears working memory.                        |
+| User in crisis                        | **Crisis Mode**: Safety resources, coping strategies, emergency contacts.     |
+| User needs to offload to Google       | **Tasks/Calendar Integration**: Brain Dump → Google Tasks, events → Calendar. |
 
 ---
 
@@ -156,6 +156,7 @@ This is not a general productivity app. It is a **friction-reducer** and **cogni
 **Description**: Persistent floating UI providing an expandable quick-action menu (chat-head style) for rapid task access.
 
 **Architecture**:
+
 - **Native Service (`OverlayService.java`)**: Manages the life cycle of the system window overlay.
 - **Native Module (`OverlayModule.java`)**: Bridge between JS and Java to start/stop/update the overlay state and handle expansion.
 - **JS Wrapper (`OverlayService.ts`)**: High-level API for React components to interact with the native overlay, including deep-link intent handling.
@@ -166,14 +167,14 @@ This is not a general productivity app. It is a **friction-reducer** and **cogni
 
 ### 🚫 Cut Line (Explicitly NOT Building Yet)
 
-| Feature | Reason |
-|---------|--------|
-| Cloud sync / multi-device | Local-first philosophy; adds complexity |
-| Social features / sharing | Out of scope for solo ADHD tool |
-| AI-powered micro-step generation | Deferred for now; focus on AI Sorting first |
-| Push notifications | Requires native setup; defer to v2 |
-| Google Keep integration | Keep API is limited; focus on Tasks first |
-| Gamification backend (leaderboards) | Local streak counter is sufficient for MVP |
+| Feature                             | Reason                                      |
+| ----------------------------------- | ------------------------------------------- |
+| Cloud sync / multi-device           | Local-first philosophy; adds complexity     |
+| Social features / sharing           | Out of scope for solo ADHD tool             |
+| AI-powered micro-step generation    | Deferred for now; focus on AI Sorting first |
+| Push notifications                  | Requires native setup; defer to v2          |
+| Google Keep integration             | Keep API is limited; focus on Tasks first   |
+| Gamification backend (leaderboards) | Local streak counter is sufficient for MVP  |
 
 ---
 
@@ -186,16 +187,16 @@ Since we're using `AsyncStorage`, this is a key-value store with JSON serializat
 ```typescript
 const STORAGE_KEYS = {
   // User preferences
-  theme: 'theme',                  // 'light' | 'dark'
+  theme: "theme", // 'light' | 'dark'
 
   // Feature data
-  tasks: 'tasks',                  // FogCutterTask[]
-  brainDump: 'brainDump',          // BrainDumpEntry[]
-  checkIns: 'checkIns',            // CheckInEntry[]
+  tasks: "tasks", // FogCutterTask[]
+  brainDump: "brainDump", // BrainDumpEntry[]
+  checkIns: "checkIns", // CheckInEntry[]
 
   // Timer states (for resume on app reopen)
-  igniteState: 'igniteState',      // TimerState
-  pomodoroState: 'pomodoroState',  // PomodoroState
+  igniteState: "igniteState", // TimerState
+  pomodoroState: "pomodoroState", // PomodoroState
 };
 ```
 
@@ -204,9 +205,9 @@ const STORAGE_KEYS = {
 ```typescript
 interface FogCutterTask {
   id: string;
-  title: string;        // The "big task"
+  title: string; // The "big task"
   steps: MicroStep[];
-  createdAt: string;    // ISO timestamp
+  createdAt: string; // ISO timestamp
 }
 
 interface MicroStep {
@@ -219,7 +220,7 @@ interface BrainDumpEntry {
   id: string;
   text: string;
   createdAt: string;
-  syncedToTasks: boolean;  // For future Google Tasks sync
+  syncedToTasks: boolean; // For future Google Tasks sync
 }
 
 interface CheckInEntry {
@@ -237,7 +238,7 @@ interface TimerState {
 }
 
 interface PomodoroState extends TimerState {
-  mode: 'work' | 'break';
+  mode: "work" | "break";
   cycleCount: number;
 }
 ```
@@ -248,13 +249,13 @@ interface PomodoroState extends TimerState {
 
 ### Local Storage API (via `StorageService`)
 
-| Method | Purpose |
-|--------|---------|
-| `StorageService.get(key)` | Get raw string |
-| `StorageService.set(key, value)` | Set raw string |
-| `StorageService.getJSON<T>(key)` | Get and parse JSON |
+| Method                                  | Purpose                |
+| --------------------------------------- | ---------------------- |
+| `StorageService.get(key)`               | Get raw string         |
+| `StorageService.set(key, value)`        | Set raw string         |
+| `StorageService.getJSON<T>(key)`        | Get and parse JSON     |
 | `StorageService.setJSON<T>(key, value)` | Stringify and set JSON |
-| `StorageService.remove(key)` | Delete key |
+| `StorageService.remove(key)`            | Delete key             |
 
 ---
 
@@ -262,11 +263,11 @@ interface PomodoroState extends TimerState {
 
 ### Layouts
 
-| Layout | Purpose |
-|--------|---------|
-| `WebNavBar` (web) | Top navigation optimized for mobile browser UX |
-| Bottom tabs (native) | Primary navigation for native shell only |
-| Screen wrapper | Consistent padding, SafeAreaView, token-driven dark theme |
+| Layout               | Purpose                                                   |
+| -------------------- | --------------------------------------------------------- |
+| `WebNavBar` (web)    | Top navigation optimized for mobile browser UX            |
+| Bottom tabs (native) | Primary navigation for native shell only                  |
+| Screen wrapper       | Consistent padding, SafeAreaView, token-driven dark theme |
 
 ### Page Hierarchy
 
@@ -284,20 +285,22 @@ interface PomodoroState extends TimerState {
 
 ### Reusable Components
 
-| Component | Location | Purpose |
-|-----------|----------|---------|
-| `ScaleButton` | `src/components/ui/` | Animated pressable with scale feedback |
-| `AppText` | (to create) | Consistent typography variants |
-| `Card` | (to create) | Glassmorphic card with 8px grid |
-| `TimerDisplay` | (to create) | Shared timer UI for Ignite/Pomodoro |
+| Component      | Location             | Purpose                                |
+| -------------- | -------------------- | -------------------------------------- |
+| `ScaleButton`  | `src/components/ui/` | Animated pressable with scale feedback |
+| `AppText`      | (to create)          | Consistent typography variants         |
+| `Card`         | (to create)          | Glassmorphic card with 8px grid        |
+| `TimerDisplay` | (to create)          | Shared timer UI for Ignite/Pomodoro    |
 
 ### Design Tokens
 
 Canonical source:
+
 - `src/theme/tokens.ts`
 - `docs/DESIGN_RULES.md`
 
 Rules:
+
 - No hardcoded hex values in UI code when token exists.
 - No ad-hoc spacing/typography/radii values.
 - Web + Android Chrome behavior is the primary visual target.
@@ -344,7 +347,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: "18"
       - run: npm ci
       - run: npm run build:web
       - uses: peaceiris/actions-gh-pages@v3
@@ -367,27 +370,29 @@ jobs:
 
 > Park these ideas here to clear your mind. They are **not** in scope for the current sprint.
 
-| Idea | Notes |
-|------|-------|
-| AI micro-step generator | Use Gemini API to auto-break tasks |
-| Voice input for Brain Dump | Speech-to-text capture |
-| Widget / Quick Actions | Android home screen widget |
-| Apple Watch companion | Breathing exercises on wrist |
-| Offline-first sync | CRDTs for eventual consistency |
-| Habit streaks visualization | Calendar heatmap |
-| Export data to JSON | User data portability |
-| Dark/Light theme toggle | Already have `theme` storage key |
-| Notification reminders | "Time for a Check-In" push |
+| Idea                        | Notes                              |
+| --------------------------- | ---------------------------------- |
+| AI micro-step generator     | Use Gemini API to auto-break tasks |
+| Voice input for Brain Dump  | Speech-to-text capture             |
+| Widget / Quick Actions      | Android home screen widget         |
+| Apple Watch companion       | Breathing exercises on wrist       |
+| Offline-first sync          | CRDTs for eventual consistency     |
+| Habit streaks visualization | Calendar heatmap                   |
+| Export data to JSON         | User data portability              |
+| Dark/Light theme toggle     | Already have `theme` storage key   |
+| Notification reminders      | "Time for a Check-In" push         |
 
 ---
 
 ## IX. Open Questions
 
 1. **Google Keep API**: Keep doesn't have a public API. Alternatives:
+
    - Use Tasks (recommended)
    - Use Google Drive API to create Google Docs as "notes"
 
 2. **OAuth on Web**: `@react-native-google-signin` is native-only. For web:
+
    - Use `@react-oauth/google` or raw GAPI
    - Consider platform-specific auth service
 
@@ -403,4 +408,4 @@ The project follows OWASP 2025 standards for web and mobile security.
 
 ---
 
-*Last updated: 2026-02-11*
+_Last updated: 2026-02-11_

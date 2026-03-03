@@ -5,17 +5,20 @@
 ### Pre-Release Checklist
 
 **Code Quality:**
+
 - [ ] All tests passing (`npm test`, `npm run e2e`)
 - [ ] Lint clean (`npm run lint`)
 - [ ] No console errors in development build
 - [ ] TypeScript compilation successful (`tsc --noEmit`)
 
 **Functional Validation:**
+
 - [ ] Core user flows tested manually (web + Android if applicable)
 - [ ] No regressions in existing features
 - [ ] New features documented in `CHANGELOG.md`
 
 **Dependency Audit:**
+
 - [ ] Run `npm audit` and address critical vulnerabilities
 - [ ] Verify no deprecated dependencies blocking build
 
@@ -28,6 +31,7 @@
 **Current source of truth: manual deploy from `master`**
 
 1. **Merge to master branch:**
+
    ```bash
    git checkout master
    git merge feature-branch
@@ -35,6 +39,7 @@
    ```
 
 2. **Deploy web build to `gh-pages`:**
+
    ```bash
    npm run build:web
    npm run deploy  # Pushes dist/ to gh-pages branch
@@ -43,12 +48,14 @@
 3. **Confirm `gh-pages` is in sync with latest `master` release commit.**
 
 **Validation:**
+
 - Open deployed URL in browser
 - Test core features (Ignite, Fog Cutter, etc.)
 - Check browser console for errors
 - Verify service worker updates (if PWA)
 
 **Rollback:**
+
 ```bash
 # Revert gh-pages branch to previous commit
 git checkout gh-pages
@@ -62,6 +69,7 @@ git push --force origin gh-pages
 ## Android Native Release (Secondary)
 
 ### Prerequisites
+
 - JDK 17 installed and `JAVA_HOME` set (see `docs/ANDROID_BUILD_BLOCKERS.md`)
 - Keystore file present at `android/app/release.keystore`
 - Environment variables set:
@@ -94,12 +102,14 @@ cd android
 **Before building:**
 
 1. Update `android/app/build.gradle`:
+
    ```gradle
    versionCode 2  // Increment by 1
    versionName "1.1.0"  // Follow semver
    ```
 
 2. Update `package.json`:
+
    ```json
    "version": "1.1.0"
    ```
@@ -113,15 +123,18 @@ cd android
 ### Distribution
 
 **Internal Testing:**
+
 - Upload APK to Firebase App Distribution
 - Share link with testers via email
 
 **Google Play Store:**
+
 1. Upload AAB to Play Console
 2. Create release in "Internal Testing" track
 3. Promote to "Production" after validation
 
 **Rollback (Google Play):**
+
 - Halt rollout at any percentage
 - Revert to previous version in Play Console
 - Google serves old APK to new installs
@@ -144,12 +157,14 @@ Immediately  (Fix in next release)
 ```
 
 **Critical Issues:**
+
 - App crashes on launch
 - Data corruption
 - Security vulnerability
 - Feature completely broken for >50% users
 
 **Non-Critical:**
+
 - UI glitch affecting <10% users
 - Performance regression <20%
 - Non-blocking feature bug
@@ -161,11 +176,13 @@ Immediately  (Fix in next release)
 ### Web Metrics (via Analytics)
 
 If Google Analytics or similar integrated:
+
 - Page load time
 - JavaScript errors
 - User flow drop-offs
 
 **Manual checks (first 24 hours):**
+
 - Browser console errors (Chrome DevTools)
 - Network tab for failed requests
 - Lighthouse audit score
@@ -173,12 +190,14 @@ If Google Analytics or similar integrated:
 ### Android Metrics
 
 **Google Play Console:**
+
 - Crash rate (target: < 0.5%)
 - ANR rate (target: < 0.1%)
 - Uninstall rate
 - User reviews/ratings
 
 **Firebase Crashlytics (if integrated):**
+
 - Top crashes by occurrence
 - Affected devices/OS versions
 
@@ -189,6 +208,7 @@ If Google Analytics or similar integrated:
 **When rollback isn't immediate option:**
 
 1. **Create hotfix branch:**
+
    ```bash
     git checkout master
    git checkout -b hotfix/critical-bug-fix
@@ -197,12 +217,14 @@ If Google Analytics or similar integrated:
 2. **Apply minimal fix** (no refactoring, no scope creep)
 
 3. **Test hotfix:**
+
    ```bash
    npm test
    npm run e2e
    ```
 
 4. **Fast-track merge:**
+
    ```bash
     git checkout master
    git merge hotfix/critical-bug-fix
@@ -220,24 +242,29 @@ If Google Analytics or similar integrated:
 ### User-Facing Issues
 
 **Severity 1 (Critical):**
+
 - Post banner on app homepage
 - Email notification (if user base has emails)
 - Social media update
 
 **Severity 2 (Major):**
+
 - In-app notice on next launch
 - GitHub release notes
 
 **Severity 3 (Minor):**
+
 - Mentioned in changelog only
 
 ### Internal Team
 
 **Slack/Discord:**
+
 - `#releases` channel for deploy notifications
 - `#incidents` channel for critical issues
 
 **GitHub:**
+
 - Create issue for post-mortem
 - Tag with `incident` label
 - Assign to release manager
@@ -251,11 +278,13 @@ Follow **Semantic Versioning (semver):**
 - `MAJOR.MINOR.PATCH` (e.g., `1.2.3`)
 
 **Rules:**
+
 - `MAJOR`: Breaking changes (e.g., storage schema incompatibility)
 - `MINOR`: New features (backward compatible)
 - `PATCH`: Bug fixes only
 
 **Pre-release tags:**
+
 - `1.2.0-beta.1` for beta testing
 - `1.2.0-rc.1` for release candidates
 
@@ -269,19 +298,23 @@ Follow **Semantic Versioning (semver):**
 ## [1.2.0] - 2026-02-15
 
 ### Added
+
 - Typed navigation constants for route safety
 - Environment-based config for API URLs
 - Storage schema versioning system
 
 ### Fixed
+
 - Android SDK 34 foreground service compliance
 - Overlay permission flow AppState sync
 
 ### Changed
+
 - Updated overlay UX copy for clarity
 ```
 
 **Categories:**
+
 - `Added` - new features
 - `Changed` - changes to existing features
 - `Deprecated` - soon-to-be-removed features
@@ -303,16 +336,19 @@ git push --force origin master
 ```
 
 **If production data lost (AsyncStorage):**
+
 - No server-side backups (local-first app)
 - Guide users to re-enter data
 - Communicate issue transparently
 
 **If keystore lost (Android):**
+
 - **CRITICAL:** Cannot update existing Play Store app
 - Must create new app listing with new package name
 - Migrate users via in-app notice
 
 **Prevention:**
+
 - Store keystore in encrypted password manager
 - Document keystore password in team vault
 - Keep backup keystore in secure offline storage
@@ -324,6 +360,7 @@ git push --force origin master
 **Current State:** Manual web deploy (`npm run deploy`) and manual Android builds
 
 **Future Enhancements:**
+
 - **CI/CD for Android:** GitHub Actions workflow for APK/AAB builds
 - **Automated version bumping:** Script to sync versions across files
 - **Release notes generation:** Auto-generate from commit messages

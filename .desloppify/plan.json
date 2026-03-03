@@ -1493,10 +1493,7 @@
     "auto/flat_dirs-overload": {
       "name": "auto/flat_dirs-overload",
       "description": "Fix 2 overload issues",
-      "finding_ids": [
-        "flat_dirs::__tests__",
-        "flat_dirs::src/services"
-      ],
+      "finding_ids": ["flat_dirs::__tests__", "flat_dirs::src/services"],
       "created_at": "2026-03-01T02:10:14+00:00",
       "updated_at": "2026-03-01T02:10:14+00:00",
       "auto": true,

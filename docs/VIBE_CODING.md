@@ -1,6 +1,6 @@
 # Vibe Coding: Building Production-Grade Software with GenAI
 
-> *"Vibe coding is building software by feel — but shipping it like craft."*
+> _"Vibe coding is building software by feel — but shipping it like craft."_
 
 This document is the living companion to the `vibe-coding` branch of Spark ADHD. It captures decisions, patterns, and lessons learned while building with modern GenAI primitives. Think of it as the book in code form.
 
@@ -23,10 +23,10 @@ For GenAI features specifically, this means:
 
 ### AI Provider Strategy
 
-| Provider | When | Trade-off |
-| :--- | :--- | :--- |
-| `vercel` (default) | API key is private, no CORS risk | Requires server round-trip |
-| `gemini-direct` | Set `REACT_APP_GEMINI_API_KEY` | Faster, but key is in bundle |
+| Provider           | When                             | Trade-off                    |
+| :----------------- | :------------------------------- | :--------------------------- |
+| `vercel` (default) | API key is private, no CORS risk | Requires server round-trip   |
+| `gemini-direct`    | Set `REACT_APP_GEMINI_API_KEY`   | Faster, but key is in bundle |
 
 The `config.aiProvider` field controls which path is taken. If `REACT_APP_AI_PROVIDER=vercel` is explicitly set, it always wins — even if a Gemini key is present.
 
@@ -66,35 +66,39 @@ The user should never see a blank screen or a crash caused by AI.
 
 When running in a WebMCP-capable browser, external agents can call:
 
-| Tool | Description |
-| :--- | :--- |
-| `start_timer` | Start a pomodoro / ignite / anchor timer |
-| `navigate_to_screen` | Navigate to any named screen |
-| `add_brain_dump` | Write to the brain dump list |
+| Tool                     | Description                              |
+| :----------------------- | :--------------------------------------- |
+| `start_timer`            | Start a pomodoro / ignite / anchor timer |
+| `navigate_to_screen`     | Navigate to any named screen             |
+| `add_brain_dump`         | Write to the brain dump list             |
 | `create_fog_cutter_task` | Pre-fill a task for micro-step breakdown |
-| `read_check_ins` | Read last N check-in records |
-| `get_app_state` | Get time-of-day and last check-in |
+| `read_check_ins`         | Read last N check-in records             |
+| `get_app_state`          | Get time-of-day and last check-in        |
 
 ### Testing in DevTools
 
 ```js
 // In Chrome DevTools console:
-await globalThis.navigator.modelContext.callTool('start_timer', { timerType: 'ignite' })
-await globalThis.navigator.modelContext.callTool('navigate_to_screen', { screen: 'BrainDump' })
+await globalThis.navigator.modelContext.callTool("start_timer", {
+  timerType: "ignite",
+});
+await globalThis.navigator.modelContext.callTool("navigate_to_screen", {
+  screen: "BrainDump",
+});
 ```
 
 ---
 
 ## New Services
 
-| Service | Purpose |
-| :--- | :--- |
-| `AISortService` | Hardened brain dump sorter (retry, cache, timeout) |
-| `FogCutterAIService` | Generates 3–5 micro-steps from a vague task |
+| Service                 | Purpose                                                |
+| :---------------------- | :----------------------------------------------------- |
+| `AISortService`         | Hardened brain dump sorter (retry, cache, timeout)     |
+| `FogCutterAIService`    | Generates 3–5 micro-steps from a vague task            |
 | `CheckInInsightService` | Produces personalised insight from local check-in data |
-| `AgentEventBus` | Typed pub/sub bridge between agents and React |
-| `WebMCPService` | Registers tools for external AI agents |
-| `ChatService` | Manages conversation state and AI chat history |
+| `AgentEventBus`         | Typed pub/sub bridge between agents and React          |
+| `WebMCPService`         | Registers tools for external AI agents                 |
+| `ChatService`           | Manages conversation state and AI chat history         |
 
 ---
 

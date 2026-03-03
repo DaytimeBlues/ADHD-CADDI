@@ -1,41 +1,34 @@
-import React, { Suspense, lazy } from 'react';
-import { View, ActivityIndicator, Platform, StyleSheet } from 'react-native';
+import React, { Suspense, lazy } from "react";
+import { View, ActivityIndicator, Platform, StyleSheet } from "react-native";
 import {
   createStackNavigator,
   CardStyleInterpolators,
-} from '@react-navigation/stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Tokens } from '../theme/tokens';
-import { ThemeProvider, useTheme } from '../theme/ThemeProvider';
-import { WebNavBar } from './WebNavBar';
-import { ROUTES } from './routes';
-import { CaptureBubble } from '../components/capture';
-import ErrorBoundary from '../components/ErrorBoundary';
+} from "@react-navigation/stack";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import type { BottomTabBarProps } from "@react-navigation/bottom-tabs";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import { Tokens } from "../theme/tokens";
+import { ThemeProvider, useTheme } from "../theme/ThemeProvider";
+import { WebNavBar } from "./WebNavBar";
+import { ROUTES } from "./routes";
+import { CaptureBubble } from "../components/capture";
+import ErrorBoundary from "../components/ErrorBoundary";
 
-// Phase 6: P5 UI Migration - Primary tabs use P5 screens
-// Critical P5 screens - loaded normally for primary tabs
-import { P5DashboardScreen } from '../screens/p5';
-import { P5FocusTimerScreen } from '../screens/p5';
-import { P5TasksScreen } from '../screens/p5';
-import { P5JournalScreen } from '../screens/p5';
-
-// Legacy screens (kept for reference/fallback)
-import HomeScreen from '../screens/HomeScreen';
-import IgniteScreen from '../screens/IgniteScreen';
+// Phase 6: Sync with ADHD CADDI Redesign - Primary tabs use Cosmic screens
+import HomeScreen from "../screens/HomeScreen";
+import IgniteScreen from "../screens/IgniteScreen";
+import BrainDumpScreen from "../screens/BrainDumpScreen";
+import ChatScreen from "../screens/ChatScreen";
 
 // Lazy loaded non-critical screens
-const FogCutterScreen = lazy(() => import('../screens/FogCutterScreen'));
-const PomodoroScreen = lazy(() => import('../screens/PomodoroScreen'));
-const BrainDumpScreen = lazy(() => import('../screens/BrainDumpScreen'));
-const CalendarScreen = lazy(() => import('../screens/CalendarScreen'));
-const AnchorScreen = lazy(() => import('../screens/AnchorScreen'));
-const CheckInScreen = lazy(() => import('../screens/CheckInScreen'));
-const CBTGuideScreen = lazy(() => import('../screens/CBTGuideScreen'));
-const DiagnosticsScreen = lazy(() => import('../screens/DiagnosticsScreen'));
-const ChatScreen = lazy(() => import('../screens/ChatScreen'));
-const InboxScreen = lazy(() => import('../screens/InboxScreen'));
+const FogCutterScreen = lazy(() => import("../screens/FogCutterScreen"));
+const PomodoroScreen = lazy(() => import("../screens/PomodoroScreen"));
+const CalendarScreen = lazy(() => import("../screens/CalendarScreen"));
+const AnchorScreen = lazy(() => import("../screens/AnchorScreen"));
+const CheckInScreen = lazy(() => import("../screens/CheckInScreen"));
+const CBTGuideScreen = lazy(() => import("../screens/CBTGuideScreen"));
+const DiagnosticsScreen = lazy(() => import("../screens/DiagnosticsScreen"));
+const InboxScreen = lazy(() => import("../screens/InboxScreen"));
 
 type TabBarIconProps = {
   color: string;
@@ -100,24 +93,19 @@ const LazyDiagnostics = withSuspense(DiagnosticsScreen);
 const LazyChat = withSuspense(ChatScreen);
 const LazyInbox = withSuspense(InboxScreen);
 
-// Phase 6: Wrapped P5 screens for primary tabs (with ErrorBoundary)
-const SafeP5DashboardScreen = withErrorBoundary(P5DashboardScreen);
-const SafeP5FocusTimerScreen = withErrorBoundary(P5FocusTimerScreen);
-const SafeP5TasksScreen = withErrorBoundary(P5TasksScreen);
-const SafeP5JournalScreen = withErrorBoundary(P5JournalScreen);
-
-// Legacy wrapped screens (kept for HomeStack and modals)
+// Phase 6: Wrapped Cosmic screens for primary tabs (with ErrorBoundary)
 const SafeHomeScreen = withErrorBoundary(HomeScreen);
 const SafeIgniteScreen = withErrorBoundary(IgniteScreen);
+const SafeBrainDumpScreen = withErrorBoundary(BrainDumpScreen);
+const SafeChatScreen = withErrorBoundary(ChatScreen);
+
 const SafeLazyFogCutter = withErrorBoundary(LazyFogCutter);
 const SafeLazyPomodoro = withErrorBoundary(LazyPomodoro);
-const SafeLazyBrainDump = withErrorBoundary(LazyBrainDump);
 const SafeLazyCalendar = withErrorBoundary(LazyCalendar);
 const SafeLazyAnchor = withErrorBoundary(LazyAnchor);
 const SafeLazyCheckIn = withErrorBoundary(LazyCheckIn);
 const SafeLazyCBTGuide = withErrorBoundary(LazyCBTGuide);
 const SafeLazyDiagnostics = withErrorBoundary(LazyDiagnostics);
-const SafeLazyChat = withErrorBoundary(LazyChat);
 const SafeLazyInbox = withErrorBoundary(LazyInbox);
 
 const Stack = createStackNavigator();
@@ -127,8 +115,8 @@ const crossFadeOptions = {
   headerShown: false,
   cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
   transitionSpec: {
-    open: { animation: 'timing', config: { duration: 200 } } as any,
-    close: { animation: 'timing', config: { duration: 200 } } as any,
+    open: { animation: "timing", config: { duration: 200 } } as any,
+    close: { animation: "timing", config: { duration: 200 } } as any,
   },
 };
 
@@ -149,23 +137,23 @@ const TabNavigator = () => {
 
   return (
     <Tab.Navigator
-      tabBar={Platform.OS === 'web' ? renderWebTabBar : undefined}
+      tabBar={Platform.OS === "web" ? renderWebTabBar : undefined}
       sceneContainerStyle={
-        Platform.OS === 'web' ? webSceneContainerStyle : undefined
+        Platform.OS === "web" ? webSceneContainerStyle : undefined
       }
       screenOptions={{
         tabBarActiveTintColor: isCosmic
-          ? '#8B5CF6'
+          ? "#8B5CF6"
           : Tokens.colors.indigo.primary,
         tabBarInactiveTintColor: isCosmic
-          ? '#B9C2D9'
+          ? "#B9C2D9"
           : Tokens.colors.text.tertiary,
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: isCosmic ? '#070712' : Tokens.colors.neutral.darker,
+          backgroundColor: isCosmic ? "#070712" : Tokens.colors.neutral.darker,
           borderTopWidth: 1,
           borderTopColor: isCosmic
-            ? 'rgba(42, 53, 82, 0.3)'
+            ? "rgba(42, 53, 82, 0.3)"
             : Tokens.colors.neutral.borderSubtle,
           height: 60,
           paddingBottom: 8,
@@ -175,26 +163,26 @@ const TabNavigator = () => {
         tabBarLabelStyle: {
           fontFamily: Tokens.type.fontFamily.sans,
           fontSize: 10,
-          fontWeight: '700',
+          fontWeight: "700",
           letterSpacing: 1,
-          textTransform: 'uppercase',
+          textTransform: "uppercase",
         },
       }}
     >
-      {/* Phase 6: Primary tabs migrated to P5 UI equivalents */}
+      {/* Phase 6: Primary tabs migrated to Cosmic UI equivalents */}
       <Tab.Screen
         name={ROUTES.HOME}
-        component={SafeP5DashboardScreen}
+        component={SafeHomeScreen}
         options={{ tabBarIcon: HomeTabIcon }}
       />
       <Tab.Screen
         name={ROUTES.FOCUS}
-        component={SafeP5FocusTimerScreen}
+        component={SafeIgniteScreen}
         options={{ tabBarIcon: FocusTabIcon }}
       />
       <Tab.Screen
         name={ROUTES.TASKS}
-        component={SafeP5TasksScreen}
+        component={SafeBrainDumpScreen}
         options={{ tabBarIcon: TasksTabIcon }}
       />
       <Tab.Screen
@@ -204,7 +192,7 @@ const TabNavigator = () => {
       />
       <Tab.Screen
         name={ROUTES.CHAT}
-        component={SafeP5JournalScreen}
+        component={SafeChatScreen}
         options={{ tabBarIcon: ChatTabIcon }}
       />
     </Tab.Navigator>
@@ -229,19 +217,19 @@ const TabNavigatorWithBubble = () => (
 const styles = StyleSheet.create({
   suspenseFallback: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     backgroundColor: Tokens.colors.neutral.darkest,
   },
   webSceneContainerCosmic: {
     paddingTop: 64,
-    backgroundColor: '#070712',
-    height: '100%',
+    backgroundColor: "#070712",
+    height: "100%",
   },
   webSceneContainerLinear: {
     paddingTop: 64,
     backgroundColor: Tokens.colors.neutral.darkest,
-    height: '100%',
+    height: "100%",
   },
   container: {
     flex: 1,
@@ -257,7 +245,7 @@ const AppNavigatorContent = () => (
     <Stack.Screen
       name={ROUTES.INBOX}
       component={SafeLazyInbox}
-      options={{ presentation: 'modal' }}
+      options={{ presentation: "modal" }}
     />
   </Stack.Navigator>
 );

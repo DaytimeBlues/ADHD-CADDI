@@ -1,4 +1,4 @@
-import * as Notifications from 'expo-notifications';
+import * as Notifications from "expo-notifications";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -14,16 +14,15 @@ class NotificationServiceClass {
   private currentTimerNotificationId: string | null = null;
 
   async requestPermissions() {
-    const { status: existingStatus } =
-      await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
+    const permissions = (await Notifications.getPermissionsAsync()) as any;
+    let finalStatus = permissions.status;
 
-    if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
+    if (finalStatus !== "granted") {
+      const result = (await Notifications.requestPermissionsAsync()) as any;
+      finalStatus = result.status;
     }
 
-    return finalStatus === 'granted';
+    return finalStatus === "granted";
   }
 
   async scheduleTimerCompletion(
@@ -58,7 +57,7 @@ class NotificationServiceClass {
           },
         });
     } catch (e) {
-      console.warn('Failed to schedule notification', e);
+      console.warn("Failed to schedule notification", e);
     }
   }
 
@@ -69,7 +68,7 @@ class NotificationServiceClass {
           this.currentTimerNotificationId,
         );
       } catch (e) {
-        console.warn('Failed to cancel notification', e);
+        console.warn("Failed to cancel notification", e);
       }
       this.currentTimerNotificationId = null;
     }

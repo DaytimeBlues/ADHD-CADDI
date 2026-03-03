@@ -43,8 +43,9 @@ mkdir -p src/ui/lab src/theme/lab src/screens/lab
 ### Switching Between Designs
 
 During development, use the ThemeSwitcher UI to toggle instantly:
+
 - `linear` — Original monochrome theme
-- `cosmic` — Current deep space theme  
+- `cosmic` — Current deep space theme
 - `lab-*` — Your experimental themes
 
 ---
@@ -84,12 +85,12 @@ src/
 
 ### What Goes in `lab/`?
 
-| Type | Location | Examples |
-|------|----------|----------|
-| Experimental themes | `src/theme/lab/` | `neonTokens.ts`, `glassmorphismTokens.ts` |
-| Experimental components | `src/ui/lab/` | `ButtonV2.tsx`, `FloatingCard.tsx` |
-| Experimental screens | `src/screens/lab/` | `HomeScreenRedesigned.tsx` |
-| Dev tools | `src/components/dev/` | `ThemeSwitcher.tsx`, `ComponentShowcase.tsx` |
+| Type                    | Location              | Examples                                     |
+| ----------------------- | --------------------- | -------------------------------------------- |
+| Experimental themes     | `src/theme/lab/`      | `neonTokens.ts`, `glassmorphismTokens.ts`    |
+| Experimental components | `src/ui/lab/`         | `ButtonV2.tsx`, `FloatingCard.tsx`           |
+| Experimental screens    | `src/screens/lab/`    | `HomeScreenRedesigned.tsx`                   |
+| Dev tools               | `src/components/dev/` | `ThemeSwitcher.tsx`, `ComponentShowcase.tsx` |
 
 ### Lab Folder Rules
 
@@ -106,25 +107,26 @@ src/
 ### Step 1: Create Theme Tokens
 
 **`src/theme/lab/neonTokens.ts`**:
+
 ```typescript
 /**
  * Neon Theme Experiment
- * 
+ *
  * Testing: High-contrast neon accents on dark backgrounds
  * Hypothesis: Better visibility for ADHD users
  * Date: 2024-01-15
  * Status: Active experiment
  */
 
-import { Platform } from 'react-native';
+import { Platform } from "react-native";
 
 export const NeonTokens = {
   colors: {
     // Completely different palette
-    primary: '#FF00FF',     // Magenta neon
-    secondary: '#00FFFF',   // Cyan neon
-    background: '#0A0A0A',  // Near-black
-    surface: '#141414',     // Slightly lighter
+    primary: "#FF00FF", // Magenta neon
+    secondary: "#00FFFF", // Cyan neon
+    background: "#0A0A0A", // Near-black
+    surface: "#141414", // Slightly lighter
     // ... define all colors
   },
   spacing: {
@@ -133,7 +135,7 @@ export const NeonTokens = {
     sm: 8,
     md: 16,
     lg: 24,
-    xl: 48,  // More dramatic spacing
+    xl: 48, // More dramatic spacing
   },
   // ... rest of tokens
 } as const;
@@ -144,28 +146,33 @@ export type NeonTokensType = typeof NeonTokens;
 ### Step 2: Register Theme Variant
 
 **`src/theme/themeVariant.ts`** (add to existing file):
+
 ```typescript
-export const THEME_VARIANTS = ['linear', 'cosmic', 'lab-neon'] as const;
+export const THEME_VARIANTS = ["linear", "cosmic", "lab-neon"] as const;
 
 export const THEME_METADATA = {
-  'linear': { name: 'Linear', description: 'Monochrome professional' },
-  'cosmic': { name: 'Cosmic', description: 'Deep space ethereal' },
-  'lab-neon': { name: 'Neon (Lab)', description: 'Experimental high-contrast' },
+  linear: { name: "Linear", description: "Monochrome professional" },
+  cosmic: { name: "Cosmic", description: "Deep space ethereal" },
+  "lab-neon": { name: "Neon (Lab)", description: "Experimental high-contrast" },
 } as const;
 ```
 
 ### Step 3: Update ThemeProvider
 
 **`src/theme/ThemeProvider.tsx`** (modify token resolution):
+
 ```typescript
-import { NeonTokens } from './lab/neonTokens';
+import { NeonTokens } from "./lab/neonTokens";
 
 // In the tokens useMemo:
 const tokens = useMemo(() => {
   switch (variant) {
-    case 'cosmic': return CosmicTokens;
-    case 'lab-neon': return NeonTokens;  // Add this case
-    default: return LinearTokens;
+    case "cosmic":
+      return CosmicTokens;
+    case "lab-neon":
+      return NeonTokens; // Add this case
+    default:
+      return LinearTokens;
   }
 }, [variant]);
 ```
@@ -177,6 +184,7 @@ const tokens = useMemo(() => {
 ### The Smart Component Switcher
 
 **`src/ui/Button.tsx`** (production file):
+
 ```typescript
 import React from 'react';
 import { Button as CosmicButton } from './cosmic/Button';
@@ -191,12 +199,12 @@ interface ButtonProps {
 
 export const Button: React.FC<ButtonProps> = (props) => {
   const { variant: themeVariant } = useTheme();
-  
+
   // Route to experimental version for lab themes
   if (themeVariant.startsWith('lab-')) {
     return <ButtonV2 {...props} />;
   }
-  
+
   // Default to production component
   return <CosmicButton {...props} />;
 };
@@ -205,15 +213,16 @@ export const Button: React.FC<ButtonProps> = (props) => {
 ### Creating Component Variants
 
 **`src/ui/lab/ButtonV2.tsx`**:
+
 ```typescript
 /**
  * ButtonV2 Experiment
- * 
+ *
  * Changes from V1:
  * - Larger touch targets (56px vs 44px)
  * - Animated gradient backgrounds
  * - Haptic feedback on press
- * 
+ *
  * Date: 2024-01-15
  * Author: @yourname
  */
@@ -228,15 +237,15 @@ interface ButtonProps {
   variant?: 'primary' | 'secondary';
 }
 
-export const ButtonV2: React.FC<ButtonProps> = ({ 
-  title, 
-  onPress, 
-  variant = 'primary' 
+export const ButtonV2: React.FC<ButtonProps> = ({
+  title,
+  onPress,
+  variant = 'primary'
 }) => {
   const { t } = useTheme();
-  
+
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       onPress={onPress}
       style={[
         styles.button,
@@ -271,10 +280,11 @@ const styles = StyleSheet.create({
 ### ThemeSwitcher Component
 
 **`src/components/dev/ThemeSwitcher.tsx`**:
+
 ```typescript
 /**
  * ThemeSwitcher - Development Only
- * 
+ *
  * Floating UI to toggle between themes instantly.
  * Only renders in __DEV__ mode.
  */
@@ -287,9 +297,9 @@ import { THEME_VARIANTS } from '../../theme/themeVariant';
 export const ThemeSwitcher: React.FC = () => {
   // Only show in development
   if (!__DEV__) return null;
-  
+
   const { variant, setVariant } = useTheme();
-  
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>🎨 Theme</Text>
@@ -299,4 +309,5 @@ export const ThemeSwitcher: React.FC = () => {
           onPress={() => setVariant(v as ThemeVariant)}
           style={[
             styles.button,
-       
+
+```

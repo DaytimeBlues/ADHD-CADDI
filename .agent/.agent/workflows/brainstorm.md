@@ -19,11 +19,13 @@ This command activates BRAINSTORM mode for structured idea exploration. Use when
 When `/brainstorm` is triggered:
 
 1. **Understand the goal**
+
    - What problem are we solving?
    - Who is the user?
    - What constraints exist?
 
 2. **Generate options**
+
    - Provide at least 3 different approaches
    - Each with pros and cons
    - Consider unconventional solutions
@@ -40,18 +42,22 @@ When `/brainstorm` is triggered:
 ## 🧠 Brainstorm: [Topic]
 
 ### Context
+
 [Brief problem statement]
 
 ---
 
 ### Option A: [Name]
+
 [Description]
 
 ✅ **Pros:**
+
 - [benefit 1]
 - [benefit 2]
 
 ❌ **Cons:**
+
 - [drawback 1]
 
 📊 **Effort:** Low | Medium | High
@@ -59,12 +65,15 @@ When `/brainstorm` is triggered:
 ---
 
 ### Option B: [Name]
+
 [Description]
 
 ✅ **Pros:**
+
 - [benefit 1]
 
 ❌ **Cons:**
+
 - [drawback 1]
 - [drawback 2]
 
@@ -73,12 +82,15 @@ When `/brainstorm` is triggered:
 ---
 
 ### Option C: [Name]
+
 [Description]
 
 ✅ **Pros:**
+
 - [benefit 1]
 
 ❌ **Cons:**
+
 - [drawback 1]
 
 📊 **Effort:** Low | Medium | High

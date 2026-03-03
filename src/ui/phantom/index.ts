@@ -6,35 +6,22 @@
  */
 
 // Components
-export { PhantomBackground } from './PhantomBackground';
-export { JaggedCard } from './JaggedCard';
-export { StarburstTimer } from './StarburstTimer';
-export { PhantomButton } from './PhantomButton';
-export { CallingCard } from './CallingCard';
-export { PhantomNavBar } from './PhantomNavBar';
+export { PhantomBackground } from "./PhantomBackground";
+export { JaggedCard } from "./JaggedCard";
+export { StarburstTimer } from "./StarburstTimer";
+export { PhantomButton } from "./PhantomButton";
+export { CallingCard } from "./CallingCard";
+export { PhantomNavBar } from "./PhantomNavBar";
 
 // Types
-export type {
-  PhantomBackgroundProps,
-} from './PhantomBackground';
+export type { PhantomBackgroundProps } from "./PhantomBackground";
 
-export type {
-  JaggedCardProps,
-} from './JaggedCard';
+export type { JaggedCardProps } from "./JaggedCard";
 
-export type {
-  StarburstTimerProps,
-} from './StarburstTimer';
+export type { StarburstTimerProps } from "./StarburstTimer";
 
-export type {
-  PhantomButtonProps,
-} from './PhantomButton';
+export type { PhantomButtonProps } from "./PhantomButton";
 
-export type {
-  CallingCardProps,
-} from './CallingCard';
+export type { CallingCardProps } from "./CallingCard";
 
-export type {
-  NavItem,
-  PhantomNavBarProps,
-} from './PhantomNavBar';
+export type { NavItem, PhantomNavBarProps } from "./PhantomNavBar";

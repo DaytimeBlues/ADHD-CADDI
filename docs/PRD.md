@@ -1,10 +1,10 @@
-# Product Requirements Document (PRD): Spark ADHD
+# Product Requirements Document (PRD): ADHD-CADDI
 
 ## 1. Problem Statement
 
 Individuals with ADHD frequently experience executive dysfunction, manifesting as difficulty with task initiation ("ADHD paralysis"), task switching, emotional regulation, and overwhelming cognitive load. Traditional productivity tools often fail because they lack the necessary "friction-reducing" mechanisms or sensory support required for neurodivergent brains.
 
-**Spark ADHD** aims to provide a centralized hub for focus, grounding, and cognitive offloading, specifically designed to bypass common ADHD roadblocks.
+**ADHD-CADDI** aims to provide a centralized hub for focus, grounding, and cognitive offloading, specifically designed to bypass common ADHD roadblocks.
 
 ## 2. User Personas
 
@@ -22,13 +22,13 @@ Individuals with ADHD frequently experience executive dysfunction, manifesting a
 
 ## 3. User Stories
 
-| ID | Persona | User Story | Benefit |
-|----|---------|------------|---------|
-| US.1 | Professional | As a user, I want a "5-minute Ignite" timer | To overcome the hurdle of task initiation without the commitment of a full hour. |
-| US.2 | Professional | As a user, I want to use a "Fog Cutter" to break down a project | To reduce the cognitive load of complex projects into manageable steps. |
-| US.3 | Student | As a user, I want a one-tap "Anchor" breathing exercise | To quickly regulate my nervous system during emotional spikes. |
-| US.4 | All | As a user, I want to "Brain Dump" any thought and have AI suggest categories | To clear my working memory and reduce the friction of manual organization. |
-| US.5 | All | As a user, I want to track my "Streak" | To use gamified dopamine feedback to build consistency. |
+| ID   | Persona      | User Story                                                                   | Benefit                                                                          |
+| ---- | ------------ | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| US.1 | Professional | As a user, I want a "5-minute Ignite" timer                                  | To overcome the hurdle of task initiation without the commitment of a full hour. |
+| US.2 | Professional | As a user, I want to use a "Fog Cutter" to break down a project              | To reduce the cognitive load of complex projects into manageable steps.          |
+| US.3 | Student      | As a user, I want a one-tap "Anchor" breathing exercise                      | To quickly regulate my nervous system during emotional spikes.                   |
+| US.4 | All          | As a user, I want to "Brain Dump" any thought and have AI suggest categories | To clear my working memory and reduce the friction of manual organization.       |
+| US.5 | All          | As a user, I want to track my "Streak"                                       | To use gamified dopamine feedback to build consistency.                          |
 
 ## 4. Technical Architecture
 
@@ -52,7 +52,7 @@ Individuals with ADHD frequently experience executive dysfunction, manifesting a
 
 ## 5. Design Philosophy (UX)
 
-Applying Lidwell’s *Universal Principles of Design* and Norman’s *Design of Everyday Things*:
+Applying Lidwell’s _Universal Principles of Design_ and Norman’s _Design of Everyday Things_:
 
 - **Signifiers**: Use clear, vibrant icons and colored cards (e.g., Red for Crisis, Turquoise for Fog Cutter) to signal the "mode" and purpose of each tool without requiring the user to read long labels.
 - **Affordances**: Buttons and Cards are highly tactile with `activeOpacity` feedback, "inviting" interaction through their physical appearance in the grid.
@@ -67,8 +67,8 @@ Applying Lidwell’s *Universal Principles of Design* and Norman’s *Design of 
 
 ## 7. Risk Analysis
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| App Overwhelm | High | Keep the home screen grid simple; avoid adding "settings" or "options" deep in focus modes. |
-| Data Loss | Medium | Use robust AsyncStorage persistence and backup/export workflow so streaks and entries are not lost on updates. |
-| Notification Fatigue | Medium | Ensure "Ignite" and "Pomodoro" notifications are meaningful and not annoying (haptic feedback preferred). |
+| Risk                 | Impact | Mitigation                                                                                                     |
+| -------------------- | ------ | -------------------------------------------------------------------------------------------------------------- |
+| App Overwhelm        | High   | Keep the home screen grid simple; avoid adding "settings" or "options" deep in focus modes.                    |
+| Data Loss            | Medium | Use robust AsyncStorage persistence and backup/export workflow so streaks and entries are not lost on updates. |
+| Notification Fatigue | Medium | Ensure "Ignite" and "Pomodoro" notifications are meaningful and not annoying (haptic feedback preferred).      |

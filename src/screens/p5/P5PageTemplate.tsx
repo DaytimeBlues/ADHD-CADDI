@@ -16,17 +16,17 @@
  * </P5PageTemplate>
  */
 
-import React, { memo, ReactNode } from 'react';
+import React, { memo, ReactNode } from "react";
 import {
   View,
   ScrollView,
   StyleSheet,
   ViewStyle,
   StyleProp,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { P5Screen, P5Header } from '../../ui/p5';
-import { P5Spacing } from '../../theme/p5Tokens';
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { P5Screen, P5Header } from "../../ui/p5";
+import { P5Spacing } from "../../theme/p5Tokens";
 
 export interface P5PageTemplateProps {
   /** Page title (displayed in header) */
@@ -87,9 +87,7 @@ export const P5PageTemplate = memo(function P5PageTemplate({
       {children}
     </ScrollView>
   ) : (
-    <View style={[styles.content, contentStyle]}>
-      {children}
-    </View>
+    <View style={[styles.content, contentStyle]}>{children}</View>
   );
 
   return (

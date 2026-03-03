@@ -6,14 +6,9 @@
     "module": "esnext",
     "skipLibCheck": true,
     "incremental": true,
-    "typeRoots": [
-      "./types",
-      "./node_modules/@types"
-    ],
+    "typeRoots": ["./types", "./node_modules/@types"],
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+      "@/*": ["src/*"]
     }
   },
   "exclude": ["e2e", "node_modules", "dist", "coverage"]

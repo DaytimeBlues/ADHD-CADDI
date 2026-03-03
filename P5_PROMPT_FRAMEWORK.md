@@ -29,7 +29,7 @@ CRITICAL RULES FOR YOU TO FOLLOW:
 4. The aesthetic rules are strict: NO rounded corners (borderRadius: 0), use the exact colors specified in the plan (Signal Red, Pure Black, Pure White), and use jagged shapes (via transform rotate/skew) rather than standard rectangles.
 5. All new components must go in `src/ui/phantom/`.
 
-Read `PHANTOM_UI_PLAN.md` completely. 
+Read `PHANTOM_UI_PLAN.md` completely.
 Reply "I AM READY: PHANTOM THIEF MODE ENGAGED" when you have read the plan and understand the 5 rules above. Do not write any code yet.
 ```
 
@@ -41,7 +41,7 @@ Reply "I AM READY: PHANTOM THIEF MODE ENGAGED" when you have read the plan and u
 **Action:** Once the LLM says it is ready, give it this prompt.
 
 ```text
-Let's begin Phase A: Foundation. 
+Let's begin Phase A: Foundation.
 
 1. Create `src/theme/phantomTokens.ts`. Read `src/theme/cosmicTokens.ts` first, and ensure `PhantomTokens` exports the exact same TypeScript shape, but using the P5 colors, spacing, typography, and 0px border-radii defined in `PHANTOM_UI_PLAN.md`.
 2. Update `src/theme/themeVariant.ts` to add `'phantom'` to the `ThemeVariant` type, constants, and migration maps.
@@ -58,8 +58,8 @@ Write and execute the code for these 4 steps now. After editing, run `npx tsc --
 **Purpose:** Create the reusable jagged building blocks without touching the screens yet.
 
 ```text
-Great. Now let's do Phase B: UI Primitives. 
-Look at the components in `src/ui/cosmic/` and create their Phantom equivalents in a new folder `src/ui/phantom/`. 
+Great. Now let's do Phase B: UI Primitives.
+Look at the components in `src/ui/cosmic/` and create their Phantom equivalents in a new folder `src/ui/phantom/`.
 
 Create the following files EXACTLY as described in `PHANTOM_UI_PLAN.md`:
 1. `PhantomBackground.tsx` (pitch black with halftone or stark gradient).
@@ -80,7 +80,7 @@ Ensure these use the `useTheme` hook but are visually distinct (no soft glows, o
 **Purpose:** Because there are 12 screens, tell the LLM to do them in small batches so it doesn't get confused or hit output limits.
 
 ```text
-Phase C: Screen Integration. We must do this carefully. 
+Phase C: Screen Integration. We must do this carefully.
 We need to update the `getStyles(isCosmic)` functions in the screens to be `getStyles(isCosmic, isPhantom)`.
 
 Let's do the first 3 screens only right now:
@@ -97,7 +97,7 @@ For each file:
 Write the code for these three screens. Check your work with TypeScript.
 ```
 
-*(You will then repeat Prompt 4 for the remaining screens in batches: Ignite/FogCutter/Calendar; then Inbox/CheckIn/Anchor; then CBTGuide/Chat/Diagnostics).*
+_(You will then repeat Prompt 4 for the remaining screens in batches: Ignite/FogCutter/Calendar; then Inbox/CheckIn/Anchor; then CBTGuide/Chat/Diagnostics)._
 
 ---
 
@@ -112,7 +112,7 @@ Phase D: Navigation and Shared Components.
 2. Modify `src/components/home/ModeCard.tsx` to use `JaggedCard` when `isPhantom` is true.
 3. Modify `src/components/ui/LinearButton.tsx` and `LinearCard.tsx` to render their Phantom variants when `isPhantom` is true.
 
-Run a final `npx tsc --noEmit`. 
+Run a final `npx tsc --noEmit`.
 ```
 
 ---
@@ -121,4 +121,4 @@ Run a final `npx tsc --noEmit`.
 
 When you start the conversation with the other LLM using **Prompt 1**, simply drag and drop the `.png` or `.jpg` exports from Google Stitch into the chat. Add a quick note like:
 
-> *"Here are the Stitch mockups. Notice the jagged edges, skewed text, and stark red/black contrast. Use these as your absolute source of truth for the visual rules in Phase B and Phase C."*
+> _"Here are the Stitch mockups. Notice the jagged edges, skewed text, and stark red/black contrast. Use these as your absolute source of truth for the visual rules in Phase B and Phase C."_

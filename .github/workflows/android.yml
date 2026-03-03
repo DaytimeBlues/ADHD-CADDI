@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
-      GRADLE_OPTS: "-Dorg.gradle.internal.http.connectionTimeout=120000 -Dorg.gradle.internal.http.socketTimeout=120000"
+      GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g -Dorg.gradle.internal.http.connectionTimeout=120000 -Dorg.gradle.internal.http.socketTimeout=120000"
 
     steps:
       - name: Checkout
@@ -64,4 +64,5 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_6
-          script: cd android && ./gradlew connectedDebugAndroidTest
+          script: ./gradlew connectedDebugAndroidTest
+        working-directory: android

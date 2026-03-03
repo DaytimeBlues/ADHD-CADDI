@@ -1,13 +1,12 @@
-# Spark ADHD - PWA & React Native
+# ADHD-CADDI - PWA & React Native
 
 A behavioral activation tool for ADHD, designed as a high-performance **PWA (Progressive Web App)** with an optional React Native mobile bridge.
 
-> [!IMPORTANT]
-> **Primary Workflow**: Most developers should use the **Web/PWA** version. It provides the full app experience through any mobile browser and can be "Installed" as a standalone app on your home screen.
+> [!IMPORTANT] > **Primary Workflow**: Most developers should use the **Web/PWA** version. It provides the full app experience through any mobile browser and can be "Installed" as a standalone app on your home screen.
 
 ## Deployment Status
 
-- **Live PWA**: [https://DaytimeBlues.github.io/spark-adhd-backup](https://DaytimeBlues.github.io/spark-adhd-backup)
+- **Live PWA**: [https://DaytimeBlues.github.io/adhd-caddi-v1](https://DaytimeBlues.github.io/adhd-caddi-v1)
 
 ## Features
 
@@ -77,7 +76,7 @@ The native Android shell is a secondary wrapper used for platform-specific featu
 
 ### Android Phone-Only Deployment (No Store)
 
-If you only want to run Spark on your own Android phone, use the local profiles below.
+If you only want to run the app on your own Android phone, use the local profiles below.
 
 1. Connect phone with USB debugging enabled.
 2. Build/install one of the profiles:
@@ -95,13 +94,13 @@ npm run build:android:prod
 
 Profile package IDs:
 
-- Dev: `com.sparkadhd`
-- Preview: `com.sparkadhd.preview`
-- Production: `com.sparkadhd`
+- Dev: `com.adhdcaddi`
+- Preview: `com.adhdcaddi.preview`
+- Production: `com.adhdcaddi`
 
 ### Backend Options for Personal Use
 
-- Default API endpoint is `https://spark-adhd-api.vercel.app` (used for AI sorting).
+- Default API endpoint is `https://adhd-caddi-api.vercel.app` (used for AI sorting).
 - If the API is unavailable, core app flows still work; AI sort shows a graceful error.
 - For a zero-cloud personal workflow, avoid AI sort and use local features (timers, notes, check-in, routines).
 

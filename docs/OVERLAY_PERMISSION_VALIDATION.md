@@ -3,6 +3,7 @@
 ## Test Checklist for Android Overlay Feature
 
 ### Prerequisites
+
 - Physical Android device or emulator running API 26+ (Android 8.0+)
 - APK built with debug or release configuration
 - ADB access enabled
@@ -14,7 +15,9 @@
 **Objective:** Verify permission request triggers and completes correctly.
 
 ### Steps:
+
 1. Fresh install app or clear app data:
+
    ```bash
    adb shell pm clear com.sparkadhd
    ```
@@ -24,6 +27,7 @@
 3. Toggle "Focus Overlay" switch to ON
 
 4. **Expected behavior:**
+
    - App should open Android system settings page for "Display over other apps"
    - App should appear in the list
    - Toggle switch should show app name correctly
@@ -38,6 +42,7 @@
    - UI remains responsive
 
 ### Pass Criteria:
+
 - ✅ Settings page opens correctly
 - ✅ Switch updates to ON after returning
 - ✅ No crashes or ANRs
@@ -49,11 +54,13 @@
 **Objective:** Verify behavior when permission exists.
 
 ### Steps:
+
 1. With permission already granted (from Test 1)
 
 2. Toggle "Focus Overlay" switch to ON
 
 3. **Expected behavior:**
+
    - OverlayService starts immediately
    - No settings page opened
    - Overlay bubble appears on screen
@@ -64,6 +71,7 @@
    - Positioned correctly (not obstructing content)
 
 ### Pass Criteria:
+
 - ✅ Overlay starts without settings redirect
 - ✅ Bubble displays count
 - ✅ Bubble persists when switching apps
@@ -75,7 +83,9 @@
 **Objective:** Verify graceful handling of denial.
 
 ### Steps:
+
 1. Revoke permission via settings:
+
    ```bash
    adb shell appops set com.sparkadhd SYSTEM_ALERT_WINDOW deny
    ```
@@ -94,6 +104,7 @@
    - No crash or freeze
 
 ### Pass Criteria:
+
 - ✅ Switch resets to OFF
 - ✅ No permission loops (doesn't keep opening settings)
 - ✅ App usable without overlay feature
@@ -105,9 +116,11 @@
 **Objective:** Verify service starts/stops cleanly.
 
 ### Steps:
+
 1. Grant permission and enable overlay (switch ON)
 
 2. Verify service running:
+
    ```bash
    adb shell dumpsys activity services com.sparkadhd.OverlayService
    ```
@@ -115,6 +128,7 @@
 3. Toggle switch OFF
 
 4. **Verify:**
+
    - Overlay bubble disappears
    - Service stops (check dumpsys again)
    - No memory leaks (check logcat for warnings)
@@ -127,6 +141,7 @@
    - Count persists from SharedPreferences
 
 ### Pass Criteria:
+
 - ✅ Service starts/stops on toggle
 - ✅ No WindowManager leaked window errors
 - ✅ Count persistence works
@@ -138,6 +153,7 @@
 **Objective:** Verify AppState listener synchronizes permission.
 
 ### Steps:
+
 1. Enable overlay (switch ON)
 
 2. Minimize app (press Home button)
@@ -153,6 +169,7 @@
    - Service stops gracefully
 
 ### Pass Criteria:
+
 - ✅ Permission sync works on foreground
 - ✅ No stale UI state
 - ✅ No crashes from service running without permission
@@ -162,20 +179,24 @@
 ## Test 6: Edge Cases
 
 ### 6a: Rapid Toggle
+
 - Toggle switch ON/OFF rapidly (5 times in 2 seconds)
 - **Verify:** No crashes, service state consistent with switch
 
 ### 6b: Permission Revoked While Service Running
+
 - Start overlay → minimize app → revoke permission
 - Return to app
 - **Verify:** Service stops, switch updates to OFF
 
 ### 6c: Low Memory Scenario
+
 - Enable overlay → launch many heavy apps
 - Return to Spark app
 - **Verify:** Service restarts if killed, count restored
 
 ### 6d: Foreground Service Notification (SDK 34+)
+
 - Enable overlay
 - Pull down notification shade
 - **Verify:** Foreground service notification appears (required for SDK 34)
@@ -192,6 +213,7 @@ adb logcat -s ReactNativeJS:V OverlayModule:V OverlayService:V
 ```
 
 **Red flags:**
+
 - `WindowManager: android.view.WindowLeaked`
 - `IllegalStateException: Service not registered`
 - `SecurityException: SYSTEM_ALERT_WINDOW`
@@ -204,11 +226,13 @@ adb logcat -s ReactNativeJS:V OverlayModule:V OverlayService:V
 **Note:** Overlay testing in Detox is limited (cannot interact with system settings).
 
 Feasible checks:
+
 - Switch toggle triggers native module call
 - Switch state updates correctly when permission exists
 - Service start intent broadcast verified
 
 **Not feasible via Detox:**
+
 - System settings interaction
 - Actual overlay rendering validation
 - Permission grant flow
@@ -232,6 +256,7 @@ Before considering overlay feature production-ready:
 
 **Last Updated:** 2026-02-10  
 **Related Files:**
+
 - `android/app/src/main/java/com/sparkadhd/OverlayModule.java`
 - `android/app/src/main/java/com/sparkadhd/OverlayService.java`
 - `src/screens/HomeScreen.tsx` (lines 124-176)

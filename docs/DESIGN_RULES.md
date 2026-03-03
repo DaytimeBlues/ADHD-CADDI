@@ -21,6 +21,7 @@ The key idea: define the "rules of the universe" (tokens + patterns) before gene
 All styling must snap to tokens.
 
 Canonical token file:
+
 - `src/theme/tokens.ts`
 
 ### Spacing
@@ -30,6 +31,7 @@ Only use values from `Tokens.spacing`.
 Approved scale (px): 0, 4, 8, 12, 16, 24, 32, 48, 64, 96
 
 Rules:
+
 - No ad-hoc margin/padding numbers.
 - Group spacing: spacing between groups must be >= 2x spacing within a group.
 
@@ -38,6 +40,7 @@ Rules:
 Only use values from `Tokens.type`.
 
 Rules:
+
 - No random font sizes.
 - Use color/weight for hierarchy before increasing size.
 - Keep line-height readable (target 1.5 for body text).
@@ -48,6 +51,7 @@ Rules:
 Only use values from `Tokens.colors`.
 
 Rules:
+
 - Use palette shades (8-10 shades per family) rather than single hexes.
 - Use HSL strings for harmony and predictable adjustments.
 - Avoid opacity-based contrast for primary text; choose a proper shade.
@@ -58,6 +62,7 @@ Rules:
 Only use `Tokens.elevation`.
 
 Rules:
+
 - Use a consistent light source (top-down).
 - Interactive press states reduce elevation (button looks "pressed").
 
@@ -66,12 +71,14 @@ Rules:
 Only use `Tokens.radii`.
 
 Rules:
+
 - Use pill radius for pill buttons, md/lg for cards.
 - Do not invent new radii.
 
 ### Component Sizes
 
 Rules:
+
 - Tap targets must be >= 44x44px (prefer 48x48px on touch).
 - Prefer max-width containers for readable content (do not stretch everything to full width).
 

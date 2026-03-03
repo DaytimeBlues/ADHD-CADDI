@@ -783,10 +783,7 @@
       "directory_profiles": {
         ".": {
           "file_count": 2,
-          "files": [
-            "App.tsx",
-            "playwright.config.ts"
-          ],
+          "files": ["App.tsx", "playwright.config.ts"],
           "total_loc": 291,
           "avg_fan_in": 0.0,
           "avg_fan_out": 8.5,
@@ -854,11 +851,7 @@
         },
         "src\\components\\capture/": {
           "file_count": 3,
-          "files": [
-            "CaptureBubble.tsx",
-            "CaptureDrawer.tsx",
-            "index.ts"
-          ],
+          "files": ["CaptureBubble.tsx", "CaptureDrawer.tsx", "index.ts"],
           "total_loc": 1615,
           "avg_fan_in": 1.7,
           "avg_fan_out": 4.0,
@@ -876,11 +869,7 @@
         },
         "src\\components\\metro/": {
           "file_count": 3,
-          "files": [
-            "MetroButton.tsx",
-            "MetroCard.tsx",
-            "MetroTile.tsx"
-          ],
+          "files": ["MetroButton.tsx", "MetroCard.tsx", "MetroTile.tsx"],
           "total_loc": 277,
           "avg_fan_in": 0.0,
           "avg_fan_out": 1.0,
@@ -919,11 +908,7 @@
         },
         "src\\config/": {
           "file_count": 3,
-          "files": [
-            "caddi.ts",
-            "index.ts",
-            "secrets.example.ts"
-          ],
+          "files": ["caddi.ts", "index.ts", "secrets.example.ts"],
           "total_loc": 238,
           "avg_fan_in": 4.7,
           "avg_fan_out": 0.3,
@@ -1183,11 +1168,7 @@
         },
         "src\\utils/": {
           "file_count": 3,
-          "files": [
-            "PlatformUtils.ts",
-            "fogCutter.ts",
-            "helpers.ts"
-          ],
+          "files": ["PlatformUtils.ts", "fogCutter.ts", "helpers.ts"],
           "total_loc": 185,
           "avg_fan_in": 4.7,
           "avg_fan_out": 0.3,
@@ -1248,9 +1229,7 @@
     "authorization": {
       "rls_coverage": {
         "with_rls": [],
-        "without_rls": [
-          "kv_store"
-        ]
+        "without_rls": ["kv_store"]
       }
     },
     "ai_debt_signals": {
@@ -1433,12 +1412,7 @@
           "file": "App.tsx",
           "detector_count": 4,
           "finding_count": 6,
-          "detectors": [
-            "logs",
-            "smells",
-            "subjective_review",
-            "test_coverage"
-          ]
+          "detectors": ["logs", "smells", "subjective_review", "test_coverage"]
         },
         {
           "file": "src/screens/IgniteScreen.tsx",
@@ -1488,142 +1462,85 @@
           "file": "src/ui/cosmic/RuneButton.tsx",
           "detector_count": 4,
           "finding_count": 4,
-          "detectors": [
-            "react",
-            "smells",
-            "subjective_review",
-            "test_coverage"
-          ]
+          "detectors": ["react", "smells", "subjective_review", "test_coverage"]
         },
         {
           "file": "src/screens/CalendarScreen.tsx",
           "detector_count": 3,
           "finding_count": 7,
-          "detectors": [
-            "smells",
-            "structural",
-            "subjective_review"
-          ]
+          "detectors": ["smells", "structural", "subjective_review"]
         },
         {
           "file": "src/screens/HomeScreen.tsx",
           "detector_count": 3,
           "finding_count": 4,
-          "detectors": [
-            "smells",
-            "structural",
-            "subjective_review"
-          ]
+          "detectors": ["smells", "structural", "subjective_review"]
         },
         {
           "file": "src/screens/FogCutterScreen.tsx",
           "detector_count": 3,
           "finding_count": 4,
-          "detectors": [
-            "smells",
-            "structural",
-            "subjective_review"
-          ]
+          "detectors": ["smells", "structural", "subjective_review"]
         },
         {
           "file": "playwright.config.ts",
           "detector_count": 3,
           "finding_count": 4,
-          "detectors": [
-            "smells",
-            "subjective_review",
-            "test_coverage"
-          ]
+          "detectors": ["smells", "subjective_review", "test_coverage"]
         },
         {
           "file": "src/components/brain-dump/BrainDumpGuide.tsx",
           "detector_count": 3,
           "finding_count": 4,
-          "detectors": [
-            "smells",
-            "subjective_review",
-            "test_coverage"
-          ]
+          "detectors": ["smells", "subjective_review", "test_coverage"]
         },
         {
           "file": "src/theme/ThemeProvider.tsx",
           "detector_count": 3,
           "finding_count": 3,
-          "detectors": [
-            "deprecated",
-            "subjective_review",
-            "test_coverage"
-          ]
+          "detectors": ["deprecated", "subjective_review", "test_coverage"]
         },
         {
           "file": "src/store/useTimerStore.ts",
           "detector_count": 3,
           "finding_count": 3,
-          "detectors": [
-            "props",
-            "smells",
-            "subjective_review"
-          ]
+          "detectors": ["props", "smells", "subjective_review"]
         },
         {
           "file": "src/screens/ChatScreen.tsx",
           "detector_count": 3,
           "finding_count": 3,
-          "detectors": [
-            "single_use",
-            "smells",
-            "subjective_review"
-          ]
+          "detectors": ["single_use", "smells", "subjective_review"]
         },
         {
           "file": "src/store/useThemeStore.ts",
           "detector_count": 3,
           "finding_count": 3,
-          "detectors": [
-            "single_use",
-            "subjective_review",
-            "test_coverage"
-          ]
+          "detectors": ["single_use", "subjective_review", "test_coverage"]
         },
         {
           "file": "src/hooks/useBiometric.ts",
           "detector_count": 3,
           "finding_count": 3,
-          "detectors": [
-            "single_use",
-            "smells",
-            "subjective_review"
-          ]
+          "detectors": ["single_use", "smells", "subjective_review"]
         },
         {
           "file": "src/components/metro/MetroButton.tsx",
           "detector_count": 3,
           "finding_count": 3,
-          "detectors": [
-            "orphaned",
-            "subjective_review",
-            "test_coverage"
-          ]
+          "detectors": ["orphaned", "subjective_review", "test_coverage"]
         },
         {
           "file": "src/components/metro/MetroTile.tsx",
           "detector_count": 3,
           "finding_count": 3,
-          "detectors": [
-            "orphaned",
-            "subjective_review",
-            "test_coverage"
-          ]
+          "detectors": ["orphaned", "subjective_review", "test_coverage"]
         },
         {
           "file": "src/init/bootstrap.ts",
           "detector_count": 3,
           "finding_count": 3,
-          "detectors": [
-            "orphaned",
-            "subjective_review",
-            "test_coverage"
-          ]
+          "detectors": ["orphaned", "subjective_review", "test_coverage"]
         }
       ],
       "systemic_patterns": [
@@ -2351,9 +2268,7 @@
     "auth_patterns": {
       "rls_coverage": {
         "with_rls": [],
-        "without_rls": [
-          "kv_store"
-        ]
+        "without_rls": ["kv_store"]
       }
     },
     "error_strategies": {
@@ -2413,10 +2328,7 @@
   "investigation_batches": [
     {
       "name": "Architecture & Coupling",
-      "dimensions": [
-        "cross_module_architecture",
-        "high_level_elegance"
-      ],
+      "dimensions": ["cross_module_architecture", "high_level_elegance"],
       "files_to_read": [
         "src/theme/tokens.ts",
         "src/theme/ThemeProvider.tsx",
@@ -2523,10 +2435,7 @@
     },
     {
       "name": "Package Organization",
-      "dimensions": [
-        "package_organization",
-        "high_level_elegance"
-      ],
+      "dimensions": ["package_organization", "high_level_elegance"],
       "files_to_read": [
         "App.tsx",
         "playwright.config.ts",
@@ -2545,10 +2454,7 @@
     },
     {
       "name": "State & Design Integrity",
-      "dimensions": [
-        "initialization_coupling",
-        "design_coherence"
-      ],
+      "dimensions": ["initialization_coupling", "design_coherence"],
       "files_to_read": [
         "src/screens/HomeScreen.tsx",
         "src/screens/BrainDumpScreen.tsx",
@@ -2584,10 +2490,7 @@
     },
     {
       "name": "Design coherence \u2014 Mechanical Concern Signals",
-      "dimensions": [
-        "design_coherence",
-        "initialization_coupling"
-      ],
+      "dimensions": ["design_coherence", "initialization_coupling"],
       "files_to_read": [
         "App.tsx",
         "playwright.config.ts",
@@ -2665,10 +2568,7 @@
           "file": "src/components/brain-dump/BrainDumpActionBar.tsx",
           "summary": "Design signals from smells",
           "question": "Review the flagged patterns \u2014 are they design problems that need addressing, or acceptable given the file's role?",
-          "evidence": [
-            "Flagged by: smells",
-            "[smells] 2x Explicit `any` types"
-          ]
+          "evidence": ["Flagged by: smells", "[smells] 2x Explicit `any` types"]
         },
         {
           "type": "design_concern",
@@ -2686,20 +2586,14 @@
           "file": "src/components/brain-dump/BrainDumpInput.tsx",
           "summary": "Design signals from smells",
           "question": "Review the flagged patterns \u2014 are they design problems that need addressing, or acceptable given the file's role?",
-          "evidence": [
-            "Flagged by: smells",
-            "[smells] 1x `as any` type casts"
-          ]
+          "evidence": ["Flagged by: smells", "[smells] 1x `as any` type casts"]
         },
         {
           "type": "design_concern",
           "file": "src/components/brain-dump/BrainDumpItem.tsx",
           "summary": "Design signals from smells",
           "question": "Review the flagged patterns \u2014 are they design problems that need addressing, or acceptable given the file's role?",
-          "evidence": [
-            "Flagged by: smells",
-            "[smells] 1x Explicit `any` types"
-          ]
+          "evidence": ["Flagged by: smells", "[smells] 1x Explicit `any` types"]
         },
         {
           "type": "design_concern",
@@ -3201,48 +3095,28 @@
       },
       "lanes": {
         "cleanup": {
-          "actions": [
-            1
-          ],
+          "actions": [1],
           "file_count": 1,
           "total_impact": 0.0,
           "automation": "full",
           "run_first": true
         },
         "restructure": {
-          "actions": [
-            2,
-            3,
-            4,
-            5,
-            6,
-            7
-          ],
+          "actions": [2, 3, 4, 5, 6, 7],
           "file_count": 20,
           "total_impact": 0.0,
           "automation": "manual",
           "run_first": false
         },
         "refactor": {
-          "actions": [
-            8,
-            9,
-            10,
-            12,
-            13,
-            14,
-            15,
-            16
-          ],
+          "actions": [8, 9, 10, 12, 13, 14, 15, 16],
           "file_count": 114,
           "total_impact": 0.0,
           "automation": "manual",
           "run_first": false
         },
         "test_coverage": {
-          "actions": [
-            11
-          ],
+          "actions": [11],
           "file_count": 44,
           "total_impact": 0.0,
           "automation": "manual",

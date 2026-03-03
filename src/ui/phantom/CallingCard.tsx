@@ -5,7 +5,7 @@
  * Auto-dismisses after delay. Red background, jagged edges.
  */
 
-import React, { memo, useEffect, useRef, useCallback } from 'react';
+import React, { memo, useEffect, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -14,8 +14,8 @@ import {
   Easing,
   Pressable,
   Platform,
-} from 'react-native';
-import { useTheme } from '../../theme/ThemeProvider';
+} from "react-native";
+import { useTheme } from "../../theme/ThemeProvider";
 
 export interface CallingCardProps {
   visible: boolean;
@@ -94,9 +94,9 @@ export const CallingCard = memo(function CallingCard({
 
   const fontFamily = Platform.select({
     web: 'Impact, "Arial Black", sans-serif',
-    ios: 'Impact',
-    android: 'sans-serif-black',
-    default: 'sans-serif',
+    ios: "Impact",
+    android: "sans-serif-black",
+    default: "sans-serif",
   });
 
   return (
@@ -126,49 +126,49 @@ export const CallingCard = memo(function CallingCard({
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    top: Platform.OS === 'ios' ? 50 : 20,
+    position: "absolute",
+    top: Platform.OS === "ios" ? 50 : 20,
     left: 16,
     right: 16,
     zIndex: 9999,
   },
   card: {
-    backgroundColor: '#D80000',
+    backgroundColor: "#D80000",
     borderWidth: 3,
-    borderColor: '#FFFFFF',
+    borderColor: "#FFFFFF",
     borderRadius: 0,
     padding: 16,
-    transform: [{ skewX: '-3deg' }],
-    shadowColor: '#000000',
+    transform: [{ skewX: "-3deg" }],
+    shadowColor: "#000000",
     shadowOffset: { width: 6, height: 6 },
     shadowOpacity: 0.8,
     shadowRadius: 0,
     elevation: 8,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
   },
   title: {
     fontSize: 18,
-    fontWeight: '900',
-    color: '#FFFFFF',
-    textTransform: 'uppercase',
+    fontWeight: "900",
+    color: "#FFFFFF",
+    textTransform: "uppercase",
     letterSpacing: 1,
     flex: 1,
   },
   close: {
     fontSize: 20,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
+    color: "#FFFFFF",
+    fontWeight: "bold",
     marginLeft: 12,
   },
   message: {
     fontSize: 14,
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     marginTop: 8,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
 

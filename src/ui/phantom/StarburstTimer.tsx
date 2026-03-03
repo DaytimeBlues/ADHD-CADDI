@@ -1,6 +1,6 @@
-import React, { memo } from 'react';
-import { View, Text, StyleSheet, Animated } from 'react-native';
-import { useTheme } from '../../theme/ThemeProvider';
+import React, { memo } from "react";
+import { View, Text, StyleSheet, Animated } from "react-native";
+import { useTheme } from "../../theme/ThemeProvider";
 
 export interface StarburstTimerProps {
   timeStr: string;
@@ -12,7 +12,7 @@ export interface StarburstTimerProps {
 export const StarburstTimer = memo(function StarburstTimer({
   timeStr,
   isActive = false,
-  label = 'FOCUS NOW',
+  label = "FOCUS NOW",
   testID,
 }: StarburstTimerProps) {
   const { isPhantom, t } = useTheme();
@@ -34,7 +34,7 @@ export const StarburstTimer = memo(function StarburstTimer({
             duration: 500,
             useNativeDriver: true,
           }),
-        ])
+        ]),
       ).start();
     } else {
       scale.setValue(1);
@@ -44,13 +44,18 @@ export const StarburstTimer = memo(function StarburstTimer({
   if (!isPhantom) {
     return (
       <View style={styles.fallbackContainer} testID={testID}>
-        <Text style={{ color: t.colors.brand[500], fontSize: 48 }}>{timeStr}</Text>
+        <Text style={{ color: t.colors.brand[500], fontSize: 48 }}>
+          {timeStr}
+        </Text>
       </View>
     );
   }
 
   return (
-    <Animated.View style={[styles.container, { transform: [{ scale }] }]} testID={testID}>
+    <Animated.View
+      style={[styles.container, { transform: [{ scale }] }]}
+      testID={testID}
+    >
       <View style={styles.polygon}>
         <Text style={styles.digits} numberOfLines={1} adjustsFontSizeToFit>
           {timeStr}
@@ -63,40 +68,40 @@ export const StarburstTimer = memo(function StarburstTimer({
 
 const styles = StyleSheet.create({
   fallbackContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     padding: 24,
   },
   container: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginVertical: 24,
   },
   polygon: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderWidth: 4,
-    borderColor: '#000000',
+    borderColor: "#000000",
     padding: 24,
-    transform: [{ rotate: '-3deg' }, { skewX: '-8deg' }],
-    shadowColor: '#D80000',
+    transform: [{ rotate: "-3deg" }, { skewX: "-8deg" }],
+    shadowColor: "#D80000",
     shadowOffset: { width: 8, height: 8 },
     shadowOpacity: 1,
     shadowRadius: 0,
     elevation: 12,
   },
   digits: {
-    fontFamily: 'Impact',
+    fontFamily: "Impact",
     fontSize: 72,
-    color: '#000000',
-    textAlign: 'center',
-    textTransform: 'uppercase',
+    color: "#000000",
+    textAlign: "center",
+    textTransform: "uppercase",
   },
   label: {
-    fontFamily: 'Impact',
+    fontFamily: "Impact",
     fontSize: 24,
-    color: '#D80000',
-    textAlign: 'center',
-    textTransform: 'uppercase',
+    color: "#D80000",
+    textAlign: "center",
+    textTransform: "uppercase",
     marginTop: -8,
   },
 });

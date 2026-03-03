@@ -33,9 +33,9 @@ def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
 def localAppData = System.getenv('LOCALAPPDATA')
 
 if (isWindows && localAppData != null && !localAppData.isEmpty()) {
-    rootProject.buildDir = file("${localAppData}/Temp/spark-android/build-root")
+    rootProject.buildDir = file("${localAppData}/Temp/adhd-caddi-android/build-root")
     subprojects { subproject ->
-        subproject.buildDir = file("${localAppData}/Temp/spark-android/${subproject.name}")
+        subproject.buildDir = file("${localAppData}/Temp/adhd-caddi-android/${subproject.name}")
     }
 }
 

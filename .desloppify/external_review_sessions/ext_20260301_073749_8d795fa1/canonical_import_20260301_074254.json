@@ -26,9 +26,7 @@
       "dimension": "incomplete_migration",
       "identifier": "deprecated_themeprovider",
       "summary": "ThemeProvider marked deprecated but widely used",
-      "related_files": [
-        "src/theme/ThemeProvider.tsx"
-      ],
+      "related_files": ["src/theme/ThemeProvider.tsx"],
       "evidence": "ThemeProvider is marked as @deprecated with a note saying it's no longer required, yet it has 28 importers and still performs pass-through logic.",
       "suggestion": "Phase out ThemeProvider by migrating callers to directly use useThemeStore or removing the wrapper where possible.",
       "confidence": "high"
@@ -37,9 +35,7 @@
       "dimension": "high_level_elegance",
       "identifier": "monster_homescreen",
       "summary": "HomeScreen.tsx is a monster component",
-      "related_files": [
-        "src/screens/HomeScreen.tsx"
-      ],
+      "related_files": ["src/screens/HomeScreen.tsx"],
       "evidence": "HomeScreen.tsx is 972 lines long, managing complex animations, local state, and numerous sub-components (ModeCard, etc) within a single file.",
       "suggestion": "Extract the entrance animation logic, style generation, and sub-components into sibling files in a focused directory.",
       "confidence": "high"
@@ -48,9 +44,7 @@
       "dimension": "initialization_coupling",
       "identifier": "storage_init_coupling",
       "summary": "Eager database initialization and module-level side effects",
-      "related_files": [
-        "src/services/StorageService.ts"
-      ],
+      "related_files": ["src/services/StorageService.ts"],
       "evidence": "StorageService eager-loads sqlite via 'require' and initializes the 'db' variable at module scope, which makes server-side rendering or testing without mocks fragile.",
       "suggestion": "Move database opening logic into the 'init' function or use a lazy getter.",
       "confidence": "medium"
@@ -71,9 +65,7 @@
       "dimension": "ai_generated_debt",
       "identifier": "nosy_logger",
       "summary": "Nosy debug logging patterns and restating comments",
-      "related_files": [
-        "src/services/LoggerService.ts"
-      ],
+      "related_files": ["src/services/LoggerService.ts"],
       "evidence": "LoggerService includes heavy logging of full object dumps and contains docstrings that merely restate the function signature (// Log an error message above .error()).",
       "suggestion": "Streamline logging payloads and remove redundant comments that don't add 'why' context.",
       "confidence": "medium"

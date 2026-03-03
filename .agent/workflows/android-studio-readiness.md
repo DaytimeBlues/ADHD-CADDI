@@ -34,6 +34,7 @@ android.dependency.excludeLibraryComponentsFromConstraints=true
 If you see `flatDir` warnings in `app/build.gradle`, replace it.
 
 **Instead of:**
+
 ```gradle
 repositories {
     flatDir { dirs 'libs' }
@@ -44,6 +45,7 @@ dependencies {
 ```
 
 **Do this:**
+
 ```gradle
 dependencies {
     implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
@@ -80,6 +82,7 @@ buildTypes {
 If your build fails with an error about `proguard-android.txt` no longer being supported:
 
 **The Error:**
+
 > `'getDefaultProguardFile('proguard-android.txt')' is no longer supported since it includes '-dontoptimize'...`
 
 **The Fix:**
@@ -89,5 +92,6 @@ Search and replace globally in `node_modules` for Android build files:
 - **Replace with:** `proguard-android-optimize.txt`
 
 **Key files to check:**
+
 - `node_modules/@capacitor/android/capacitor/build.gradle`
 - `node_modules/@capacitor/haptics/android/build.gradle` (and other Capacitor plugins)

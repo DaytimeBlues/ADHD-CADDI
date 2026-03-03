@@ -13,7 +13,7 @@
 The app has a **theme variant system** in [themeVariant.ts](file:///c:/Users/Steve/OneDrive/Desktop/Github%20Repos/spark-adhd/src/theme/themeVariant.ts):
 
 ```typescript
-export type ThemeVariant = 'linear' | 'cosmic';
+export type ThemeVariant = "linear" | "cosmic";
 ```
 
 - Each screen has a `getStyles(isCosmic: boolean)` function that returns theme-aware `StyleSheet`.
@@ -26,7 +26,7 @@ export type ThemeVariant = 'linear' | 'cosmic';
 Instead of overwriting existing themes, we **add** a new variant:
 
 ```typescript
-export type ThemeVariant = 'linear' | 'cosmic' | 'phantom';
+export type ThemeVariant = "linear" | "cosmic" | "phantom";
 ```
 
 This allows:
@@ -41,23 +41,23 @@ This allows:
 
 ### 2.1 Color Palette
 
-| Token Name | Hex | Usage |
-|---|---|---|
-| `signalRed` | `#D80000` | Primary accent, CTAs, urgent items |
-| `pureBlack` | `#000000` | Primary background |
-| `pureWhite` | `#FFFFFF` | Text on dark, card backgrounds |
-| `deepNavy` | `#0A0A1A` | Secondary background, depth layers |
-| `halftoneRed` | `#8B0000` | Halftone patterns, secondary red |
-| `crimson` | `#DC143C` | Hover/active states |
+| Token Name    | Hex       | Usage                              |
+| ------------- | --------- | ---------------------------------- |
+| `signalRed`   | `#D80000` | Primary accent, CTAs, urgent items |
+| `pureBlack`   | `#000000` | Primary background                 |
+| `pureWhite`   | `#FFFFFF` | Text on dark, card backgrounds     |
+| `deepNavy`    | `#0A0A1A` | Secondary background, depth layers |
+| `halftoneRed` | `#8B0000` | Halftone patterns, secondary red   |
+| `crimson`     | `#DC143C` | Hover/active states                |
 
 ### 2.2 Typography
 
-| Role | Font | Style |
-|---|---|---|
-| Headlines | `Impact` or custom "ransom note" | Uppercase, `skewX(-5deg)`, irregular letter spacing |
-| Body | `Arial Black` or `Inter-Bold` | Italic, high-contrast |
-| Timer digits | `Impact` | Massive size (64px+), black on white burst |
-| Labels | `Georgia` bold | Slanted, all-caps |
+| Role         | Font                             | Style                                               |
+| ------------ | -------------------------------- | --------------------------------------------------- |
+| Headlines    | `Impact` or custom "ransom note" | Uppercase, `skewX(-5deg)`, irregular letter spacing |
+| Body         | `Arial Black` or `Inter-Bold`    | Italic, high-contrast                               |
+| Timer digits | `Impact`                         | Massive size (64px+), black on white burst          |
+| Labels       | `Georgia` bold                   | Slanted, all-caps                                   |
 
 ### 2.3 Shape Language
 
@@ -84,12 +84,12 @@ Create a complete token file mirroring `cosmicTokens.ts` structure with P5 color
 
 ```typescript
 export const phantomColors = {
-  signalRed: '#D80000',
-  pureBlack: '#000000',
-  pureWhite: '#FFFFFF',
-  deepNavy: '#0A0A1A',
-  halftoneRed: '#8B0000',
-  crimson: '#DC143C',
+  signalRed: "#D80000",
+  pureBlack: "#000000",
+  pureWhite: "#FFFFFF",
+  deepNavy: "#0A0A1A",
+  halftoneRed: "#8B0000",
+  crimson: "#DC143C",
 };
 
 // Export a PhantomTokens object matching the shape of CosmicTokens:
@@ -520,10 +520,10 @@ After every phase, verify:
 
 ## 8. Risk Assessment
 
-| Risk | Mitigation |
-|---|---|
-| TypeScript errors from new variant | Match `PhantomTokens` shape exactly to `CosmicTokens` |
-| Breaking existing themes | All changes are additive (`isPhantom` branches) |
-| Performance from animations | Use `useNativeDriver: true` on all `Animated` calls |
-| Font availability on Android | Bundle Impact.ttf in `android/app/src/main/assets/fonts/` OR fallback to system bold |
-| Jagged shapes hard in RN (no clip-path) | Use rotated `View` composites or `react-native-svg` polygons |
+| Risk                                    | Mitigation                                                                           |
+| --------------------------------------- | ------------------------------------------------------------------------------------ |
+| TypeScript errors from new variant      | Match `PhantomTokens` shape exactly to `CosmicTokens`                                |
+| Breaking existing themes                | All changes are additive (`isPhantom` branches)                                      |
+| Performance from animations             | Use `useNativeDriver: true` on all `Animated` calls                                  |
+| Font availability on Android            | Bundle Impact.ttf in `android/app/src/main/assets/fonts/` OR fallback to system bold |
+| Jagged shapes hard in RN (no clip-path) | Use rotated `View` composites or `react-native-svg` polygons                         |

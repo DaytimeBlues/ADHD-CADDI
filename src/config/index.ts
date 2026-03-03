@@ -10,11 +10,11 @@
  * a server-side proxy (e.g. the Vercel backend at /api/chat) instead.
  */
 
-export type AiProvider = 'vercel' | 'gemini-direct' | 'kimi-direct';
+export type AiProvider = "vercel" | "gemini-direct" | "kimi-direct";
 
 export interface Config {
   apiBaseUrl: string;
-  environment: 'development' | 'staging' | 'production';
+  environment: "development" | "staging" | "production";
   googleWebClientId?: string;
   googleIosClientId?: string;
   /** AI provider: 'vercel' uses the Vercel backend; 'gemini-direct' calls Gemini API from client */
@@ -33,19 +33,19 @@ export interface Config {
 
 const getConfig = (): Config => {
   const config: Config = {
-    apiBaseUrl: 'https://spark-adhd-api.vercel.app',
-    environment: 'production',
+    apiBaseUrl: "https://spark-adhd-api.vercel.app",
+    environment: "production",
     googleWebClientId: undefined,
     googleIosClientId: undefined,
-    aiProvider: 'vercel',
+    aiProvider: "vercel",
     geminiApiKey: undefined,
     moonshotApiKey: undefined,
-    kimiModel: 'kimi-k2.5',
+    kimiModel: "kimi-k2.5",
     aiTimeout: 8000,
     aiMaxRetries: 3,
   };
 
-  if (typeof process !== 'undefined' && process.env) {
+  if (typeof process !== "undefined" && process.env) {
     if (process.env.EXPO_PUBLIC_API_BASE_URL) {
       config.apiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
     }
@@ -61,14 +61,14 @@ const getConfig = (): Config => {
     if (process.env.EXPO_PUBLIC_GEMINI_API_KEY) {
       config.geminiApiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
       // If a Gemini key is explicitly provided, default to direct mode
-      config.aiProvider = 'gemini-direct';
+      config.aiProvider = "gemini-direct";
     }
 
     if (process.env.EXPO_PUBLIC_MOONSHOT_API_KEY) {
       config.moonshotApiKey = process.env.EXPO_PUBLIC_MOONSHOT_API_KEY;
       // Default to kimi-direct if key provided but no provider set
       if (!process.env.EXPO_PUBLIC_AI_PROVIDER) {
-        config.aiProvider = 'kimi-direct';
+        config.aiProvider = "kimi-direct";
       }
     }
 
@@ -77,12 +77,12 @@ const getConfig = (): Config => {
     }
 
     // Allow explicit override of provider
-    if (process.env.EXPO_PUBLIC_AI_PROVIDER === 'vercel') {
-      config.aiProvider = 'vercel';
-    } else if (process.env.EXPO_PUBLIC_AI_PROVIDER === 'gemini-direct') {
-      config.aiProvider = 'gemini-direct';
-    } else if (process.env.EXPO_PUBLIC_AI_PROVIDER === 'kimi-direct') {
-      config.aiProvider = 'kimi-direct';
+    if (process.env.EXPO_PUBLIC_AI_PROVIDER === "vercel") {
+      config.aiProvider = "vercel";
+    } else if (process.env.EXPO_PUBLIC_AI_PROVIDER === "gemini-direct") {
+      config.aiProvider = "gemini-direct";
+    } else if (process.env.EXPO_PUBLIC_AI_PROVIDER === "kimi-direct") {
+      config.aiProvider = "kimi-direct";
     }
 
     if (process.env.EXPO_PUBLIC_AI_TIMEOUT) {
@@ -96,12 +96,12 @@ const getConfig = (): Config => {
     }
 
     if (
-      process.env.NODE_ENV === 'development' ||
-      process.env.EXPO_PUBLIC_ENV === 'development'
+      process.env.NODE_ENV === "development" ||
+      process.env.EXPO_PUBLIC_ENV === "development"
     ) {
-      config.environment = 'development';
-    } else if (process.env.EXPO_PUBLIC_ENV === 'staging') {
-      config.environment = 'staging';
+      config.environment = "development";
+    } else if (process.env.EXPO_PUBLIC_ENV === "staging") {
+      config.environment = "staging";
     }
   }
 
@@ -110,4 +110,4 @@ const getConfig = (): Config => {
 
 export const config = getConfig();
 
-export * from './caddi';
+export * from "./caddi";

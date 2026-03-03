@@ -67,10 +67,12 @@ keytool -list -v -keystore /path/to/your/release.keystore -alias your-key-alias
 ### Extract the Fingerprints
 
 From the output, copy:
+
 - **SHA-1 fingerprint**: Line starting with `SHA1:`
 - **SHA-256 fingerprint**: Line starting with `SHA256:`
 
 Example output:
+
 ```
 Certificate fingerprints:
     SHA1: A1:B2:C3:D4:E5:F6:01:02:03:04:05:06:07:08:09:10:11:12:13:14
@@ -185,12 +187,14 @@ REACT_APP_GOOGLE_IOS_CLIENT_ID=YOUR_IOS_CLIENT_ID_FROM_STEP_6.apps.googleusercon
 For production builds or CI/CD:
 
 **Windows (PowerShell)**:
+
 ```powershell
 $env:REACT_APP_GOOGLE_WEB_CLIENT_ID="YOUR_WEB_CLIENT_ID.apps.googleusercontent.com"
 $env:REACT_APP_GOOGLE_IOS_CLIENT_ID="YOUR_IOS_CLIENT_ID.apps.googleusercontent.com"
 ```
 
 **macOS/Linux**:
+
 ```bash
 export REACT_APP_GOOGLE_WEB_CLIENT_ID="YOUR_WEB_CLIENT_ID.apps.googleusercontent.com"
 export REACT_APP_GOOGLE_IOS_CLIENT_ID="YOUR_IOS_CLIENT_ID.apps.googleusercontent.com"
@@ -225,25 +229,30 @@ Open the Diagnostics screen in the app (available in `__DEV__` mode from Home sc
 ## Troubleshooting
 
 ### "API not enabled" error
+
 - Ensure Google Tasks API and Google Calendar API are enabled in Google Cloud Console
 - Wait 1-2 minutes after enabling for propagation
 
 ### "Sign-in failed: DEVELOPER_ERROR"
+
 - SHA-1/SHA-256 fingerprints don't match your keystore
 - Re-run `keytool` command and verify fingerprints in Firebase match exactly
 - Make sure you added fingerprints for the correct keystore (debug vs release)
 
 ### "Invalid client ID"
+
 - Web Client ID in environment variable doesn't match Google Cloud Console
 - Check for copy-paste errors (no extra spaces, complete string)
 - Verify the client ID ends with `.apps.googleusercontent.com`
 
 ### "Access blocked: This app's request is invalid"
+
 - OAuth consent screen not configured
 - Required scopes not added (Tasks + Calendar)
 - Go back to Step 5 and verify scopes
 
 ### google-services.json not found
+
 - File must be at exact path: `android/app/google-services.json`
 - Check file is not named `google-services.json.txt` (Windows hides extensions)
 - Verify package name in file matches `com.sparkadhd`

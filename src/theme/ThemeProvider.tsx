@@ -7,14 +7,14 @@
  * identical to prevent massive codebase refactoring.
  */
 
-import React from 'react';
+import React from "react";
 
-import { LinearTokens } from './linearTokens';
-import { CosmicTokens } from './cosmicTokens';
-import { PhantomTokens } from './phantomTokens';
-import { ThemeVariant, THEME_METADATA } from './themeVariant';
+import { LinearTokens } from "./linearTokens";
+import { CosmicTokens } from "./cosmicTokens";
+import { PhantomTokens } from "./phantomTokens";
+import { ThemeVariant, THEME_METADATA } from "./themeVariant";
 
-import { useThemeStore } from '../store/useThemeStore';
+import { useThemeStore } from "../store/useThemeStore";
 
 // ============================================================================
 // EXPORT TYPES (Maintained for legacy compatibility)
@@ -38,19 +38,20 @@ export interface ThemeContextValue {
 export function useTheme(): ThemeContextValue {
   const { variant, setVariant, _hasHydrated } = useThemeStore();
 
-  const tokens = variant === 'cosmic'
-    ? CosmicTokens
-    : variant === 'phantom'
-      ? PhantomTokens
-      : LinearTokens;
+  const tokens =
+    variant === "cosmic"
+      ? CosmicTokens
+      : variant === "phantom"
+        ? PhantomTokens
+        : LinearTokens;
 
   return {
     variant,
     setVariant: async (v: ThemeVariant) => setVariant(v),
     t: tokens,
-    isCosmic: variant === 'cosmic',
-    isLinear: variant === 'linear',
-    isPhantom: variant === 'phantom',
+    isCosmic: variant === "cosmic",
+    isLinear: variant === "linear",
+    isPhantom: variant === "phantom",
     isLoaded: _hasHydrated,
     metadata: THEME_METADATA[variant],
   };

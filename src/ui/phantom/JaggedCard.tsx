@@ -1,21 +1,21 @@
-import React, { memo } from 'react';
-import { View, StyleSheet, StyleProp, ViewStyle, Platform } from 'react-native';
-import { useTheme } from '../../theme/ThemeProvider';
+import React, { memo } from "react";
+import { View, StyleSheet, StyleProp, ViewStyle, Platform } from "react-native";
+import { useTheme } from "../../theme/ThemeProvider";
 
 export interface JaggedCardProps {
   children: React.ReactNode;
   rotation?: string;
   skew?: string;
-  variant?: 'black' | 'red' | 'white';
+  variant?: "black" | "red" | "white";
   style?: StyleProp<ViewStyle>;
   testID?: string;
 }
 
 export const JaggedCard = memo(function JaggedCard({
   children,
-  rotation = '-2deg',
-  skew = '-5deg',
-  variant = 'black',
+  rotation = "-2deg",
+  skew = "-5deg",
+  variant = "black",
   style,
   testID,
 }: JaggedCardProps) {
@@ -25,8 +25,9 @@ export const JaggedCard = memo(function JaggedCard({
     return <View style={style}>{children}</View>;
   }
 
-  const bgColor = variant === 'black' ? '#000000' : variant === 'red' ? '#D80000' : '#FFFFFF';
-  const borderColor = variant === 'white' ? '#000000' : '#FFFFFF';
+  const bgColor =
+    variant === "black" ? "#000000" : variant === "red" ? "#D80000" : "#FFFFFF";
+  const borderColor = variant === "white" ? "#000000" : "#FFFFFF";
 
   return (
     <View style={[styles.container, style]} testID={testID}>
@@ -54,7 +55,7 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   outerTransform: {
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 4, height: 4 },
     shadowOpacity: 1,
     shadowRadius: 0,
@@ -64,7 +65,7 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     padding: 16,
     borderRadius: 0,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
 });
 

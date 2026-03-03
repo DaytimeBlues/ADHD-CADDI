@@ -4,27 +4,27 @@
  * Provides offline support and caching strategies
  */
 
-const CACHE_NAME = 'spark-adhd-v1';
+const CACHE_NAME = "spark-adhd-v1";
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/static/js/main.bundle.js',
-  '/static/css/main.css',
+  "/",
+  "/index.html",
+  "/static/js/main.bundle.js",
+  "/static/css/main.css",
 ];
 
 // Install event - cache static assets
-self.addEventListener('install', (event) => {
-  console.log('[Service Worker] Installing...');
+self.addEventListener("install", (event) => {
+  console.log("[Service Worker] Installing...");
 
   event.waitUntil(
     caches
       .open(CACHE_NAME)
       .then((cache) => {
-        console.log('[Service Worker] Caching static assets');
+        console.log("[Service Worker] Caching static assets");
         return cache.addAll(STATIC_ASSETS);
       })
       .catch((err) => {
-        console.error('[Service Worker] Cache failed:', err);
+        console.error("[Service Worker] Cache failed:", err);
       }),
   );
 
@@ -33,8 +33,8 @@ self.addEventListener('install', (event) => {
 });
 
 // Activate event - clean up old caches
-self.addEventListener('activate', (event) => {
-  console.log('[Service Worker] Activating...');
+self.addEventListener("activate", (event) => {
+  console.log("[Service Worker] Activating...");
 
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -42,7 +42,7 @@ self.addEventListener('activate', (event) => {
         cacheNames
           .filter((name) => name !== CACHE_NAME)
           .map((name) => {
-            console.log('[Service Worker] Deleting old cache:', name);
+            console.log("[Service Worker] Deleting old cache:", name);
             return caches.delete(name);
           }),
       );
@@ -54,21 +54,21 @@ self.addEventListener('activate', (event) => {
 });
 
 // Fetch event - cache strategies
-self.addEventListener('fetch', (event) => {
+self.addEventListener("fetch", (event) => {
   const { request } = event;
 
   // Skip non-GET requests
-  if (request.method !== 'GET') {
+  if (request.method !== "GET") {
     return;
   }
 
   // Skip non-http requests (chrome-extension, etc.)
-  if (!request.url.startsWith('http')) {
+  if (!request.url.startsWith("http")) {
     return;
   }
 
   // API calls - network first, fallback to cache
-  if (request.url.includes('/api/')) {
+  if (request.url.includes("/api/")) {
     event.respondWith(networkFirst(request));
     return;
   }
@@ -96,9 +96,9 @@ async function cacheFirst(request) {
     cache.put(request, response.clone());
     return response;
   } catch (error) {
-    console.error('[Service Worker] Fetch failed:', error);
+    console.error("[Service Worker] Fetch failed:", error);
     // Return offline fallback if available
-    return caches.match('/offline.html');
+    return caches.match("/offline.html");
   }
 }
 
@@ -109,7 +109,7 @@ async function networkFirst(request) {
     cache.put(request, networkResponse.clone());
     return networkResponse;
   } catch (error) {
-    console.log('[Service Worker] Network failed, trying cache');
+    console.log("[Service Worker] Network failed, trying cache");
     const cached = await caches.match(request);
     if (cached) {
       return cached;
@@ -130,7 +130,7 @@ async function staleWhileRevalidate(request) {
       return networkResponse;
     })
     .catch((error) => {
-      console.log('[Service Worker] Background fetch failed:', error);
+      console.log("[Service Worker] Background fetch failed:", error);
       return cached;
     });
 
@@ -141,36 +141,36 @@ function isStaticAsset(request) {
   const url = new URL(request.url);
   return (
     url.pathname.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2)$/) ||
-    request.destination === 'script' ||
-    request.destination === 'style' ||
-    request.destination === 'image'
+    request.destination === "script" ||
+    request.destination === "style" ||
+    request.destination === "image"
   );
 }
 
 // Background sync for offline actions
-self.addEventListener('sync', (event) => {
-  if (event.tag === 'sync-captures') {
+self.addEventListener("sync", (event) => {
+  if (event.tag === "sync-captures") {
     event.waitUntil(syncCaptures());
   }
 });
 
 async function syncCaptures() {
   // Sync any pending captures when coming back online
-  console.log('[Service Worker] Syncing captures...');
+  console.log("[Service Worker] Syncing captures...");
   // Implementation would sync with CaptureService
 }
 
 // Push notifications (future)
-self.addEventListener('push', (event) => {
+self.addEventListener("push", (event) => {
   const options = {
-    body: event.data?.text() || 'Time to focus!',
-    icon: '/icon-192x192.png',
-    badge: '/badge-72x72.png',
-    tag: 'focus-reminder',
+    body: event.data?.text() || "Time to focus!",
+    icon: "/icon-192x192.png",
+    badge: "/badge-72x72.png",
+    tag: "focus-reminder",
     requireInteraction: true,
   };
 
-  event.waitUntil(self.registration.showNotification('Spark ADHD', options));
+  event.waitUntil(self.registration.showNotification("Spark ADHD", options));
 });
 
-console.log('[Service Worker] Loaded');
+console.log("[Service Worker] Loaded");

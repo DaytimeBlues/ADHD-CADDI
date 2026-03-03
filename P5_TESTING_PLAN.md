@@ -66,7 +66,7 @@ Before committing, the LLM MUST ensure the app can compile for both iOS and Andr
 
 - `npx tsc --noEmit` (Must be 0 errors)
 - `cd android && ./gradlew assembleDebug`
-- *(If on Mac)* `cd ios && xcodebuild -workspace spark.xcworkspace -scheme spark -sdk iphonesimulator`
+- _(If on Mac)_ `cd ios && xcodebuild -workspace spark.xcworkspace -scheme spark -sdk iphonesimulator`
 
 ### 5.2 The "Phantom" Smoke Test Matrix (User Journey)
 

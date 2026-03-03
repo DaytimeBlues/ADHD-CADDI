@@ -9,13 +9,13 @@ Implement CADDI-aligned behavior scaffolding for adult ADHD inattentive presenta
 
 ## 2. Clinical-to-Product Mapping
 
-| CADDI construct | Product behavior | Existing module | Required engineering delta |
-| :--- | :--- | :--- | :--- |
-| Behavioral activation | Fast initiation with minimal decision load | `IgniteScreen` | One-tap launch, recovery prompts, session continuity |
-| Organization/choreography | Convert overwhelm into executable micro-steps | `FogCutterScreen` | Persist decomposition states + completion telemetry |
-| Externalization | Offload working memory immediately | `BrainDumpScreen` | Faster capture path + optional conversion to task queue |
-| Mindful interruption | Interrupt rumination/avoidance loops | `AnchorScreen` | Trigger from stuck states + short guided defaults |
-| Self-monitoring | Detect patterns between mood/energy and activation | `CheckInScreen` | Correlation view with completed ignition sessions |
+| CADDI construct           | Product behavior                                   | Existing module   | Required engineering delta                              |
+| :------------------------ | :------------------------------------------------- | :---------------- | :------------------------------------------------------ |
+| Behavioral activation     | Fast initiation with minimal decision load         | `IgniteScreen`    | One-tap launch, recovery prompts, session continuity    |
+| Organization/choreography | Convert overwhelm into executable micro-steps      | `FogCutterScreen` | Persist decomposition states + completion telemetry     |
+| Externalization           | Offload working memory immediately                 | `BrainDumpScreen` | Faster capture path + optional conversion to task queue |
+| Mindful interruption      | Interrupt rumination/avoidance loops               | `AnchorScreen`    | Trigger from stuck states + short guided defaults       |
+| Self-monitoring           | Detect patterns between mood/energy and activation | `CheckInScreen`   | Correlation view with completed ignition sessions       |
 
 ## 3. Evidence Guardrails
 
@@ -70,15 +70,21 @@ Implement CADDI-aligned behavior scaffolding for adult ADHD inattentive presenta
 ### `CaddiEvidenceSource`
 
 ```ts
-type EvidenceTier = 'A' | 'B' | 'C';
+type EvidenceTier = "A" | "B" | "C";
 
 type CaddiEvidenceSource = {
   id: string;
   title: string;
   tier: EvidenceTier;
   url: string;
-  sourceType: 'rct' | 'qualitative' | 'registry' | 'review' | 'manual' | 'internal';
-  claimStrength: 'trial-supported' | 'practice-informed' | 'hypothesis';
+  sourceType:
+    | "rct"
+    | "qualitative"
+    | "registry"
+    | "review"
+    | "manual"
+    | "internal";
+  claimStrength: "trial-supported" | "practice-informed" | "hypothesis";
 };
 ```
 
@@ -89,8 +95,8 @@ type ActivationSession = {
   id: string;
   startedAt: string;
   endedAt?: string;
-  status: 'started' | 'completed' | 'abandoned' | 'resumed';
-  source: 'ignite' | 'checkin_prompt' | 'fogcutter_handoff';
+  status: "started" | "completed" | "abandoned" | "resumed";
+  source: "ignite" | "checkin_prompt" | "fogcutter_handoff";
 };
 ```
 
@@ -103,12 +109,12 @@ type ActivationSession = {
 
 ## 7. Risk Register
 
-| Risk | Impact | Mitigation |
-| :--- | :--- | :--- |
-| Evidence inflation in product copy | Clinical credibility damage | Config-based claim labeling + review gate |
-| Feature creep via broad ADHD scope | Slower delivery | Lock to inattentive-first path for CADDI stream |
-| Over-instrumentation harms UX | User friction | Keep telemetry local and event-minimal |
-| Regression in timer/task flows | User trust loss | Add focused tests for session transitions |
+| Risk                               | Impact                      | Mitigation                                      |
+| :--------------------------------- | :-------------------------- | :---------------------------------------------- |
+| Evidence inflation in product copy | Clinical credibility damage | Config-based claim labeling + review gate       |
+| Feature creep via broad ADHD scope | Slower delivery             | Lock to inattentive-first path for CADDI stream |
+| Over-instrumentation harms UX      | User friction               | Keep telemetry local and event-minimal          |
+| Regression in timer/task flows     | User trust loss             | Add focused tests for session transitions       |
 
 ## 8. Immediate Execution Order
 

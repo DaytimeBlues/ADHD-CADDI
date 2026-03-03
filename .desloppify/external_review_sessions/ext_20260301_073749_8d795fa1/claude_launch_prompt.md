@@ -7,6 +7,7 @@ Template JSON: C:\Users\Steve\OneDrive\Desktop\Github Repos\spark-adhd\.desloppi
 Output JSON path: C:\Users\Steve\OneDrive\Desktop\Github Repos\spark-adhd\.desloppify\external_review_sessions\ext_20260301_073749_8d795fa1\review_result.json
 
 Requirements:
+
 1. Read ONLY the blind packet and repository code.
 2. Start from the template JSON so `session.id` and `session.token` are preserved.
 3. Keep `session.id` exactly `ext_20260301_073749_8d795fa1`.

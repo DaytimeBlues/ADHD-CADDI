@@ -1,4 +1,4 @@
-import React, { memo, useState, useCallback, useMemo } from 'react';
+import React, { memo, useState, useCallback, useMemo } from "react";
 import {
   View,
   Text,
@@ -6,9 +6,9 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -17,27 +17,27 @@ import Animated, {
   FadeIn,
   SlideInRight,
   Layout,
-} from 'react-native-reanimated';
-import { CosmicBackground, GlowCard, RuneButton } from '../ui/cosmic';
-import { useTaskStore } from '../store/useTaskStore';
-import type { Task, TaskPriority } from '../types/task';
+} from "react-native-reanimated";
+import { CosmicBackground, GlowCard, RuneButton } from "../ui/cosmic";
+import { useTaskStore } from "../store/useTaskStore";
+import type { Task, TaskPriority } from "../types/task";
 
 // Cosmic priority colors
 const PRIORITY_COLORS: Record<TaskPriority, string> = {
-  urgent: '#FB7185', // cometRose
-  important: '#F6C177', // starlightGold
-  normal: '#8B5CF6', // nebulaViolet
+  urgent: "#FB7185", // cometRose
+  important: "#F6C177", // starlightGold
+  normal: "#8B5CF6", // nebulaViolet
 };
 
 const PRIORITY_LABELS: Record<TaskPriority, string> = {
-  urgent: 'URGENT',
-  important: 'IMPORTANT',
-  normal: 'STABLE',
+  urgent: "URGENT",
+  important: "IMPORTANT",
+  normal: "STABLE",
 };
 
 /**
  * CosmicTasksScreen
- * 
+ *
  * Refactored task manager with Cosmic UI aesthetic.
  * Focuses on soft glows, nebula colors, and rounded corners.
  */
@@ -52,16 +52,16 @@ export const P5TasksScreen = memo(function P5TasksScreen() {
   const deleteTaskStore = useTaskStore((state) => state.deleteTask);
 
   // Local UI State
-  const [newTaskTitle, setNewTaskTitle] = useState('');
-  const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all');
+  const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [filter, setFilter] = useState<"all" | "active" | "completed">("all");
   const [isSyncing, setIsSyncing] = useState(false);
 
   // Filter tasks
   const filteredTasks = useMemo(() => {
     switch (filter) {
-      case 'active':
+      case "active":
         return tasks.filter((t) => !t.completed);
-      case 'completed':
+      case "completed":
         return tasks.filter((t) => t.completed);
       default:
         return tasks;
@@ -82,10 +82,10 @@ export const P5TasksScreen = memo(function P5TasksScreen() {
     }
     addTaskStore({
       title: newTaskTitle.trim(),
-      priority: 'normal',
-      source: 'manual',
+      priority: "normal",
+      source: "manual",
     });
-    setNewTaskTitle('');
+    setNewTaskTitle("");
   }, [newTaskTitle, addTaskStore]);
 
   const handleDelete = useCallback(
@@ -106,7 +106,8 @@ export const P5TasksScreen = memo(function P5TasksScreen() {
     () => ({
       total: tasks.length,
       completed: tasks.filter((t) => t.completed).length,
-      urgent: tasks.filter((t) => t.priority === 'urgent' && !t.completed).length,
+      urgent: tasks.filter((t) => t.priority === "urgent" && !t.completed)
+        .length,
     }),
     [tasks],
   );
@@ -135,7 +136,7 @@ export const P5TasksScreen = memo(function P5TasksScreen() {
           loading={isSyncing}
           style={styles.syncButton}
         >
-          {isSyncing ? 'SYNCING' : 'SYNC'}
+          {isSyncing ? "SYNCING" : "SYNC"}
         </RuneButton>
       </View>
 
@@ -156,7 +157,9 @@ export const P5TasksScreen = memo(function P5TasksScreen() {
               padding="sm"
               style={styles.statCard}
             >
-              <Text style={[styles.statValue, { color: PRIORITY_COLORS.urgent }]}>
+              <Text
+                style={[styles.statValue, { color: PRIORITY_COLORS.urgent }]}
+              >
                 {stats.urgent}
               </Text>
               <Text style={styles.statLabel}>URGENT</Text>
@@ -168,7 +171,9 @@ export const P5TasksScreen = memo(function P5TasksScreen() {
               padding="sm"
               style={styles.statCard}
             >
-              <Text style={[styles.statValue, { color: PRIORITY_COLORS.normal }]}>
+              <Text
+                style={[styles.statValue, { color: PRIORITY_COLORS.normal }]}
+              >
                 {stats.total - stats.completed}
               </Text>
               <Text style={styles.statLabel}>ACTIVE</Text>
@@ -180,7 +185,7 @@ export const P5TasksScreen = memo(function P5TasksScreen() {
               padding="sm"
               style={styles.statCard}
             >
-              <Text style={[styles.statValue, { color: '#EEF2FF' }]}>
+              <Text style={[styles.statValue, { color: "#EEF2FF" }]}>
                 {stats.completed}
               </Text>
               <Text style={styles.statLabel}>DONE</Text>
@@ -219,18 +224,18 @@ export const P5TasksScreen = memo(function P5TasksScreen() {
           <View style={styles.filterTabs}>
             <FilterTab
               label="ALL"
-              active={filter === 'all'}
-              onPress={() => setFilter('all')}
+              active={filter === "all"}
+              onPress={() => setFilter("all")}
             />
             <FilterTab
               label="ACTIVE"
-              active={filter === 'active'}
-              onPress={() => setFilter('active')}
+              active={filter === "active"}
+              onPress={() => setFilter("active")}
             />
             <FilterTab
               label="DONE"
-              active={filter === 'completed'}
-              onPress={() => setFilter('completed')}
+              active={filter === "completed"}
+              onPress={() => setFilter("completed")}
             />
           </View>
         </Animated.View>
@@ -279,7 +284,7 @@ const FilterTab = memo(function FilterTab({
 }: FilterTabProps) {
   return (
     <RuneButton
-      variant={active ? 'primary' : 'ghost'}
+      variant={active ? "primary" : "ghost"}
       size="sm"
       onPress={onPress}
       style={styles.filterTab}
@@ -310,7 +315,7 @@ const TaskItem = memo(function TaskItem({
   const handleToggle = useCallback(() => {
     checkboxScale.value = withSequence(
       withSpring(1.2, { stiffness: 300, damping: 10 }),
-      withSpring(1, { stiffness: 300, damping: 10 })
+      withSpring(1, { stiffness: 300, damping: 10 }),
     );
     onToggle();
   }, [checkboxScale, onToggle]);
@@ -318,24 +323,21 @@ const TaskItem = memo(function TaskItem({
   return (
     <GlowCard
       tone="base"
-      glow={task.priority === 'urgent' && !task.completed ? 'soft' : 'none'}
+      glow={task.priority === "urgent" && !task.completed ? "soft" : "none"}
       onPress={handleToggle}
       style={styles.taskCard}
     >
       <View style={styles.taskContent}>
         {/* Checkbox */}
-        <TouchableOpacity
-          onPress={handleToggle}
-          activeOpacity={0.7}
-        >
+        <TouchableOpacity onPress={handleToggle} activeOpacity={0.7}>
           <Animated.View
             style={[
               styles.checkbox,
               task.completed && {
                 backgroundColor: PRIORITY_COLORS[task.priority],
-                borderColor: PRIORITY_COLORS[task.priority]
+                borderColor: PRIORITY_COLORS[task.priority],
               },
-              { borderColor: 'rgba(185, 194, 217, 0.3)' },
+              { borderColor: "rgba(185, 194, 217, 0.3)" },
               animatedCheckboxStyle,
             ]}
           >
@@ -357,7 +359,7 @@ const TaskItem = memo(function TaskItem({
             <View
               style={[
                 styles.priorityBadge,
-                { backgroundColor: `${PRIORITY_COLORS[task.priority]}15` }
+                { backgroundColor: `${PRIORITY_COLORS[task.priority]}15` },
               ]}
             >
               <Text
@@ -376,10 +378,7 @@ const TaskItem = memo(function TaskItem({
         </View>
 
         {/* Delete button */}
-        <TouchableOpacity
-          onPress={onDelete}
-          style={styles.deleteButton}
-        >
+        <TouchableOpacity onPress={onDelete} style={styles.deleteButton}>
           <Text style={styles.deleteIcon}>✕</Text>
         </TouchableOpacity>
       </View>
@@ -391,24 +390,24 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: 24,
     paddingBottom: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   headerTitle: {
     fontSize: 24,
-    fontWeight: '700',
-    color: '#EEF2FF', // starlight
+    fontWeight: "700",
+    color: "#EEF2FF", // starlight
     letterSpacing: 2,
   },
   headerSubtitle: {
     fontSize: 10,
-    fontWeight: '600',
-    color: '#8B5CF6', // nebulaViolet
+    fontWeight: "600",
+    color: "#8B5CF6", // nebulaViolet
     letterSpacing: 3,
     marginTop: -2,
   },
@@ -416,11 +415,11 @@ const styles = StyleSheet.create({
     marginRight: 16,
     width: 32,
     height: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   backIcon: {
-    color: '#EEF2FF',
+    color: "#EEF2FF",
     fontSize: 24,
   },
   syncButton: {
@@ -433,22 +432,22 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   statsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     gap: 12,
   },
   statCard: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
   },
   statValue: {
     fontSize: 28,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   statLabel: {
     fontSize: 9,
-    fontWeight: '700',
-    color: 'rgba(238, 242, 255, 0.5)',
+    fontWeight: "700",
+    color: "rgba(238, 242, 255, 0.5)",
     letterSpacing: 1.5,
     marginTop: 4,
   },
@@ -457,15 +456,15 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   addTaskContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     paddingLeft: 16,
     paddingRight: 8,
     paddingVertical: 8,
   },
   addTaskInput: {
     flex: 1,
-    color: '#EEF2FF',
+    color: "#EEF2FF",
     fontSize: 16,
     paddingVertical: 8,
   },
@@ -475,7 +474,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   filterTabs: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginTop: 24,
     gap: 8,
     marginBottom: 8,
@@ -487,21 +486,21 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   taskContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   checkbox: {
     width: 24,
     height: 24,
     borderRadius: 12,
     borderWidth: 1.5,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 16,
   },
   checkmark: {
-    color: '#FFFFFF',
-    fontWeight: '900',
+    color: "#FFFFFF",
+    fontWeight: "900",
     fontSize: 12,
   },
   taskInfo: {
@@ -509,16 +508,16 @@ const styles = StyleSheet.create({
   },
   taskTitle: {
     fontSize: 16,
-    fontWeight: '500',
-    color: '#EEF2FF',
+    fontWeight: "500",
+    color: "#EEF2FF",
   },
   taskTitleCompleted: {
-    textDecorationLine: 'line-through',
-    color: 'rgba(238, 242, 255, 0.4)',
+    textDecorationLine: "line-through",
+    color: "rgba(238, 242, 255, 0.4)",
   },
   taskMeta: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 6,
   },
   priorityBadge: {
@@ -528,27 +527,27 @@ const styles = StyleSheet.create({
   },
   priorityLabel: {
     fontSize: 10,
-    fontWeight: '700',
+    fontWeight: "700",
     letterSpacing: 0.5,
   },
   dueDate: {
     fontSize: 11,
-    fontWeight: '400',
-    color: 'rgba(238, 242, 255, 0.4)',
+    fontWeight: "400",
+    color: "rgba(238, 242, 255, 0.4)",
     marginLeft: 8,
   },
   deleteButton: {
     width: 32,
     height: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   deleteIcon: {
-    color: 'rgba(238, 242, 255, 0.3)',
+    color: "rgba(238, 242, 255, 0.3)",
     fontSize: 18,
   },
   emptyState: {
-    alignItems: 'center',
+    alignItems: "center",
     paddingVertical: 60,
   },
   emptyIcon: {
@@ -557,15 +556,15 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 20,
-    fontWeight: '700',
-    color: '#EEF2FF',
+    fontWeight: "700",
+    color: "#EEF2FF",
   },
   emptySubtext: {
     fontSize: 14,
-    fontWeight: '400',
-    color: 'rgba(238, 242, 255, 0.5)',
+    fontWeight: "400",
+    color: "rgba(238, 242, 255, 0.5)",
     marginTop: 4,
-    textAlign: 'center',
+    textAlign: "center",
   },
 });
 

@@ -5,15 +5,9 @@
  * Sharp edges, Impact font labels.
  */
 
-import React, { memo } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  Platform,
-} from 'react-native';
-import { useTheme } from '../../theme/ThemeProvider';
+import React, { memo } from "react";
+import { View, Text, Pressable, StyleSheet, Platform } from "react-native";
+import { useTheme } from "../../theme/ThemeProvider";
 
 export interface NavItem {
   key: string;
@@ -42,9 +36,9 @@ export const PhantomNavBar = memo(function PhantomNavBar({
 
   const fontFamily = Platform.select({
     web: 'Impact, "Arial Black", sans-serif',
-    ios: 'Impact',
-    android: 'sans-serif-black',
-    default: 'sans-serif',
+    ios: "Impact",
+    android: "sans-serif-black",
+    default: "sans-serif",
   });
 
   return (
@@ -55,10 +49,7 @@ export const PhantomNavBar = memo(function PhantomNavBar({
         return (
           <Pressable
             key={item.key}
-            style={[
-              styles.item,
-              isActive && styles.itemActive,
-            ]}
+            style={[styles.item, isActive && styles.itemActive]}
             onPress={() => onSelect(item.key)}
             accessibilityRole="button"
             accessibilityLabel={item.label}
@@ -97,61 +88,61 @@ export const PhantomNavBar = memo(function PhantomNavBar({
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    backgroundColor: '#000000',
+    flexDirection: "row",
+    backgroundColor: "#000000",
     borderTopWidth: 3,
-    borderTopColor: '#FFFFFF',
-    paddingBottom: Platform.OS === 'ios' ? 20 : 8,
+    borderTopColor: "#FFFFFF",
+    paddingBottom: Platform.OS === "ios" ? 20 : 8,
     paddingTop: 8,
   },
   item: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: 8,
-    position: 'relative',
+    position: "relative",
   },
   itemActive: {
-    backgroundColor: 'rgba(216, 0, 0, 0.15)',
+    backgroundColor: "rgba(216, 0, 0, 0.15)",
   },
   indicator: {
-    position: 'absolute',
+    position: "absolute",
     top: -3,
     width: 0,
     height: 0,
     borderLeftWidth: 8,
     borderRightWidth: 8,
     borderBottomWidth: 8,
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-    borderBottomColor: '#D80000',
-    transform: [{ skewX: '-10deg' }],
+    borderLeftColor: "transparent",
+    borderRightColor: "transparent",
+    borderBottomColor: "#D80000",
+    transform: [{ skewX: "-10deg" }],
   },
   iconContainer: {
     width: 40,
     height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-    transform: [{ rotate: '-10deg' }],
+    alignItems: "center",
+    justifyContent: "center",
+    transform: [{ rotate: "-10deg" }],
     borderWidth: 2,
-    borderColor: '#666666',
+    borderColor: "#666666",
     borderRadius: 0,
-    backgroundColor: '#000000',
+    backgroundColor: "#000000",
   },
   iconContainerActive: {
-    borderColor: '#D80000',
-    backgroundColor: '#1A0000',
+    borderColor: "#D80000",
+    backgroundColor: "#1A0000",
   },
   label: {
     fontSize: 10,
-    fontWeight: '700',
-    color: '#CCCCCC',
+    fontWeight: "700",
+    color: "#CCCCCC",
     marginTop: 4,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     letterSpacing: 0.5,
   },
   labelActive: {
-    color: '#D80000',
+    color: "#D80000",
   },
 });
 

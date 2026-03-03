@@ -8,11 +8,13 @@ Claude launch prompt: C:\Users\Steve\OneDrive\Desktop\Github Repos\spark-adhd\.d
 Expected reviewer output: C:\Users\Steve\OneDrive\Desktop\Github Repos\spark-adhd\.desloppify\external_review_sessions\ext_20260301_073749_8d795fa1\review_result.json
 
 Happy path:
+
 1. Open the Claude launch prompt file and paste it into a context-isolated subagent task.
 2. Reviewer writes JSON output to the expected reviewer output path.
 3. Submit with the printed --external-submit command.
 
 Reviewer output requirements:
+
 1. Return JSON with top-level keys: session, assessments, findings.
 2. session.id must be `ext_20260301_073749_8d795fa1`.
 3. session.token must be `7238d7c650e2f1e59aa50653c2fd7e3e`.
