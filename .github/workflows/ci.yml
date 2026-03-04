@@ -33,12 +33,11 @@ jobs:
       - name: Run unit tests
         run: npm test -- --runInBand
 
-  e2e-smoke:
-    name: E2E Smoke Tests
+  e2e-web:
+    name: E2E Web Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    # Initially non-blocking - remove this line when E2E is stable
-    continue-on-error: true
+    timeout-minutes: 20
+    # BLOCKING: E2E must pass for release
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,22 +52,34 @@ jobs:
         run: npm ci
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium firefox webkit
 
       - name: Build web app
         run: npm run build:web
 
-      - name: Run Playwright smoke tests
-        run: npx playwright test e2e/alex-scenarios.spec.ts -g "A.1 Quick Capture" --project=chromium
+      - name: Run Playwright E2E tests
+        run: npx playwright test
         env:
           CI: true
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
-        if: failure()
+        if: always()
         with:
           name: playwright-report
           path: |
             playwright-report/
             test-results/
-          retention-days: 7
+            playwright-*.log
+          retention-days: 30
+
+      - name: Upload build logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: build-logs
+          path: |
+            build_log.txt
+            web-dev.log
+            webpack.log
+          retention-days: 30

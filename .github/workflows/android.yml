@@ -1,12 +1,17 @@
 name: Android CI
 
 on:
+  push:
+    branches: [main, "feat/**", "fix/**"]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
-  build-and-test:
+  android-build-and-test:
+    name: Android Build and E2E Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     env:
       GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g -Dorg.gradle.internal.http.connectionTimeout=120000 -Dorg.gradle.internal.http.socketTimeout=120000"
 
@@ -53,16 +58,130 @@ jobs:
         run: ./gradlew assembleDebug
         working-directory: android
 
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-debug-apk
+          path: android/app/build/outputs/apk/debug/*.apk
+          retention-days: 30
+
+      - name: Upload Gradle logs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gradle-logs
+          path: |
+            android/app/build/outputs/logs/
+            android/build/reports/
+          retention-days: 30
+
       - name: Unit Tests
         run: ./gradlew testDebugUnitTest
         working-directory: android
 
-      - name: Instrumentation Tests
+      - name: Upload test reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: android-test-reports
+          path: |
+            android/app/build/reports/tests/
+            android/app/build/test-results/
+          retention-days: 30
+
+      - name: Detox E2E Tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 34
           target: google_apis
           arch: x86_64
           profile: pixel_6
-          script: ./gradlew connectedDebugAndroidTest
+          script: |
+            npm run test:e2e:android
+        env:
+          DETOX_CONFIGURATION: android.debug
+
+      - name: Upload Detox artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: detox-artifacts
+          path: |
+            detox/artifacts/
+            detox/*.log
+          retention-days: 30
+
+      - name: Upload emulator logcat
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: emulator-logcat
+          path: artifacts/logcat.log
+          retention-days: 30
+
+  android-release-build:
+    name: Android Release Build Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: android-build-and-test
+    env:
+      GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-release-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      - name: Assemble Release
+        run: ./gradlew assembleRelease
         working-directory: android
+        env:
+          # Use debug signing for CI check (real release needs keystore)
+          ANDROID_SIGNING_ENABLED: false
+
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-release-apk
+          path: android/app/build/outputs/apk/release/*.apk
+          retention-days: 30
+
+      - name: Verify APK launches
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_6
+          script: |
+            adb install android/app/build/outputs/apk/release/app-release.apk
+            adb shell am start -n com.adhdcaddi/.MainActivity
+            sleep 10
+            adb shell dumpsys window windows | grep -i "com.adhdcaddi"
