@@ -14,8 +14,9 @@ import ActivationService, {
 } from '../services/ActivationService';
 import { ROUTES } from '../navigation/routes';
 import { Tokens } from '../theme/tokens';
-import { useTheme } from '../theme/ThemeProvider';
+import { useTheme } from '../theme/useTheme';
 import CheckInInsightService from '../services/CheckInInsightService';
+import { isWeb, isAndroid, isIOS } from '../utils/PlatformUtils';
 
 const HOVER_SHADOW = '0 0 0 rgba(0,0,0,0)';
 
@@ -386,7 +387,7 @@ const getStyles = (isCosmic: boolean) =>
       marginBottom: Tokens.spacing[2],
       letterSpacing: 2,
       textAlign: 'center',
-      ...(isCosmic && Platform.OS === 'web'
+      ...(isCosmic && isWeb
         ? {
             textShadow: '0 0 20px rgba(139, 92, 246, 0.3)',
           }

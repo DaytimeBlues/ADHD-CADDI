@@ -1,13 +1,14 @@
 import { useEffect, useRef } from 'react';
 import { AppState, AppStateStatus, Platform } from 'react-native';
 import { GoogleTasksSyncService } from '../services/GoogleTasksSyncService';
+import { isWeb, isAndroid, isIOS } from '../utils/PlatformUtils';
 
 export const useGoogleSyncPolling = (): void => {
   const pollingStartedRef = useRef(false);
 
   useEffect(() => {
     const syncPollingForState = (nextState: AppStateStatus) => {
-      if (Platform.OS === 'web') {
+      if (isWeb) {
         return;
       }
 

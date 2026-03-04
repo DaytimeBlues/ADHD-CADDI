@@ -2,7 +2,7 @@ import React from 'react';
 import { Text, StyleSheet } from 'react-native';
 import Animated, { FadeInUp, Layout } from 'react-native-reanimated';
 import { Tokens } from '../../theme/tokens';
-import { useTheme } from '../../theme/ThemeProvider';
+import { useTheme } from '../../theme/useTheme';
 
 interface AnimatedMicroStepProps {
   item: string;

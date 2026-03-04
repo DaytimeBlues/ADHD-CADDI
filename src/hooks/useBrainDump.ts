@@ -9,6 +9,7 @@ import {
 } from './useBrainDumpRecording';
 import { useBrainDumpSorting } from './useBrainDumpSorting';
 import type { SortedItem } from '../services/AISortService';
+import { isWeb, isAndroid, isIOS } from '../utils/PlatformUtils';
 
 export type { DumpItem } from './useBrainDumpItems';
 export type { RecordingState } from './useBrainDumpRecording';
@@ -49,7 +50,7 @@ export const useBrainDump = (autoRecord?: boolean): UseBrainDumpReturn => {
   // Initialize layout animation on Android
   useEffect(() => {
     if (
-      Platform.OS === 'android' &&
+      isAndroid &&
       UIManager.setLayoutAnimationEnabledExperimental
     ) {
       UIManager.setLayoutAnimationEnabledExperimental(true);

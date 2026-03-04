@@ -9,9 +9,10 @@ import {
   ScrollView,
 } from 'react-native';
 import { Tokens } from '../theme/tokens';
-import { useTheme } from '../theme/ThemeProvider';
+import { useTheme } from '../theme/useTheme';
 import { CosmicBackground, GlowCard } from '../ui/cosmic';
 import { GoogleTasksSyncService } from '../services/PlaudService';
+import { isWeb, isAndroid, isIOS } from '../utils/PlatformUtils';
 
 type CalendarConnectionStatus =
   | 'checking'
@@ -68,7 +69,7 @@ const CalendarScreen = () => {
     .map((_, i) => i + 1);
 
   const refreshCalendarConnectionStatus = useCallback(async () => {
-    if (Platform.OS === 'web') {
+    if (isWeb) {
       setConnectionStatus('unsupported');
       return;
     }

@@ -5,7 +5,8 @@ import useTimer from '../hooks/useTimer';
 import { useTimerStore } from '../store/useTimerStore';
 import { LinearButton } from '../components/ui/LinearButton';
 import { Tokens } from '../theme/tokens';
-import { useTheme } from '../theme/ThemeProvider';
+import { useTheme } from '../theme/useTheme';
+import { isWeb, isAndroid, isIOS } from '../utils/PlatformUtils';
 import {
   CosmicBackground,
   ChronoDigits,
@@ -242,7 +243,7 @@ const getStyles = (isCosmic: boolean) =>
       marginBottom: Tokens.spacing[2],
       letterSpacing: 2,
       textAlign: 'center',
-      ...(isCosmic && Platform.OS === 'web'
+      ...(isCosmic && isWeb
         ? {
             textShadow: '0 0 20px rgba(139, 92, 246, 0.3)',
           }
@@ -269,7 +270,7 @@ const getStyles = (isCosmic: boolean) =>
       padding: Tokens.spacing[4],
       marginBottom: Tokens.spacing[6],
       borderRadius: isCosmic ? 12 : 0,
-      ...(isCosmic && Platform.OS === 'web'
+      ...(isCosmic && isWeb
         ? {
             backdropFilter: 'blur(12px)',
             boxShadow:
@@ -308,7 +309,7 @@ const getStyles = (isCosmic: boolean) =>
         ? 'rgba(185, 194, 217, 0.12)'
         : Tokens.colors.neutral.borderSubtle,
       gap: Tokens.spacing[3],
-      ...(isCosmic && Platform.OS === 'web'
+      ...(isCosmic && isWeb
         ? {
             backdropFilter: 'blur(8px)',
             boxShadow:

@@ -1,5 +1,6 @@
 import { StyleSheet, Platform } from 'react-native';
 import { Tokens } from '../theme/tokens';
+import { isWeb, isAndroid, isIOS } from '../utils/PlatformUtils';
 
 export const getStyles = (isCosmic: boolean) =>
   StyleSheet.create({
@@ -34,7 +35,7 @@ export const getStyles = (isCosmic: boolean) =>
       fontWeight: '700',
       color: isCosmic ? '#EEF2FF' : Tokens.colors.text.primary,
       letterSpacing: -1,
-      ...(isCosmic && Platform.OS === 'web'
+      ...(isCosmic && isWeb
         ? {
             textShadow: '0 0 20px rgba(139, 92, 246, 0.3)',
           }
@@ -165,7 +166,7 @@ export const getStyles = (isCosmic: boolean) =>
       color: isCosmic
         ? 'rgba(185, 194, 217, 0.8)'
         : Tokens.colors.text.secondary,
-      marginTop: Platform.OS === 'web' ? -2 : 0,
+      marginTop: isWeb ? -2 : 0,
     },
     overlayTextGroup: {
       flex: 1,

@@ -11,8 +11,9 @@
 
 import React, { memo, useMemo } from 'react';
 import { View, StyleSheet, ViewStyle, Platform, StyleProp } from 'react-native';
-import { useTheme } from '../../theme/ThemeProvider';
+import { useTheme } from '../../theme/useTheme';
 import { BackgroundVariant } from './types';
+import { isWeb, isAndroid, isIOS } from '../../utils/PlatformUtils';
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -139,7 +140,7 @@ export const CosmicBackground = memo(function CosmicBackground({
 
   // Web-specific styles with multi-layer backgrounds
   const webStyle: WebViewStyle | null = useMemo(() => {
-    return Platform.OS === 'web' && isCosmic && webBackgroundImage
+    return isWeb && isCosmic && webBackgroundImage
       ? ({
           backgroundImage: webBackgroundImage,
           backgroundRepeat: 'no-repeat',
@@ -161,7 +162,7 @@ export const CosmicBackground = memo(function CosmicBackground({
       {children}
 
       {/* Background Noise/Grain Concept #47 */}
-      {Platform.OS === 'web' && (
+      {isWeb && (
         <View
           style={[
             StyleSheet.absoluteFillObject,

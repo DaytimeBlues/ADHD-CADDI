@@ -10,13 +10,14 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
 } from 'react-native';
-import { useTheme } from '../theme/ThemeProvider';
+import { useTheme } from '../theme/useTheme';
 import { Tokens } from '../theme/tokens';
 import { LinearButton } from './ui/LinearButton';
 import { RuneButton } from '../ui/cosmic/RuneButton';
 import { CosmicBackground } from '../ui/cosmic/CosmicBackground';
 import { GlowCard } from '../ui/cosmic/GlowCard';
 import CaptureService from '../services/CaptureService';
+import { isWeb, isAndroid, isIOS } from '../utils/PlatformUtils';
 
 interface DriftCheckOverlayProps {
   visible: boolean;
@@ -64,7 +65,7 @@ export const DriftCheckOverlay: React.FC<DriftCheckOverlayProps> = ({
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          behavior={isIOS ? 'padding' : 'height'}
           style={styles.overlay}
         >
           {isCosmic && (

@@ -16,8 +16,9 @@ import { LoggerService } from '../services/LoggerService';
 import useTimer from '../hooks/useTimer';
 import { useTimerStore } from '../store/useTimerStore';
 import { Tokens } from '../theme/tokens';
-import { useTheme } from '../theme/ThemeProvider';
+import { useTheme } from '../theme/useTheme';
 import { LinearButton } from '../components/ui/LinearButton';
+import { isWeb, isAndroid, isIOS } from '../utils/PlatformUtils';
 import {
   CosmicBackground,
   ChronoDigits,
@@ -427,7 +428,7 @@ const getStyles = (isCosmic: boolean) =>
       color: isCosmic ? '#EEF2FF' : Tokens.colors.text.primary,
       letterSpacing: 1,
       textTransform: 'uppercase',
-      ...(isCosmic && Platform.OS === 'web'
+      ...(isCosmic && isWeb
         ? {
             textShadow: '0 0 20px rgba(139, 92, 246, 0.3)',
           }
@@ -442,7 +443,7 @@ const getStyles = (isCosmic: boolean) =>
         ? 'rgba(139, 92, 246, 0.2)'
         : Tokens.colors.neutral.border,
       borderRadius: isCosmic ? 4 : 0,
-      ...(isCosmic && Platform.OS === 'web'
+      ...(isCosmic && isWeb
         ? {
             backdropFilter: 'blur(8px)',
             boxShadow:
@@ -511,7 +512,7 @@ const getStyles = (isCosmic: boolean) =>
         : Tokens.colors.neutral.border,
       backgroundColor: isCosmic ? 'rgba(11, 16, 34, 0.5)' : 'transparent',
       borderRadius: isCosmic ? 4 : 0,
-      ...(isCosmic && Platform.OS === 'web'
+      ...(isCosmic && isWeb
         ? {
             backdropFilter: 'blur(8px)',
             transition: 'all 0.2s ease',
@@ -539,7 +540,7 @@ const getStyles = (isCosmic: boolean) =>
         ? 'rgba(11, 16, 34, 0.5)'
         : Tokens.colors.neutral.darker,
       borderRadius: isCosmic ? 4 : 0,
-      ...(isCosmic && Platform.OS === 'web'
+      ...(isCosmic && isWeb
         ? {
             backdropFilter: 'blur(8px)',
             transition: 'all 0.2s ease',
@@ -554,7 +555,7 @@ const getStyles = (isCosmic: boolean) =>
       borderColor: isCosmic
         ? 'rgba(139, 92, 246, 0.4)'
         : Tokens.colors.brand[500],
-      ...(isCosmic && Platform.OS === 'web'
+      ...(isCosmic && isWeb
         ? {
             boxShadow:
               '0 0 0 1px rgba(139, 92, 246, 0.2), 0 0 16px rgba(139, 92, 246, 0.15)',

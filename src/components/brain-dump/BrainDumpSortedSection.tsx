@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Tokens } from '../../theme/tokens';
-import { useTheme } from '../../theme/ThemeProvider';
+import { useTheme } from '../../theme/useTheme';
 import { SortedItem } from '../../services/AISortService';
 
 interface BrainDumpSortedSectionProps {

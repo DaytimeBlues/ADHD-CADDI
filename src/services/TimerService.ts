@@ -1,18 +1,22 @@
-import { useTimerStore } from '../store/useTimerStore';
+import { useTimerStore, TimerMode } from '../store/useTimerStore';
+import { NotificationService } from './NotificationService';
 
 /**
  * TimerService
  *
  * Manages a single global interval for the Pomodoro and other timers.
- * This prevents interval duplication when multiple components use the useTimer hook.
+ * Handles side-effects (notifications) by listening to store state changes.
  */
 
 class TimerServiceClass {
   private intervalId: ReturnType<typeof setInterval> | null = null;
   private tickMs = 1000;
+  private lastIsRunning = false;
+  private lastTargetEndTime: number | null = null;
 
   constructor() {
     this.checkE2EMode();
+    this.initStoreListener();
   }
 
   private checkE2EMode() {
@@ -24,6 +28,37 @@ class TimerServiceClass {
     if (globalRecord?.__SPARK_E2E_TEST_MODE__ === true) {
       this.tickMs = 100;
     }
+  }
+
+  private initStoreListener() {
+    // Subscribe to state changes to handle side-effects (notifications)
+    // This removes the need for the store to know about NotificationService
+    useTimerStore.subscribe((state) => {
+      const { isRunning, targetEndTime, isWorking, activeMode } = state;
+
+      const becameRunning = isRunning && !this.lastIsRunning;
+      const targetChanged = isRunning && targetEndTime !== this.lastTargetEndTime;
+
+      if ((becameRunning || targetChanged) && targetEndTime) {
+        this.scheduleNotification(isWorking, activeMode, targetEndTime);
+      } else if (!isRunning && this.lastIsRunning) {
+        NotificationService.cancelTimerNotification();
+      }
+
+      this.lastIsRunning = isRunning;
+      this.lastTargetEndTime = targetEndTime;
+    });
+  }
+
+  private scheduleNotification(
+    isWorking: boolean,
+    mode: TimerMode,
+    targetEndTime: number,
+  ) {
+    const title = isWorking ? 'Focus Session Complete' : 'Break Finished';
+    const body =
+      mode === 'pomodoro' ? 'Time to switch gears!' : 'Your timer has finished.';
+    NotificationService.scheduleTimerCompletion(title, body, targetEndTime);
   }
 
   /**

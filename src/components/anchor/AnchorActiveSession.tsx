@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Tokens } from '../../theme/tokens';
-import { useTheme } from '../../theme/ThemeProvider';
+import { useTheme } from '../../theme/useTheme';
 import { ChronoDigits, HaloRing, RuneButton } from '../../ui/cosmic';
 import { LinearButton } from '../ui/LinearButton';
 import { BreathingPattern, PatternConfig } from '../../hooks/useAnchor';

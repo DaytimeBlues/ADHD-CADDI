@@ -10,6 +10,7 @@ import StorageService from '../services/StorageService';
 
 import { normalizeMicroSteps } from '../utils/fogCutter';
 import { generateId } from '../utils/helpers';
+import { isWeb, isAndroid, isIOS } from '../utils/PlatformUtils';
 
 export const CATEGORY_ORDER: Array<AISortServiceSortedItem['category']> = [
   'task',
@@ -146,7 +147,7 @@ export const useBrainDumpSorting = (): UseBrainDumpSortingReturn => {
 
       if (exportResult.authRequired) {
         setGoogleAuthRequired(true);
-        if (Platform.OS === 'web') {
+        if (isWeb) {
           setSortingError(
             'Google sign-in is not available on web yet. Please use the mobile app to sync with Google Tasks.',
           );
@@ -175,7 +176,7 @@ export const useBrainDumpSorting = (): UseBrainDumpSortingReturn => {
   );
 
   const handleConnectGoogle = useCallback(async () => {
-    if (Platform.OS === 'web') {
+    if (isWeb) {
       setSortingError('Google sign-in is not available on web yet.');
       return;
     }

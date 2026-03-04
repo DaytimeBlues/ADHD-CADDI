@@ -9,8 +9,9 @@ import {
 } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Tokens } from '../theme/tokens';
-import { useTheme } from '../theme/ThemeProvider';
+import { useTheme } from '../theme/useTheme';
 import HapticsService from '../services/HapticsService';
+import { isWeb, isAndroid, isIOS } from '../utils/PlatformUtils';
 
 export const WebNavBar = ({ state, navigation }: BottomTabBarProps) => {
   const { width } = useWindowDimensions();
@@ -47,7 +48,7 @@ export const WebNavBar = ({ state, navigation }: BottomTabBarProps) => {
             ? Tokens.spacing[3]
             : Tokens.spacing[6],
         },
-        Platform.OS === 'web' ? styles.absolute : styles.relative,
+        isWeb ? styles.absolute : styles.relative,
       ]}
     >
       {/* Logo Area */}

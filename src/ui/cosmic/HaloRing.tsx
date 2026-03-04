@@ -23,9 +23,10 @@ import Animated, {
   Extrapolate,
   ReduceMotion,
 } from 'react-native-reanimated';
-import { useTheme } from '../../theme/ThemeProvider';
+import { useTheme } from '../../theme/useTheme';
 import useReducedMotion from '../../hooks/useReducedMotion';
 import { HaloMode, GlowLevel } from './types';
+import { isWeb, isAndroid, isIOS } from '../../utils/PlatformUtils';
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -92,7 +93,6 @@ export const HaloRing = memo(function HaloRing({
 }: HaloRingProps) {
   const { isCosmic } = useTheme();
   const reduceMotion = useReducedMotion();
-  const isWeb = Platform.OS === 'web';
 
   // Animation values
   const breathingProgress = useSharedValue(0);

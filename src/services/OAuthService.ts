@@ -1,6 +1,7 @@
 /// <reference lib="dom" />
 import { Platform } from 'react-native';
 import { LoggerService } from './LoggerService';
+import { isWeb, isAndroid, isIOS } from '../utils/PlatformUtils';
 
 /**
  * OAuthService
@@ -76,7 +77,7 @@ class OAuthServiceClass {
   // ==================== Storage Helpers ====================
 
   private async getStorageItem(key: string): Promise<string | null> {
-    if (Platform.OS === 'web') {
+    if (isWeb) {
       return localStorage.getItem(key);
     }
     // Native: use AsyncStorage or similar
@@ -87,7 +88,7 @@ class OAuthServiceClass {
   }
 
   private async setStorageItem(key: string, value: string): Promise<void> {
-    if (Platform.OS === 'web') {
+    if (isWeb) {
       localStorage.setItem(key, value);
       return;
     }
@@ -98,7 +99,7 @@ class OAuthServiceClass {
   }
 
   private async removeStorageItem(key: string): Promise<void> {
-    if (Platform.OS === 'web') {
+    if (isWeb) {
       localStorage.removeItem(key);
       return;
     }
@@ -213,7 +214,7 @@ class OAuthServiceClass {
   async initiateTodoistAuth(): Promise<{ success: boolean; error?: string }> {
     try {
       const redirectUri =
-        Platform.OS === 'web'
+        isWeb
           ? `${window.location.origin}/ADHD-CADDI/`
           : 'com.adhdcaddi:/oauth2callback';
 

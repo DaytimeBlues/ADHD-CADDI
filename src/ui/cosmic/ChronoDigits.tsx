@@ -7,7 +7,7 @@
 
 import React, { memo, useMemo } from 'react';
 import { Text, TextStyle, Platform } from 'react-native';
-import { useTheme } from '../../theme/ThemeProvider';
+import { useTheme } from '../../theme/useTheme';
 import { LinearTokens } from '../../theme/linearTokens';
 import { cosmicTypography, textGlowStyles } from '../../theme/cosmicTokens';
 import { TimerSize, TimerColor, GlowLevel } from './types';

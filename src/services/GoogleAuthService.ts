@@ -1,6 +1,7 @@
 import { Platform } from 'react-native';
 import { config } from '../config';
 import { LoggerService } from './LoggerService';
+import { isWeb, isAndroid, isIOS } from '../utils/PlatformUtils';
 
 interface GoogleSigninLike {
   configure: (config: {
@@ -67,7 +68,7 @@ export class GoogleAuthService {
   }
 
   async getCurrentUserScopes(): Promise<string[] | null> {
-    if (Platform.OS === 'web') {
+    if (isWeb) {
       return null;
     }
 
@@ -86,7 +87,7 @@ export class GoogleAuthService {
   }
 
   async getCurrentUserEmail(): Promise<string | null> {
-    if (Platform.OS === 'web') {
+    if (isWeb) {
       return null;
     }
 
@@ -101,7 +102,7 @@ export class GoogleAuthService {
   }
 
   async signInInteractive(): Promise<boolean> {
-    if (Platform.OS === 'web') {
+    if (isWeb) {
       return false;
     }
 
@@ -129,7 +130,7 @@ export class GoogleAuthService {
   }
 
   async getAccessToken(): Promise<string | null> {
-    if (Platform.OS === 'web') {
+    if (isWeb) {
       return null;
     }
 

@@ -30,9 +30,10 @@ import AISortService, { SortedItem } from '../services/AISortService';
 import { generateId } from '../utils/helpers';
 import { normalizeMicroSteps } from '../utils/fogCutter';
 import { Tokens } from '../theme/tokens';
-import { useTheme } from '../theme/ThemeProvider';
+import { useTheme } from '../theme/useTheme';
 import { CosmicBackground } from '../ui/cosmic';
 
+import { isWeb, isAndroid, isIOS } from '../utils/PlatformUtils';
 import {
   BrainDumpItem,
   BrainDumpInput,
@@ -172,7 +173,7 @@ const BrainDumpScreen = () => {
 
   useEffect(() => {
     if (
-      Platform.OS === 'android' &&
+      isAndroid &&
       UIManager.setLayoutAnimationEnabledExperimental
     ) {
       UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -314,7 +315,7 @@ const BrainDumpScreen = () => {
 
       if (exportResult.authRequired) {
         setGoogleAuthRequired(true);
-        if (Platform.OS === 'web') {
+        if (isWeb) {
           setSortingError(
             'Google sign-in is not available on web yet. Please use the mobile app to sync with Google Tasks.',
           );
@@ -343,7 +344,7 @@ const BrainDumpScreen = () => {
   );
 
   const handleConnectGoogle = useCallback(async () => {
-    if (Platform.OS === 'web') {
+    if (isWeb) {
       setSortingError('Google sign-in is not available on web yet.');
       return;
     }

@@ -12,7 +12,8 @@ import {
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Tokens } from '../theme/tokens';
 import HapticsService from '../services/HapticsService';
-import { useTheme } from '../theme/ThemeProvider';
+import { useTheme } from '../theme/useTheme';
+import { isWeb, isAndroid, isIOS } from '../utils/PlatformUtils';
 
 export type ModeCardMode = {
   name: string;
@@ -56,7 +57,7 @@ function ModeCardComponent({
   const { isCosmic } = useTheme();
 
   const hoverStyle: WebInteractiveStyle | undefined =
-    Platform.OS === 'web' && (isHovered || isFocused)
+    isWeb && (isHovered || isFocused)
       ? ({
           borderColor: 'rgba(255, 255, 255, 0.25)',
           backgroundColor: '#232A42',
@@ -66,7 +67,7 @@ function ModeCardComponent({
       : undefined;
 
   const focusStyle: WebInteractiveStyle | undefined =
-    Platform.OS === 'web' && isFocused
+    isWeb && isFocused
       ? ({
           outlineColor: mode.accent,
           outlineStyle: 'solid',
@@ -95,7 +96,7 @@ function ModeCardComponent({
         style={({ pressed }) => [
           styles.card,
           isCosmic ? styles.cardCosmic : styles.cardStandard,
-          Platform.OS === 'web' &&
+          isWeb &&
             ({
               cursor: 'pointer',
               transition: 'all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)',
@@ -105,7 +106,7 @@ function ModeCardComponent({
           focusStyle,
         ]}
       >
-        {Platform.OS === 'web' && <View style={styles.webGradientOverlay} />}
+        {isWeb && <View style={styles.webGradientOverlay} />}
         <View style={styles.cardHeader}>
           <Icon
             name={mode.icon}
@@ -180,7 +181,7 @@ const styles = StyleSheet.create({
   webGradientOverlay: {
     ...StyleSheet.absoluteFillObject,
     opacity: 1,
-    ...(Platform.OS === 'web' && {
+    ...(isWeb && {
       backgroundImage:
         'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0) 100%)',
       pointerEvents: 'none',

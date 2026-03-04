@@ -8,7 +8,7 @@ import {
   Platform,
 } from 'react-native';
 import { Tokens } from '../../theme/tokens';
-import { useTheme } from '../../theme/ThemeProvider';
+import { useTheme } from '../../theme/useTheme';
 
 export type RecordingState = 'idle' | 'recording' | 'processing';
 

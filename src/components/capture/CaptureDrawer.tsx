@@ -26,6 +26,7 @@ import { LoggerService } from '../../services/LoggerService';
 import { RuneButton } from '../../ui/cosmic/RuneButton';
 import { useTaskStore } from '../../store/useTaskStore';
 import type { BubbleState } from './CaptureBubble';
+import { isWeb, isAndroid, isIOS } from '../../utils/PlatformUtils';
 
 // ============================================================================
 // TYPES
@@ -337,7 +338,7 @@ const PasteMode = memo(function PasteMode({ onCapture }: PasteModeProps) {
   const handleAutoPaste = useCallback(async () => {
     setIsPasting(true);
     try {
-      if (Platform.OS === 'web') {
+      if (isWeb) {
         // navigator.clipboard is a web-only API; cast for type safety
         const webNavigator = navigator as typeof navigator & {
           clipboard?: { readText: () => Promise<string> };
@@ -475,7 +476,7 @@ const PhotoMode = memo(function PhotoMode({ onCapture }: PhotoModeProps) {
   const [caption, setCaption] = useState('');
 
   const handlePickFile = useCallback(() => {
-    if (Platform.OS === 'web') {
+    if (isWeb) {
       // document and HTMLInputElement are web-only APIs; use globalThis cast
       const doc = (
         globalThis as typeof globalThis & {

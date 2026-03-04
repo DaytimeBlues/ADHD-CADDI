@@ -32,17 +32,15 @@ import ActivationService, {
 import RetentionService from '../services/RetentionService';
 import { ReentryPromptLevel } from '../services/RetentionService';
 import useReducedMotion from '../hooks/useReducedMotion';
+import useEntranceAnimation from '../hooks/useEntranceAnimation';
 import { Tokens } from '../theme/tokens';
-import { useTheme } from '../theme/ThemeProvider';
+import { useTheme } from '../theme/useTheme';
 import ModeCard, { ModeCardMode } from './ModeCard';
 import { ReEntryPrompt } from '../components/ui/ReEntryPrompt';
 import { ROUTES } from '../navigation/routes';
 import { CosmicBackground, GlowCard } from '../ui/cosmic';
 import { getStyles } from './HomeScreen.styles';
-
-const ANIMATION_DURATION = 300;
-const ANIMATION_STAGGER = 50;
-const ENTRANCE_OFFSET_Y = 15;
+import { isWeb, isAndroid, isIOS } from '../utils/PlatformUtils';
 
 type NavigatorState = {
   routeNames?: string[];
@@ -223,13 +221,13 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
     [],
   );
 
-  const fadeAnims = useRef(modes.map(() => new Animated.Value(0))).current;
-  const slideAnims = useRef(
-    modes.map(() => new Animated.Value(ENTRANCE_OFFSET_Y)),
-  ).current;
+  const { fadeAnims, slideAnims } = useEntranceAnimation(
+    modes.length,
+    prefersReducedMotion,
+  );
 
   const checkOverlayState = useCallback(async () => {
-    if (Platform.OS === 'android') {
+    if (isAndroid) {
       try {
         const running = await OverlayService.isRunning();
         setIsOverlayEnabled(running);
@@ -287,39 +285,7 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
   useEffect(() => {
     loadStreak();
     checkOverlayState();
-
-    if (prefersReducedMotion) {
-      fadeAnims.forEach((anim) => anim.setValue(1));
-      slideAnims.forEach((anim) => anim.setValue(0));
-      return;
-    }
-
-    const animations = modes.map((_, i) => {
-      return Animated.parallel([
-        Animated.timing(fadeAnims[i], {
-          toValue: 1,
-          duration: ANIMATION_DURATION,
-          useNativeDriver: true,
-          easing: Easing.out(Easing.quad),
-        }),
-        Animated.timing(slideAnims[i], {
-          toValue: 0,
-          duration: ANIMATION_DURATION,
-          useNativeDriver: true,
-          easing: Easing.out(Easing.cubic),
-        }),
-      ]);
-    });
-
-    Animated.stagger(ANIMATION_STAGGER, animations).start();
-  }, [
-    checkOverlayState,
-    fadeAnims,
-    loadStreak,
-    modes,
-    prefersReducedMotion,
-    slideAnims,
-  ]);
+  }, [loadStreak, checkOverlayState]);
 
   useEffect(() => {
     if (Platform.OS !== 'android') {
@@ -598,16 +564,16 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
 
                 {(reentryPromptLevel === 'gentle_restart' ||
                   reentryPromptLevel === 'fresh_restart') && (
-                  <ReEntryPrompt
-                    level={reentryPromptLevel}
-                    onPrimaryAction={() => navigateByRouteName(ROUTES.FOCUS)}
-                    testID="reentry-prompt"
-                  />
-                )}
+                    <ReEntryPrompt
+                      level={reentryPromptLevel}
+                      onPrimaryAction={() => navigateByRouteName(ROUTES.FOCUS)}
+                      testID="reentry-prompt"
+                    />
+                  )}
               </GlowCard>
             )}
 
-            {Platform.OS === 'android' && (
+            {isAndroid && (
               <GlowCard
                 glow={isOverlayEnabled ? 'medium' : 'soft'}
                 tone={isOverlayEnabled ? 'raised' : 'base'}
@@ -656,7 +622,7 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
               </GlowCard>
             )}
 
-            {Platform.OS === 'android' && __DEV__ && (
+            {isAndroid && __DEV__ && (
               <View style={styles.debugPanel}>
                 <Text style={styles.debugTitle}>LOGS</Text>
                 {overlayEvents.length === 0 ? (

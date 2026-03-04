@@ -19,7 +19,7 @@ import { AnimatedMicroStep } from '../components/ui/AnimatedMicroStep';
 import { Shimmer } from '../components/ui/Shimmer';
 import { EmptyStateExamples } from '../components/ui/EmptyStateExamples';
 import { Tokens } from '../theme/tokens';
-import { useTheme } from '../theme/ThemeProvider';
+import { useTheme } from '../theme/useTheme';
 import { ROUTES } from '../navigation/routes';
 import { CosmicBackground, GlowCard, RuneButton } from '../ui/cosmic';
 import { useFogCutter, Task } from '../hooks/useFogCutter';

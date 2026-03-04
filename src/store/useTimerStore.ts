@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { zustandStorage } from '../services/StorageService';
-import { NotificationService } from '../services/NotificationService';
 
 export type TimerMode = 'pomodoro' | 'ignite' | 'fog_cutter' | null;
 
@@ -28,6 +27,10 @@ interface TimerState {
   completePhase: (nextDurationSeconds: number, nextIsWorking: boolean) => void;
   incrementSession: () => void;
   markCompleted: () => void;
+  resetCompletionSignal: () => void;
+  forceComplete: () => void;
+  fastForward: (seconds: number) => void;
+  setTime: (seconds: number) => void;
 }
 
 export const useTimerStore = create<TimerState>()(
@@ -52,13 +55,6 @@ export const useTimerStore = create<TimerState>()(
           targetEndTime,
           isWorking,
         });
-
-        const title = isWorking ? 'Focus Session Complete' : 'Break Finished';
-        const body =
-          mode === 'pomodoro'
-            ? 'Time to switch gears!'
-            : 'Your timer has finished.';
-        NotificationService.scheduleTimerCompletion(title, body, targetEndTime);
       },
 
       pause: () => {
@@ -66,7 +62,6 @@ export const useTimerStore = create<TimerState>()(
         if (!state.isRunning) {
           return;
         }
-        NotificationService.cancelTimerNotification();
         set({
           isRunning: false,
           targetEndTime: null,
@@ -85,17 +80,10 @@ export const useTimerStore = create<TimerState>()(
           isRunning: true,
           targetEndTime,
         });
-
-        const title = state.isWorking
-          ? 'Focus Session Complete'
-          : 'Break Finished';
-        const body = 'Your resumed timer has finished.';
-        NotificationService.scheduleTimerCompletion(title, body, targetEndTime);
       },
 
       reset: () => {
         const state = get();
-        NotificationService.cancelTimerNotification();
         set({
           isRunning: false,
           remainingSeconds: state.durationSeconds,
@@ -121,7 +109,6 @@ export const useTimerStore = create<TimerState>()(
 
         // Auto-transition to completed state when timer reaches zero
         if (rawRemaining === 0) {
-          NotificationService.cancelTimerNotification();
           set({
             isRunning: false,
             targetEndTime: null,
@@ -131,7 +118,6 @@ export const useTimerStore = create<TimerState>()(
       },
 
       completePhase: (nextDurationSeconds, nextIsWorking) => {
-        NotificationService.cancelTimerNotification();
         set({
           isRunning: false,
           targetEndTime: null,
@@ -148,6 +134,40 @@ export const useTimerStore = create<TimerState>()(
 
       markCompleted: () => {
         set({ completedAt: Date.now() });
+      },
+
+      resetCompletionSignal: () => {
+        set({ completedAt: null });
+      },
+
+      forceComplete: () => {
+        const state = get();
+        if (state.isRunning) {
+          set({
+            remainingSeconds: 0,
+            targetEndTime: Date.now(),
+          });
+          state.tick();
+        }
+      },
+
+      fastForward: (seconds) => {
+        const state = get();
+        if (state.isRunning) {
+          const nextRemaining = Math.max(0, state.remainingSeconds - seconds);
+          const nextTarget = Date.now() + nextRemaining * 1000;
+          set({
+            remainingSeconds: nextRemaining,
+            targetEndTime: nextTarget,
+          });
+        }
+      },
+
+      setTime: (seconds) => {
+        set({
+          remainingSeconds: seconds,
+          durationSeconds: seconds,
+        });
       },
     }),
     {

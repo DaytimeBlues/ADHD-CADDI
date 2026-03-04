@@ -57,7 +57,7 @@ const useTimer = ({
     if (isActive && completedAt !== null) {
       onComplete?.();
       // Reset completion signal to prevent duplicate triggers
-      useTimerStore.setState({ completedAt: null });
+      useTimerStore.getState().resetCompletionSignal();
     }
   }, [isActive, completedAt, onComplete]);
 
@@ -71,26 +71,15 @@ const useTimer = ({
 
     globalRecord.__SPARK_E2E_TIMER_CONTROLS__ = {
       complete: () => {
-        // Use the same store path as normal completion - tick() handles the transition
-        const state = useTimerStore.getState();
-        if (state.isRunning) {
-          // Force remainingSeconds to 0 and let tick() handle the completion transition
-          useTimerStore.setState({
-            remainingSeconds: 0,
-            targetEndTime: Date.now(), // Force immediate expiration
-          });
-          // Trigger tick to process completion
-          state.tick();
+        if (isActive) {
+          useTimerStore.getState().forceComplete();
         }
       },
       fastForward: (seconds: number) => {
-        if (!Number.isFinite(seconds) || seconds <= 0) {
+        if (!Number.isFinite(seconds) || seconds <= 0 || !isActive) {
           return;
         }
-        const current = useTimerStore.getState().remainingSeconds;
-        useTimerStore.setState({
-          remainingSeconds: Math.max(0, current - Math.floor(seconds)),
-        });
+        useTimerStore.getState().fastForward(seconds);
       },
     };
 
@@ -157,10 +146,7 @@ const useTimer = ({
   const setTime = useCallback(
     (time: number) => {
       if (isActive) {
-        useTimerStore.setState({
-          remainingSeconds: time,
-          durationSeconds: time,
-        });
+        useTimerStore.getState().setTime(time);
       }
     },
     [isActive],

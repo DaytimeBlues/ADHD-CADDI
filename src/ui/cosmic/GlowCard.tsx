@@ -13,8 +13,9 @@ import {
   Animated,
   Platform,
 } from 'react-native';
-import { useTheme } from '../../theme/ThemeProvider';
+import { useTheme } from '../../theme/useTheme';
 import { surfaceColors, webBoxShadows } from '../../theme/cosmicTokens';
+import { isWeb, isAndroid, isIOS } from '../../utils/PlatformUtils';
 import {
   GlowLevel,
   SurfaceTone,
@@ -155,7 +156,7 @@ export const GlowCard = memo(function GlowCard({
       padding: resolvedPadding,
       borderWidth: 1,
       borderColor: isCosmic ? 'rgba(185, 194, 217, 0.12)' : 'transparent',
-      ...(onPress && Platform.OS === 'web'
+      ...(onPress && isWeb
         ? ({
             cursor: 'pointer',
             transition: 'all 0.2s ease-in-out',

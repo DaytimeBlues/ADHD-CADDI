@@ -24,8 +24,9 @@ import {
   ViewStyle,
   ScrollView,
 } from 'react-native';
-import { useTheme } from '../../theme/ThemeProvider';
+import { useTheme } from '../../theme/useTheme';
 import { surfaceColors, textColors } from '../../theme/cosmicTokens';
+import { isWeb, isAndroid, isIOS } from '../../utils/PlatformUtils';
 
 // ============================================================================
 // TYPES
@@ -175,7 +176,7 @@ export const BottomSheet = memo(function BottomSheet({
               backgroundColor: sheetBackground,
               borderColor,
               maxHeight,
-              ...(Platform.OS === 'web' &&
+              ...(isWeb &&
                 ({
                   boxShadow:
                     '0 -8px 40px rgba(7, 7, 18, 0.7), 0 0 0 1px rgba(139, 92, 246, 0.15)',
@@ -265,7 +266,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: SHEET_BORDER_RADIUS,
     borderWidth: 1,
     borderBottomWidth: 0,
-    paddingBottom: Platform.OS === 'ios' ? 34 : 16, // safe area bottom
+    paddingBottom: isIOS ? 34 : 16, // safe area bottom
     minHeight: 200,
     overflow: 'hidden',
   },

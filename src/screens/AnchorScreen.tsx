@@ -11,7 +11,8 @@ import {
 import { LinearButton } from '../components/ui/LinearButton';
 import useTimer from '../hooks/useTimer';
 import { Tokens } from '../theme/tokens';
-import { useTheme } from '../theme/ThemeProvider';
+import { useTheme } from '../theme/useTheme';
+import { isWeb, isAndroid, isIOS } from '../utils/PlatformUtils';
 import {
   ChronoDigits,
   RuneButton,
@@ -88,7 +89,7 @@ const AnchorScreen = () => {
   }, [pattern]);
 
   useEffect(() => {
-    if (Platform.OS === 'android') {
+    if (isAndroid) {
       if (UIManager.setLayoutAnimationEnabledExperimental) {
         UIManager.setLayoutAnimationEnabledExperimental(true);
       }
@@ -323,7 +324,7 @@ const getStyles = (isCosmic: boolean) =>
       marginBottom: Tokens.spacing[2],
       letterSpacing: 2,
       textAlign: 'center',
-      ...(isCosmic && Platform.OS === 'web'
+      ...(isCosmic && isWeb
         ? {
             textShadow: '0 0 20px rgba(139, 92, 246, 0.3)',
           }

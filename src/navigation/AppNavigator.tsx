@@ -8,7 +8,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Tokens } from '../theme/tokens';
-import { ThemeProvider, useTheme } from '../theme/ThemeProvider';
+import { useTheme } from '../theme/useTheme';
 import { WebNavBar } from './WebNavBar';
 import { ROUTES } from './routes';
 import { CaptureBubble } from '../components/capture';
@@ -19,6 +19,7 @@ import HomeScreen from '../screens/HomeScreen';
 import IgniteScreen from '../screens/IgniteScreen';
 import BrainDumpScreen from '../screens/BrainDumpScreen';
 import ChatScreen from '../screens/ChatScreen';
+import { isWeb, isAndroid, isIOS } from '../utils/PlatformUtils';
 
 // Lazy loaded non-critical screens
 const FogCutterScreen = lazy(() => import('../screens/FogCutterScreen'));
@@ -117,9 +118,9 @@ const TabNavigator = () => {
 
   return (
     <Tab.Navigator
-      tabBar={Platform.OS === 'web' ? renderWebTabBar : undefined}
+      tabBar={isWeb ? renderWebTabBar : undefined}
       sceneContainerStyle={
-        Platform.OS === 'web' ? webSceneContainerStyle : undefined
+        isWeb ? webSceneContainerStyle : undefined
       }
       screenOptions={{
         tabBarActiveTintColor: isCosmic
@@ -230,10 +231,6 @@ const AppNavigatorContent = () => (
   </Stack.Navigator>
 );
 
-const AppNavigator = () => (
-  <ThemeProvider>
-    <AppNavigatorContent />
-  </ThemeProvider>
-);
+const AppNavigator = () => <AppNavigatorContent />;
 
 export default AppNavigator;

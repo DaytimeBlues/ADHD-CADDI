@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { View, TextInput, StyleSheet, Platform } from 'react-native';
 import { LinearButton } from '../../components/ui/LinearButton';
 import { Tokens } from '../../theme/tokens';
-import { useTheme } from '../../theme/ThemeProvider';
+import { useTheme } from '../../theme/useTheme';
 
 export interface BrainDumpInputProps {
   onAdd: (text: string) => void;

@@ -5,6 +5,7 @@ import UXMetricsService from '../services/UXMetricsService';
 import { LoggerService } from '../services/LoggerService';
 import HapticsService from '../services/HapticsService';
 import { generateId } from '../utils/helpers';
+import { isWeb, isAndroid, isIOS } from '../utils/PlatformUtils';
 import {
   MicroStep,
   advanceTaskProgress,
@@ -63,7 +64,7 @@ export const useFogCutter = (
 
   // Initialize layout animation on Android
   useEffect(() => {
-    if (Platform.OS === 'android') {
+    if (isAndroid) {
       if (UIManager.setLayoutAnimationEnabledExperimental) {
         UIManager.setLayoutAnimationEnabledExperimental(true);
       }

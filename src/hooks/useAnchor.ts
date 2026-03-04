@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { LayoutAnimation, Platform, UIManager } from 'react-native';
 import useTimer from './useTimer';
+import { isWeb, isAndroid, isIOS } from '../utils/PlatformUtils';
 
 export type BreathingPattern = '478' | 'box' | 'energize';
 
@@ -83,7 +84,7 @@ export const useAnchor = (): UseAnchorReturn => {
 
   // Initialize layout animation on Android
   useEffect(() => {
-    if (Platform.OS === 'android') {
+    if (isAndroid) {
       if (UIManager.setLayoutAnimationEnabledExperimental) {
         UIManager.setLayoutAnimationEnabledExperimental(true);
       }

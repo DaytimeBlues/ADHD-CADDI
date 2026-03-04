@@ -8,6 +8,7 @@ import { DriftService } from '../services/DriftService';
 import { BiometricService } from '../services/BiometricService';
 import { LoggerService } from '../services/LoggerService';
 import { config } from '../config';
+import { isWeb, isAndroid, isIOS } from '../utils/PlatformUtils';
 
 const CRITICAL_INIT_TIMEOUT_MS = 8000;
 
@@ -53,7 +54,7 @@ function initializeNonBlockingServices(): undefined {
  */
 function checkGoogleConfig(): boolean {
   const hasGoogleConfig = Boolean(
-    Platform.OS === 'web' ||
+    isWeb ||
       config.googleWebClientId ||
       config.googleIosClientId,
   );

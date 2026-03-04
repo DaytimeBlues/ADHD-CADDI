@@ -18,8 +18,9 @@ import {
   NativeSyntheticEvent,
   TargetedEvent,
 } from 'react-native';
-import { useTheme } from '../../theme/ThemeProvider';
+import { useTheme } from '../../theme/useTheme';
 import { ButtonVariant, ButtonSize, GlowLevel } from './types';
+import { isWeb, isAndroid, isIOS } from '../../utils/PlatformUtils';
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -113,7 +114,7 @@ export const RuneButton = memo(function RuneButton({
   const handleFocus = useCallback((e: WebFocusEvent) => {
     setIsFocused(true);
     // Check if focus came from keyboard (detail === 0)
-    if (Platform.OS === 'web' && e?.nativeEvent?.detail === 0) {
+    if (isWeb && e?.nativeEvent?.detail === 0) {
       setIsKeyboardFocused(true);
     }
   }, []);

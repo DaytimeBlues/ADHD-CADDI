@@ -11,7 +11,8 @@ import {
 import { CosmicBackground, GlowCard, RuneButton } from '../ui/cosmic';
 import ChatService, { ChatMessage } from '../services/ChatService';
 import { Tokens } from '../theme/tokens';
-import { useTheme } from '../theme/ThemeProvider';
+import { useTheme } from '../theme/useTheme';
+import { isWeb, isAndroid, isIOS } from '../utils/PlatformUtils';
 
 const ChatScreen = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -45,9 +46,9 @@ const ChatScreen = () => {
   return (
     <CosmicBackground variant="nebula">
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={isIOS ? 'padding' : undefined}
         style={styles.container}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+        keyboardVerticalOffset={isIOS ? 90 : 0}
       >
         <View style={styles.header}>
           <Text style={styles.title}>CADDI_ASSISTANT</Text>

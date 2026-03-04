@@ -1,6 +1,7 @@
 import { Platform } from 'react-native';
 import { config } from '../config';
 import { LoggerService } from './LoggerService';
+import { isWeb, isAndroid, isIOS } from '../utils/PlatformUtils';
 
 /**
  * TranscriptionService
@@ -63,7 +64,7 @@ class TranscriptionServiceClass {
       const formData = new FormData();
 
       // Handle different platforms
-      if (Platform.OS === 'web') {
+      if (isWeb) {
         const response = await fetch(audioUri);
         const blob = await response.blob();
         formData.append('audio', blob);

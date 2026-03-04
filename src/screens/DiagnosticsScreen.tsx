@@ -14,11 +14,12 @@ import {
   Platform,
 } from 'react-native';
 import { Tokens, THEME_METADATA } from '../theme/tokens';
-import { useTheme } from '../theme/ThemeProvider';
+import { useTheme } from '../theme/useTheme';
 import { config } from '../config';
 import StorageService from '../services/StorageService';
 import { GoogleTasksSyncService } from '../services/PlaudService';
 import { CosmicBackground, GlowCard } from '../ui/cosmic';
+import { isWeb, isAndroid, isIOS } from '../utils/PlatformUtils';
 
 interface DiagnosticEntry {
   label: string;
@@ -217,7 +218,7 @@ const DiagnosticsScreen = ({ navigation }: { navigation: NavigationNode }) => {
       return;
     }
 
-    if (Platform.OS === 'web') {
+    if (isWeb) {
       await applyImportedBackup(parsedPayloadResult.payload);
       return;
     }
