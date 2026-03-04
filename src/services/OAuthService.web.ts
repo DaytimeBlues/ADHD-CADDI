@@ -1,13 +1,11 @@
 /// <reference lib="dom" />
-import { Platform } from 'react-native';
 import { LoggerService } from './LoggerService';
 
 /**
- * OAuthService
+ * OAuthService (Web Version)
  *
- * Handles OAuth flows for Google and Todoist integrations.
- * Uses backend-assisted flow for web security (PKCE).
- * Native uses direct SDK where available.
+ * Handles OAuth flows for Google and Todoist integrations on web.
+ * Uses backend-assisted flow with PKCE for security.
  */
 
 const API_BASE_URL =
@@ -76,56 +74,27 @@ class OAuthServiceClass {
   // ==================== Storage Helpers ====================
 
   private async getStorageItem(key: string): Promise<string | null> {
-    if (Platform.OS === 'web') {
-      return localStorage.getItem(key);
-    }
-    // Native: use AsyncStorage or similar
-    const { default: AsyncStorage } = await import(
-      '@react-native-async-storage/async-storage'
-    );
-    return AsyncStorage.getItem(key);
+    return localStorage.getItem(key);
   }
 
   private async setStorageItem(key: string, value: string): Promise<void> {
-    if (Platform.OS === 'web') {
-      localStorage.setItem(key, value);
-      return;
-    }
-    const { default: AsyncStorage } = await import(
-      '@react-native-async-storage/async-storage'
-    );
-    await AsyncStorage.setItem(key, value);
+    localStorage.setItem(key, value);
   }
 
   private async removeStorageItem(key: string): Promise<void> {
-    if (Platform.OS === 'web') {
-      localStorage.removeItem(key);
-      return;
-    }
-    const { default: AsyncStorage } = await import(
-      '@react-native-async-storage/async-storage'
-    );
-    await AsyncStorage.removeItem(key);
+    localStorage.removeItem(key);
   }
 
   // ==================== Google OAuth ====================
 
   async initiateGoogleAuth(): Promise<{ success: boolean; error?: string }> {
     try {
-      if (Platform.OS !== 'web') {
-        // Native: use Google Sign-In SDK
-        return this.initiateGoogleAuthNative();
-      }
-
-      // Web: use backend-assisted PKCE flow
       const redirectUri = `${window.location.origin}/ADHD-CADDI/`;
       const codeVerifier = this.generateCodeVerifier();
       const codeChallenge = await this.generateCodeChallenge(codeVerifier);
 
-      // Store code verifier for later
       await this.setStorageItem(STORAGE_KEYS.codeVerifier, codeVerifier);
 
-      // Call backend to get auth URL
       const response = await fetch(`${API_BASE_URL}/api/google-oauth-init`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -142,7 +111,6 @@ class OAuthServiceClass {
 
       const { authUrl, state } = await response.json();
 
-      // Store OAuth state
       const oauthState: OAuthState = {
         provider: 'google',
         state,
@@ -154,7 +122,6 @@ class OAuthServiceClass {
         JSON.stringify(oauthState),
       );
 
-      // Open popup for OAuth
       return this.openOAuthPopup(authUrl, state, 'google');
     } catch (error) {
       LoggerService.error({
@@ -167,55 +134,11 @@ class OAuthServiceClass {
     }
   }
 
-  private async initiateGoogleAuthNative(): Promise<{
-    success: boolean;
-    error?: string;
-  }> {
-    try {
-      const { GoogleSignin } = await import(
-        '@react-native-google-signin/google-signin'
-      );
-
-      await GoogleSignin.hasPlayServices({
-        showPlayServicesUpdateDialog: true,
-      });
-      const userInfo = await GoogleSignin.signIn();
-
-      const tokens = await GoogleSignin.getTokens();
-
-      const authData: GoogleAuthData = {
-        connected: true,
-        accessToken: tokens.accessToken,
-        email: userInfo.data?.user.email,
-        name: userInfo.data?.user.name ?? undefined,
-        picture: userInfo.data?.user.photo ?? undefined,
-      };
-
-      await this.setStorageItem(
-        STORAGE_KEYS.googleAuth,
-        JSON.stringify(authData),
-      );
-
-      return { success: true };
-    } catch (error) {
-      LoggerService.error({
-        service: 'OAuthService',
-        operation: 'initiateGoogleAuthNative',
-        message: 'Native Google auth failed',
-        error,
-      });
-      return { success: false, error: 'Google sign-in failed' };
-    }
-  }
-
   // ==================== Todoist OAuth ====================
 
   async initiateTodoistAuth(): Promise<{ success: boolean; error?: string }> {
     try {
-      const redirectUri =
-        Platform.OS === 'web'
-          ? `${window.location.origin}/ADHD-CADDI/`
-          : 'com.adhdcaddi:/oauth2callback';
+      const redirectUri = `${window.location.origin}/ADHD-CADDI/`;
 
       const response = await fetch(`${API_BASE_URL}/api/todoist-oauth-init`, {
         method: 'POST',
@@ -229,7 +152,6 @@ class OAuthServiceClass {
 
       const { authUrl, state } = await response.json();
 
-      // Store OAuth state
       const oauthState: OAuthState = {
         provider: 'todoist',
         state,
@@ -241,7 +163,6 @@ class OAuthServiceClass {
         JSON.stringify(oauthState),
       );
 
-      // Open popup for OAuth
       return this.openOAuthPopup(authUrl, state, 'todoist');
     } catch (error) {
       LoggerService.error({
@@ -262,13 +183,6 @@ class OAuthServiceClass {
     provider: 'google' | 'todoist',
   ): Promise<{ success: boolean; error?: string }> {
     return new Promise((resolve) => {
-      if (Platform.OS !== 'web') {
-        // Native: use Linking or WebBrowser
-        resolve({ success: false, error: 'Native OAuth not implemented' });
-        return;
-      }
-
-      // Open popup
       const width = 500;
       const height = 600;
       const left = window.screenX + (window.outerWidth - width) / 2;
@@ -288,7 +202,6 @@ class OAuthServiceClass {
         return;
       }
 
-      // Listen for messages from popup
       this.messageHandler = (event: MessageEvent) => {
         if (event.origin !== window.location.origin) {
           return;
@@ -309,7 +222,6 @@ class OAuthServiceClass {
             return;
           }
 
-          // Exchange code for tokens
           this.exchangeCodeForTokens(code, provider, state).then((result) => {
             resolve(result);
           });
@@ -318,7 +230,6 @@ class OAuthServiceClass {
 
       window.addEventListener('message', this.messageHandler);
 
-      // Timeout after 5 minutes
       setTimeout(
         () => {
           this.cleanupPopup();
@@ -356,7 +267,6 @@ class OAuthServiceClass {
 
       const oauthState: OAuthState = JSON.parse(oauthStateJson);
 
-      // Verify state hasn't expired (10 minute window)
       if (Date.now() - oauthState.timestamp > 10 * 60 * 1000) {
         return { success: false, error: 'Authentication expired' };
       }
@@ -373,7 +283,6 @@ class OAuthServiceClass {
         redirectUri: oauthState.redirectUri,
       };
 
-      // Add PKCE verifier for Google
       if (provider === 'google') {
         const codeVerifier = await this.getStorageItem(
           STORAGE_KEYS.codeVerifier,
@@ -399,7 +308,6 @@ class OAuthServiceClass {
 
       const data = await response.json();
 
-      // Store auth data
       if (provider === 'google') {
         const authData: GoogleAuthData = {
           connected: true,
@@ -427,7 +335,6 @@ class OAuthServiceClass {
         );
       }
 
-      // Clean up
       await this.removeStorageItem(STORAGE_KEYS.oauthState);
       await this.removeStorageItem(STORAGE_KEYS.codeVerifier);
 
@@ -477,7 +384,6 @@ class OAuthServiceClass {
       });
 
       if (!response.ok) {
-        // Token refresh failed, clear auth
         await this.disconnectGoogle();
         return false;
       }
@@ -512,7 +418,6 @@ class OAuthServiceClass {
       return false;
     }
 
-    // Token expires 5 minutes before actual expiry
     return Date.now() < auth.expiresAt - 5 * 60 * 1000;
   }
 }

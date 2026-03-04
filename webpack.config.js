@@ -24,8 +24,10 @@ module.exports = (env, argv) => {
     entry: './index.web.js',
     output: {
       path: path.resolve(__dirname, 'dist'),
-      filename: isProduction ? 'bundle.[contenthash].js' : 'bundle.js',
-      chunkFilename: isProduction ? '[name].[contenthash].js' : '[name].js',
+      filename: isProduction ? 'bundle.[contenthash].js' : '[name].bundle.js',
+      chunkFilename: isProduction
+        ? '[name].[contenthash].js'
+        : '[name].chunk.js',
       publicPath: isProduction ? './' : '/',
     },
     optimization: {
