@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, ViewStyle } from 'react-native';
 import { useTheme } from '../../theme/useTheme';
-import { CosmicTokens } from '../../theme/cosmicTokens';
 
 interface ProgressBarProps {
   current: number;
@@ -34,25 +33,13 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   };
 
   const getColor = () => {
-    if (isCosmic) {
-      switch (color) {
-        case 'success':
-          return (CosmicTokens as any).colors.semantic.success;
-        case 'brand':
-          return (CosmicTokens as any).colors.semantic.primary;
-        default:
-          return (CosmicTokens as any).colors.semantic.primary;
-      }
-    }
-
-    // Linear (Standard)
     switch (color) {
       case 'success':
-        return (t.colors as any).success?.main || '#00FF00';
+        return t.colors.semantic.success;
       case 'brand':
-        return (t as any).colors.brand[500];
+        return t.colors.semantic.primary;
       default:
-        return (t as any).colors.brand[500];
+        return t.colors.semantic.primary;
     }
   };
 

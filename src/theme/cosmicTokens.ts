@@ -6,6 +6,7 @@
  */
 
 import { Platform } from 'react-native';
+import { ThemeTokens } from './types';
 
 // ============================================================================
 // COLOR PALETTE
@@ -424,7 +425,7 @@ export const dimmerOverlay = Platform.select({
 // COMPOSITE TOKENS OBJECT
 // ============================================================================
 
-export const CosmicTokens = {
+export const CosmicTokens: ThemeTokens = {
   colors: {
     neutral: neutralScale,
     brand: brandScale,

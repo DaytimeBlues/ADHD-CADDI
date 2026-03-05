@@ -1,5 +1,4 @@
-// Spark Industrial Design Tokens
-// "Nothing" Aesthetic: Monochrome, Purple Accent, Dot Matrix, Raw.
+import { ThemeTokens } from './types';
 
 export const LinearColors = {
   // Brand - Purple Accent (Refined Indigo/Violet)
@@ -91,6 +90,16 @@ export const LinearColors = {
   info: {
     main: '#FFFFFF',
     subtle: 'rgba(255, 255, 255, 0.1)',
+  },
+
+  // Semantic Mapping to match ThemeTokens interface
+  semantic: {
+    primary: '#8B5CF6', // brand[500]
+    secondary: '#7C3AED', // indigo.primary
+    success: '#00FF00', // success.main
+    warning: '#FFD700', // warning.main
+    error: '#EF4444', // danger[500]
+    info: '#FFFFFF', // info.main
   },
 } as const;
 
@@ -192,7 +201,7 @@ export const LinearElevation = {
   },
 } as const;
 
-export const LinearTokens = {
+export const LinearTokens: ThemeTokens = {
   colors: LinearColors,
   spacing: LinearSpacing,
   type: LinearTypography,
