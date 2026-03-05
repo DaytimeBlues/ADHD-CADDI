@@ -97,7 +97,7 @@ jest.mock('react-native-reanimated', () => {
   const AnimatedView = React.forwardRef(
     (
       props: React.ComponentProps<typeof View> & { children: React.ReactNode },
-      ref: React.Ref<View>,
+      ref: React.Ref<any>,
     ) => <View ref={ref} {...props} />,
   );
 
@@ -160,5 +160,4 @@ describe('TasksScreen', () => {
     fireEvent.press(screen.getByText('←'));
     expect(mockNavigation.goBack).toHaveBeenCalledTimes(1);
   });
-
 });
