@@ -4,7 +4,6 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as Sentry from '@sentry/react-native';
 import {
   StatusBar,
-  Platform,
   View,
   ActivityIndicator,
   DeviceEventEmitter,
@@ -30,6 +29,7 @@ import {
 import { agentEventBus } from './src/services/AgentEventBus';
 import { CheckInService } from './src/services/CheckInService';
 import { TimerService } from './src/services/TimerService';
+import { isWeb } from './src/utils/PlatformUtils';
 
 import { DriftCheckOverlay } from './src/components/DriftCheckOverlay';
 import { useDriftStore } from './src/store/useDriftStore';
@@ -95,11 +95,9 @@ export const useAppBootstrap = () => {
     const initializeApp = async () => {
       try {
         const hasGoogleConfig =
-          Platform.OS === 'web' ||
-          config.googleWebClientId ||
-          config.googleIosClientId;
+          isWeb || config.googleWebClientId || config.googleIosClientId;
 
-        if (!hasGoogleConfig && Platform.OS !== 'web') {
+        if (!hasGoogleConfig && !isWeb) {
           LoggerService.warn({
             service: 'App',
             operation: 'initializeApp',
@@ -160,7 +158,7 @@ const App = () => {
 
   useEffect(() => {
     const syncPollingForState = (nextState: AppStateStatus) => {
-      if (Platform.OS === 'web') {
+      if (isWeb) {
         return;
       }
 
@@ -251,7 +249,7 @@ const App = () => {
   );
 
   // GestureHandlerRootView can cause issues on web, wrap conditionally
-  if (Platform.OS === 'web') {
+  if (isWeb) {
     return <View style={styles.flex}>{content}</View>;
   }
 

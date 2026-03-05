@@ -22,13 +22,13 @@ import {
   StyleSheet,
   Animated,
   Easing,
-  Platform,
   ViewStyle,
 } from 'react-native';
 import CaptureService from '../../services/CaptureService';
 import { CheckInService } from '../../services/CheckInService';
 import { navigationRef } from '../../navigation/navigationRef';
 import { ROUTES } from '../../navigation/routes';
+import { isWeb } from '../../utils/PlatformUtils';
 
 import { useTaskStore } from '../../store/useTaskStore';
 import OverlayService from '../../services/OverlayService';
@@ -250,7 +250,7 @@ export const CaptureBubble = memo(function CaptureBubble() {
 
   // Derive FAB glow (web only)
   const fabGlow = useMemo((): ViewStyle => {
-    if (Platform.OS !== 'web') {
+    if (!isWeb) {
       return {};
     }
     switch (bubbleState) {
