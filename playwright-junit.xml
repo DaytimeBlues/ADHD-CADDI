@@ -1,8 +1,8 @@
-<testsuites id="" name="" tests="2" failures="0" skipped="0" errors="0" time="8.465119999999999">
-<testsuite name="smoke-basic.spec.ts" timestamp="2026-03-04T05:11:25.455Z" hostname="chromium" tests="2" failures="0" skipped="0" time="5.61" errors="0">
-<testcase name="Basic Smoke › app shell loads without fatal errors" classname="smoke-basic.spec.ts" time="2.913">
+<testsuites id="" name="" tests="2" failures="0" skipped="0" errors="0" time="124.193419">
+<testsuite name="smoke-basic.spec.ts" timestamp="2026-03-05T08:08:06.521Z" hostname="chromium" tests="2" failures="0" skipped="0" time="10.556" errors="0">
+<testcase name="Basic Smoke › app shell loads without fatal errors" classname="smoke-basic.spec.ts" time="5.257">
 </testcase>
-<testcase name="Basic Smoke › critical static assets are reachable" classname="smoke-basic.spec.ts" time="2.697">
+<testcase name="Basic Smoke › critical static assets are reachable" classname="smoke-basic.spec.ts" time="5.299">
 </testcase>
 </testsuite>
 </testsuites>

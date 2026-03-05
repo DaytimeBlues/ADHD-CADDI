@@ -110,12 +110,18 @@ export const seedAlexPersona = async (page: Page): Promise<void> => {
 
 export const enableE2ETestMode = async (page: Page): Promise<void> => {
   await page.addInitScript(() => {
-    const windowWithProcess = window as Window & {
-      process?: { env: Record<string, string> };
+    const globalRecord = window as unknown as Record<string, unknown> & {
+      process?: { env?: Record<string, string> };
     };
-    windowWithProcess.process = { env: {} };
-    (window as unknown as Record<string, unknown>).__SPARK_E2E_TEST_MODE__ =
-      true;
+
+    // Preserve any existing process polyfill from the bundler/runtime.
+    if (!globalRecord.process) {
+      globalRecord.process = { env: {} };
+    } else if (!globalRecord.process.env) {
+      globalRecord.process.env = {};
+    }
+
+    globalRecord.__SPARK_E2E_TEST_MODE__ = true;
   });
 };
 

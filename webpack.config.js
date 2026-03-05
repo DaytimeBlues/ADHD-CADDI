@@ -111,6 +111,7 @@ module.exports = (env, argv) => {
         'process.env.NODE_ENV': JSON.stringify(
           isProduction ? 'production' : 'development',
         ),
+        'process.env.EXPO_OS': JSON.stringify('web'),
         ...envVars,
       }),
       new HtmlWebpackPlugin({

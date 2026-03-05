@@ -9,6 +9,7 @@ import {
   GoogleTaskItem,
   GoogleApiError,
 } from './GoogleTasksApiClient';
+import NetInfo from '@react-native-community/netinfo';
 
 /**
  * GoogleTasksSyncService
@@ -93,6 +94,11 @@ class GoogleTasksSyncServiceClass {
   private readonly apiClient = googleTasksApiClient;
   private pollTimer: ReturnType<typeof setInterval> | null = null;
   private isSyncing = false;
+  private syncRetryCount = 0;
+  private readonly MAX_SYNC_RETRIES = 3;
+  private readonly BASE_RETRY_DELAY_MS = 2000;
+  private netInfoUnsubscribe: (() => void) | null = null;
+  private offlineQueue: SortedItem[] = [];
 
   configureGoogleSignIn(webClientId?: string, iosClientId?: string): void {
     this.authService.configureGoogleSignIn(webClientId, iosClientId);
@@ -283,6 +289,19 @@ class GoogleTasksSyncServiceClass {
       return result;
     }
 
+    const networkState = await NetInfo.fetch();
+    if (!networkState.isConnected) {
+      LoggerService.info({
+        service: 'GoogleTasksSyncService',
+        operation: 'syncSortedItemsToGoogle',
+        message: 'Device offline. Queuing items for export.',
+      });
+      this.offlineQueue.push(...items);
+      result.skippedCount = items.length;
+      result.errorCode = 'network';
+      return result;
+    }
+
     const accessToken = await this.getAccessToken();
     if (!accessToken) {
       result.authRequired = true;
@@ -383,7 +402,11 @@ class GoogleTasksSyncServiceClass {
     return result;
   }
 
-  async syncToBrainDump(): Promise<GoogleTasksSyncResult> {
+  private async delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  async syncToBrainDump(retryCount = 0): Promise<GoogleTasksSyncResult> {
     const result: GoogleTasksSyncResult = {
       importedCount: 0,
       skippedCount: 0,
@@ -392,6 +415,16 @@ class GoogleTasksSyncServiceClass {
     };
 
     if (this.isSyncing) {
+      return result;
+    }
+
+    const networkState = await NetInfo.fetch();
+    if (!networkState.isConnected) {
+      LoggerService.info({
+        service: 'GoogleTasksSyncService',
+        operation: 'syncToBrainDump',
+        message: 'Sync skipped: device is offline',
+      });
       return result;
     }
 
@@ -510,6 +543,20 @@ class GoogleTasksSyncServiceClass {
       );
 
       return result;
+    } catch (error) {
+      LoggerService.error({
+        service: 'GoogleTasksSyncService',
+        operation: 'syncToBrainDump',
+        message: `Sync failed (attempt ${retryCount + 1})`,
+        error,
+      });
+
+      if (retryCount < this.MAX_SYNC_RETRIES) {
+        const backoffDelay = this.BASE_RETRY_DELAY_MS * Math.pow(2, retryCount);
+        await this.delay(backoffDelay);
+        return this.syncToBrainDump(retryCount + 1);
+      }
+      throw error;
     } finally {
       this.isSyncing = false;
     }
@@ -534,9 +581,84 @@ class GoogleTasksSyncServiceClass {
         });
       });
     }, intervalMs);
+
+    // Add NetInfo listener to trigger sync when connection is restored
+    if (this.netInfoUnsubscribe) {
+      this.netInfoUnsubscribe();
+    }
+
+    this.netInfoUnsubscribe = NetInfo.addEventListener((state) => {
+      if (state.isConnected) {
+        LoggerService.info({
+          service: 'GoogleTasksSyncService',
+          operation: 'NetInfoListener',
+          message: 'Connection restored. Triggering sync and processing queue.',
+        });
+        this.syncToBrainDump().catch((error) => {
+          LoggerService.warn({
+            service: 'GoogleTasksSyncService',
+            operation: 'NetInfoListener',
+            message: 'Sync retry failed after connection restore.',
+            error,
+          });
+        });
+        this.processOfflineQueue().catch((error) => {
+          LoggerService.warn({
+            service: 'GoogleTasksSyncService',
+            operation: 'NetInfoListener',
+            message:
+              'Offline queue processing failed after connection restore.',
+            error,
+          });
+        });
+      }
+    });
+
+    // Also process queue on startup if online
+    NetInfo.fetch()
+      .then((state) => {
+        if (state.isConnected) {
+          this.processOfflineQueue().catch((error) => {
+            LoggerService.warn({
+              service: 'GoogleTasksSyncService',
+              operation: 'startForegroundPolling',
+              message: 'Startup offline queue processing failed.',
+              error,
+            });
+          });
+        }
+      })
+      .catch((error) => {
+        LoggerService.warn({
+          service: 'GoogleTasksSyncService',
+          operation: 'startForegroundPolling',
+          message: 'NetInfo fetch failed during polling startup.',
+          error,
+        });
+      });
+  }
+
+  private async processOfflineQueue(): Promise<void> {
+    if (this.offlineQueue.length === 0 || isWeb) {
+      return;
+    }
+
+    const items = [...this.offlineQueue];
+    this.offlineQueue = [];
+    LoggerService.info({
+      service: 'GoogleTasksSyncService',
+      operation: 'processOfflineQueue',
+      message: `Processing ${items.length} queued items.`,
+    });
+    await this.syncSortedItemsToGoogle(items);
   }
 
   stopForegroundPolling(): void {
+    if (this.netInfoUnsubscribe) {
+      this.netInfoUnsubscribe();
+      this.netInfoUnsubscribe = null;
+    }
+
     if (!this.pollTimer) {
       return;
     }

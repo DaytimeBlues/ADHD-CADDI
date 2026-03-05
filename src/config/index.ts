@@ -58,7 +58,13 @@ const getConfig = (): Config => {
               "Consider using 'vercel' provider with a server-side proxy instead.",
           });
         })
-        .catch(() => {});
+        .catch((error) => {
+          // eslint-disable-next-line no-console
+          console.warn(
+            '[config.warnDirectProvider] Failed to import LoggerService for security warning',
+            error,
+          );
+        });
     }
   };
 

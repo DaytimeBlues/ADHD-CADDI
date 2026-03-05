@@ -31,6 +31,7 @@ interface OAuthState {
 export interface GoogleAuthData {
   connected: boolean;
   accessToken?: string;
+  /** @deprecated Web should not persist refresh tokens client-side. */
   refreshToken?: string;
   expiresAt?: number;
   email?: string;
@@ -312,7 +313,6 @@ class OAuthServiceClass {
         const authData: GoogleAuthData = {
           connected: true,
           accessToken: data.accessToken,
-          refreshToken: data.refreshToken,
           expiresAt: Date.now() + data.expiresIn * 1000,
           email: data.email,
           name: data.name,
@@ -372,15 +372,18 @@ class OAuthServiceClass {
 
   async refreshGoogleToken(): Promise<boolean> {
     const auth = await this.getGoogleAuth();
-    if (!auth?.refreshToken) {
+    if (!auth?.connected) {
       return false;
     }
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/google-refresh`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refreshToken: auth.refreshToken }),
+        body: JSON.stringify(
+          auth.refreshToken ? { refreshToken: auth.refreshToken } : {},
+        ),
       });
 
       if (!response.ok) {
@@ -390,8 +393,10 @@ class OAuthServiceClass {
 
       const data = await response.json();
 
+      const safeAuth: GoogleAuthData = { ...auth };
+      delete safeAuth.refreshToken;
       const newAuth: GoogleAuthData = {
-        ...auth,
+        ...safeAuth,
         accessToken: data.accessToken,
         expiresAt: Date.now() + data.expiresIn * 1000,
       };

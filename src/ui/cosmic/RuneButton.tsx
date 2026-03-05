@@ -181,7 +181,7 @@ export const RuneButton = memo(function RuneButton({
             borderWidth: 0,
           },
           text: {
-            color: '#EEF2FF', // starlight
+            color: '#070712', // obsidian for WCAG AA contrast on nebulaViolet
             fontWeight: '600',
           },
         };

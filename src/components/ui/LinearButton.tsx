@@ -21,6 +21,8 @@ interface LinearButtonProps {
   style?: ViewStyle;
   textStyle?: TextStyle;
   testID?: string;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
 }
 
 export const LinearButton: React.FC<LinearButtonProps> = ({
@@ -33,6 +35,8 @@ export const LinearButton: React.FC<LinearButtonProps> = ({
   style,
   textStyle,
   testID,
+  accessibilityLabel,
+  accessibilityHint,
 }) => {
   const getVariantStyles = () => {
     switch (variant) {
@@ -81,6 +85,13 @@ export const LinearButton: React.FC<LinearButtonProps> = ({
       testID={testID}
       onPress={handlePress}
       disabled={disabled || loading}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? title}
+      accessibilityHint={accessibilityHint}
+      accessibilityState={{
+        disabled: disabled || loading,
+        busy: loading,
+      }}
       style={({
         pressed,
         hovered,
@@ -137,11 +148,12 @@ const styles = StyleSheet.create({
   sm: {
     paddingVertical: Tokens.spacing[1],
     paddingHorizontal: Tokens.spacing[2],
+    minHeight: Tokens.layout.minTapTarget,
   },
   md: {
     paddingVertical: Tokens.spacing[2],
     paddingHorizontal: Tokens.spacing[4],
-    minHeight: 36,
+    minHeight: Tokens.layout.minTapTarget,
   },
   lg: {
     paddingVertical: Tokens.spacing[3],

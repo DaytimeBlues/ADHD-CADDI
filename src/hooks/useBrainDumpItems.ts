@@ -138,6 +138,20 @@ export const useBrainDumpItems = ({
       };
       setItems((prevItems) => {
         const next = [newItem, ...prevItems];
+        if (isWeb) {
+          StorageService.setJSON(
+            StorageService.STORAGE_KEYS.brainDump,
+            next,
+          ).catch((error) =>
+            LoggerService.error({
+              service: 'BrainDumpItems',
+              operation: 'persistItemsImmediate',
+              message: 'Failed to persist brain dump items',
+              error,
+              context: { itemCount: next.length },
+            }),
+          );
+        }
         if (!guideDismissed && !hasTrackedFirstItem.current) {
           UXMetricsService.track('brain_dump_first_item_added');
           hasTrackedFirstItem.current = true;
@@ -153,7 +167,24 @@ export const useBrainDumpItems = ({
     if (!isWeb) {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     }
-    setItems((prevItems) => prevItems.filter((item) => item.id !== id));
+    setItems((prevItems) => {
+      const next = prevItems.filter((item) => item.id !== id);
+      if (isWeb) {
+        StorageService.setJSON(
+          StorageService.STORAGE_KEYS.brainDump,
+          next,
+        ).catch((error) =>
+          LoggerService.error({
+            service: 'BrainDumpItems',
+            operation: 'persistItemsImmediate',
+            message: 'Failed to persist brain dump items',
+            error,
+            context: { itemCount: next.length },
+          }),
+        );
+      }
+      return next;
+    });
   }, []);
 
   const clearAll = useCallback(() => {
@@ -161,6 +192,18 @@ export const useBrainDumpItems = ({
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     }
     setItems([]);
+    if (isWeb) {
+      StorageService.setJSON(StorageService.STORAGE_KEYS.brainDump, []).catch(
+        (error) =>
+          LoggerService.error({
+            service: 'BrainDumpItems',
+            operation: 'persistItemsImmediate',
+            message: 'Failed to persist brain dump items',
+            error,
+            context: { itemCount: 0 },
+          }),
+      );
+    }
     AccessibilityInfo.announceForAccessibility('All items cleared.');
   }, []);
 

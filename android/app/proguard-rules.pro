@@ -12,6 +12,10 @@
 -dontwarn com.reactnativegooglesignin.**
 -keepattributes NestHost, NestMembers
 
+# Sentry app-start metrics can reference newer Android platform APIs at compile time.
+# CI currently compiles with API 34, so suppress missing-class warnings for that API type.
+-dontwarn android.app.ApplicationStartInfo
+
 # Spark ADHD native modules
 -keep class com.sparkadhd.** { *; }
 

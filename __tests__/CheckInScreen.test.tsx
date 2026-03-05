@@ -10,6 +10,7 @@ import CheckInScreen, {
 } from '../src/screens/CheckInScreen';
 
 const mockRequestPendingStart = jest.fn();
+const mockLoggerWarn = jest.fn();
 
 jest.mock('../src/services/ActivationService', () => ({
   __esModule: true,
@@ -24,6 +25,12 @@ jest.mock('../src/services/CheckInInsightService', () => ({
   __esModule: true,
   default: {
     getPersonalizedInsight: jest.fn().mockResolvedValue(null),
+  },
+}));
+
+jest.mock('../src/services/LoggerService', () => ({
+  LoggerService: {
+    warn: (...args: unknown[]) => mockLoggerWarn(...args),
   },
 }));
 
@@ -68,8 +75,8 @@ describe('CheckInScreen', () => {
     fireEvent.press(screen.getByTestId('mood-option-5'));
     fireEvent.press(screen.getByTestId('energy-option-5'));
 
-    const cta = await screen.findByText('START IGNITE');
-    fireEvent.press(cta);
+    await screen.findByText('START IGNITE');
+    fireEvent.press(screen.getByTestId('recommendation-action-button'));
 
     expect(mockRequestPendingStart).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -88,24 +95,24 @@ describe('CheckInScreen', () => {
     const navigate = jest.fn();
     mockRequestPendingStart.mockRejectedValueOnce(new Error('storage down'));
 
-    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-
     render(<CheckInScreen navigation={{ navigate }} />);
 
     fireEvent.press(screen.getByTestId('mood-option-5'));
     fireEvent.press(screen.getByTestId('energy-option-5'));
 
-    const cta = await screen.findByText('START IGNITE');
-    fireEvent.press(cta);
+    await screen.findByText('START IGNITE');
+    fireEvent.press(screen.getByTestId('recommendation-action-button'));
 
     await waitFor(() => {
       expect(navigate).toHaveBeenCalledWith('Focus');
     });
-    expect(warnSpy).toHaveBeenCalledWith(
-      'Failed to queue pending ignite start from check-in:',
-      expect.any(Error),
+    expect(mockLoggerWarn).toHaveBeenCalledWith(
+      expect.objectContaining({
+        service: 'CheckInScreen',
+        operation: 'handleRecommendationAction',
+        message: 'Failed to queue pending ignite start from check-in',
+        error: expect.any(Error),
+      }),
     );
-
-    warnSpy.mockRestore();
   });
 });

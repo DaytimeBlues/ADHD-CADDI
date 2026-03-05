@@ -266,7 +266,13 @@ class WebMCPService {
               success: true,
               entries: entries.slice(0, safeLimit),
             };
-          } catch {
+          } catch (error) {
+            LoggerService.warn({
+              service: 'WebMCPService',
+              operation: 'read_check_ins',
+              message: 'Failed reading check-ins for WebMCP tool.',
+              error,
+            });
             return { success: false, entries: [] };
           }
         },
@@ -288,7 +294,13 @@ class WebMCPService {
               (await StorageService.getJSON<CheckInEntry[]>('checkIns')) || [];
             const lastCheckIn = checkIns[0] ?? null;
             return { success: true, timeOfDay, lastCheckIn };
-          } catch {
+          } catch (error) {
+            LoggerService.warn({
+              service: 'WebMCPService',
+              operation: 'get_app_state',
+              message: 'Failed reading app state check-ins for WebMCP tool.',
+              error,
+            });
             return { success: true, timeOfDay, lastCheckIn: null };
           }
         },

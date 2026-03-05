@@ -7,6 +7,8 @@ interface ScaleButtonProps {
   style?: StyleProp<ViewStyle>;
   scaleAmount?: number;
   testID?: string;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
 }
 
 const ScaleButton = ({
@@ -14,11 +16,16 @@ const ScaleButton = ({
   children,
   style,
   testID,
+  accessibilityLabel,
+  accessibilityHint,
 }: ScaleButtonProps) => {
   return (
     <Pressable
       onPress={onPress}
       testID={testID}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      accessibilityHint={accessibilityHint}
       style={({ pressed }) => [style, pressed && styles.pressed]}
     >
       {children}

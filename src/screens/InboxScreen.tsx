@@ -552,8 +552,8 @@ const styles = StyleSheet.create({
     borderBottomColor: 'rgba(185, 194, 217, 0.12)',
   },
   closeBtn: {
-    width: 36,
-    height: 36,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -565,7 +565,7 @@ const styles = StyleSheet.create({
     color: '#B9C2D9',
   },
   closeBtnPlaceholder: {
-    width: 36,
+    width: 44,
   },
   title: {
     fontFamily: Tokens.type.fontFamily.sans,

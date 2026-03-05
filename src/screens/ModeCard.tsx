@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
   cardDesc: {
     fontFamily: Tokens.type.fontFamily.sans,
     fontSize: Tokens.type.xs,
-    color: 'rgba(238, 242, 255, 0.65)',
+    color: 'rgba(238, 242, 255, 0.80)',
     lineHeight: 18,
     letterSpacing: 0.3, // Reduced spacing for easier reading
   },

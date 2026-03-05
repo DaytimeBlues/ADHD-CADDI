@@ -16,6 +16,11 @@ jest.mock('@react-native-google-signin/google-signin', () => ({
   },
 }));
 
+jest.mock('@react-native-community/netinfo', () => ({
+  fetch: jest.fn(),
+  addEventListener: jest.fn(() => jest.fn()),
+}));
+
 jest.mock('../src/services/StorageService', () => ({
   __esModule: true,
   default: {
@@ -58,8 +63,11 @@ describe('GoogleTasksSyncService', () => {
       }
       return Promise.resolve(null);
     });
-    (StorageService.setJSON as jest.Mock).mockResolvedValue(undefined);
-    (StorageService.set as jest.Mock).mockResolvedValue(undefined);
+    (StorageService.setJSON as jest.Mock).mockResolvedValue(true);
+    (StorageService.set as jest.Mock).mockResolvedValue({ success: true });
+
+    const NetInfo = require('@react-native-community/netinfo');
+    NetInfo.fetch.mockResolvedValue({ isConnected: true });
 
     const {
       GoogleSignin,

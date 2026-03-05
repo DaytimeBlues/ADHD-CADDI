@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import * as Sentry from '@sentry/react-native';
 import { LoggerService } from '../services/LoggerService';
+import { useTheme } from '../theme/useTheme';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -20,8 +21,11 @@ interface ErrorBoundaryState {
   errorInfo: React.ErrorInfo | null;
 }
 
-class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  constructor(props: ErrorBoundaryProps) {
+class ErrorBoundaryInternal extends Component<
+  ErrorBoundaryProps & { isCosmic: boolean; t: any },
+  ErrorBoundaryState
+> {
+  constructor(props: ErrorBoundaryProps & { isCosmic: boolean; t: any }) {
     super(props);
     this.state = {
       hasError: false,
@@ -68,6 +72,9 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   };
 
   render() {
+    const { isCosmic, t } = this.props;
+    const styles = getStyles(isCosmic, t);
+
     if (this.state.hasError) {
       // Custom fallback UI
       if (this.props.fallback) {
@@ -99,7 +106,13 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
               </View>
             )}
 
-            <TouchableOpacity style={styles.button} onPress={this.handleReset}>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={this.handleReset}
+              accessibilityRole="button"
+              accessibilityLabel="Try again"
+              accessibilityHint="Retry rendering the app after an error"
+            >
               <Text style={styles.buttonText}>Try Again</Text>
             </TouchableOpacity>
           </View>
@@ -111,63 +124,73 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#1a1a2e',
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#ffffff',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  message: {
-    fontSize: 16,
-    color: '#a0a0a0',
-    textAlign: 'center',
-    marginBottom: 32,
-    lineHeight: 24,
-  },
-  debugContainer: {
-    backgroundColor: '#2a2a3e',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 24,
-    maxHeight: 200,
-    width: '100%',
-  },
-  debugTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#ff6b6b',
-    marginBottom: 8,
-  },
-  debugText: {
-    fontSize: 12,
-    color: '#d0d0d0',
-    fontFamily: 'monospace',
-  },
-  button: {
-    backgroundColor: '#A06EE1',
-    paddingHorizontal: 32,
-    paddingVertical: 16,
-    borderRadius: 100,
-    minWidth: 200,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});
+const ErrorBoundary = (props: ErrorBoundaryProps) => {
+  const { isCosmic, t } = useTheme();
+  return <ErrorBoundaryInternal {...props} isCosmic={isCosmic} t={t} />;
+};
+
+const getStyles = (isCosmic: boolean, t: any) =>
+  StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: isCosmic
+        ? t.colors.neutral.darkest
+        : t.colors.neutral.darkest,
+    },
+    content: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: t.spacing[6] || 24,
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: '700',
+      color: t.colors.text?.primary || '#ffffff',
+      marginBottom: 16,
+      textAlign: 'center',
+    },
+    message: {
+      fontSize: 16,
+      color: t.colors.text?.secondary || '#a0a0a0',
+      textAlign: 'center',
+      marginBottom: 32,
+      lineHeight: 24,
+    },
+    debugContainer: {
+      backgroundColor: isCosmic
+        ? t.colors.neutral.dark
+        : t.colors.neutral.borderSubtle,
+      borderRadius: 8,
+      padding: 16,
+      marginBottom: 24,
+      maxHeight: 200,
+      width: '100%',
+    },
+    debugTitle: {
+      fontSize: 14,
+      fontWeight: '600',
+      color: t.colors.semantic.error,
+      marginBottom: 8,
+    },
+    debugText: {
+      fontSize: 12,
+      color: t.colors.neutral.light,
+      fontFamily: 'monospace',
+    },
+    button: {
+      backgroundColor: t.colors.semantic.primary,
+      paddingHorizontal: 32,
+      paddingVertical: 16,
+      borderRadius: 100,
+      minWidth: 200,
+      alignItems: 'center',
+    },
+    buttonText: {
+      color: t.colors.text?.primary || '#ffffff',
+      fontSize: 16,
+      fontWeight: '600',
+    },
+  });
 
 export default ErrorBoundary;

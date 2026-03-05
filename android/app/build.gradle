@@ -8,6 +8,7 @@ apply from: "../../node_modules/@react-native-community/cli-platform-android/nat
 applyNativeModulesAppBuildGradle(project)
 
 project.ext.hermesEnabled = true
+def useReleaseSigning = System.getenv('ANDROID_SIGNING_ENABLED') != 'false'
 
 android {
     namespace "com.adhdcaddi"
@@ -52,7 +53,8 @@ android {
             versionNameSuffix "-preview"
         }
         release {
-            signingConfig signingConfigs.release
+            // CI release checks can disable signing and use debug key for packaging.
+            signingConfig useReleaseSigning ? signingConfigs.release : signingConfigs.debug
             minifyEnabled true
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }

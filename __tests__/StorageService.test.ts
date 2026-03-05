@@ -58,29 +58,29 @@ describe('StorageService', () => {
     expect(result).toBeNull();
   });
 
-  it('set returns false on storage error', async () => {
+  it('set returns success false on storage error', async () => {
     (AsyncStorage.setItem as jest.Mock).mockRejectedValueOnce(
       new Error('fail'),
     );
 
     const result = await StorageService.set('test-key', 'value');
-    expect(result).toBe(false);
+    expect(result).toEqual({ success: false, error: expect.any(Error) });
   });
 
-  it('remove returns false on storage error', async () => {
+  it('remove returns success false on storage error', async () => {
     (AsyncStorage.removeItem as jest.Mock).mockRejectedValueOnce(
       new Error('fail'),
     );
 
     const result = await StorageService.remove('test-key');
-    expect(result).toBe(false);
+    expect(result).toEqual({ success: false, error: expect.any(Error) });
   });
 
-  it('remove returns true on success', async () => {
+  it('remove returns success true on success', async () => {
     (AsyncStorage.removeItem as jest.Mock).mockResolvedValueOnce(null);
 
     const result = await StorageService.remove('test-key');
-    expect(result).toBe(true);
+    expect(result).toEqual({ success: true });
   });
 
   it('setJSON returns false when JSON serialization fails', async () => {
@@ -246,8 +246,8 @@ describe('StorageService (native SQLite path)', () => {
     const setOk = await nativeStorageService.set('k', 'v');
     const removeOk = await nativeStorageService.remove('k');
 
-    expect(setOk).toBe(true);
-    expect(removeOk).toBe(true);
+    expect(setOk).toEqual({ success: true });
+    expect(removeOk).toEqual({ success: true });
     expect(executeMock).toHaveBeenCalledWith(
       'INSERT OR REPLACE INTO kv_store (key, value) VALUES (?, ?)',
       ['k', 'v'],
@@ -264,8 +264,14 @@ describe('StorageService (native SQLite path)', () => {
     executeMock.mockRejectedValue(new Error('sqlite failed'));
 
     await expect(nativeStorageService.get('k')).resolves.toBeNull();
-    await expect(nativeStorageService.set('k', 'v')).resolves.toBe(false);
-    await expect(nativeStorageService.remove('k')).resolves.toBe(false);
+    await expect(nativeStorageService.set('k', 'v')).resolves.toEqual({
+      success: false,
+      error: expect.any(Error),
+    });
+    await expect(nativeStorageService.remove('k')).resolves.toEqual({
+      success: false,
+      error: expect.any(Error),
+    });
   });
 
   it('returns null for getJSON when get throws unexpectedly', async () => {
@@ -323,10 +329,10 @@ describe('StorageService (native SQLite path)', () => {
       .mockResolvedValueOnce('persisted');
     const setSpy = jest
       .spyOn(nativeStorageService, 'set')
-      .mockResolvedValueOnce(true);
+      .mockResolvedValueOnce({ success: true });
     const removeSpy = jest
       .spyOn(nativeStorageService, 'remove')
-      .mockResolvedValueOnce(true);
+      .mockResolvedValueOnce({ success: true });
 
     await expect(zustandStorage.getItem('x')).resolves.toBe('persisted');
     await expect(zustandStorage.setItem('x', 'y')).resolves.toBeUndefined();

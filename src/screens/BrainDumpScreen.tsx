@@ -9,7 +9,6 @@ import {
   Pressable,
 } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
-import { Tokens } from '../theme/tokens';
 import { useTheme } from '../theme/useTheme';
 import { CosmicBackground } from '../ui/cosmic';
 import { isWeb } from '../utils/PlatformUtils';
@@ -25,6 +24,18 @@ import {
 import useBrainDump from '../hooks/useBrainDump';
 import type { SortedItem } from '../services/AISortService';
 
+// --- Constants ---
+const LIST_PADDING_BOTTOM = 120;
+const HEADER_LETTER_SPACING = 2;
+const SUBHEADER_LETTER_SPACING = 1;
+const EMPTY_STATE_OPACITY = 0.3;
+const ITEM_VERTICAL_PADDING = 4;
+const BADGE_HORIZONTAL_PADDING = 6;
+const BADGE_MIN_WIDTH = 40;
+const CATEGORY_TITLE_HORIZONTAL_PADDING = 8;
+const CATEGORY_TITLE_VERTICAL_PADDING = 4;
+const CATEGORY_TITLE_BORDER_RADIUS = 4;
+
 type BrainDumpRouteParams = {
   autoRecord?: boolean;
 };
@@ -32,8 +43,8 @@ type BrainDumpRouteParams = {
 type BrainDumpRoute = RouteProp<Record<'Tasks', BrainDumpRouteParams>, 'Tasks'>;
 
 const BrainDumpScreen = () => {
-  const { isCosmic } = useTheme();
-  const styles = getStyles(isCosmic);
+  const { isCosmic, t } = useTheme();
+  const styles = getStyles(isCosmic, t);
   const route = useRoute<BrainDumpRoute>();
 
   const {
@@ -86,10 +97,7 @@ const BrainDumpScreen = () => {
 
           {isLoading ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator
-                size="small"
-                color={Tokens.colors.brand[500]}
-              />
+              <ActivityIndicator size="small" color={t.colors.brand[500]} />
               <Text style={styles.loadingText}>LOADING...</Text>
             </View>
           ) : (
@@ -177,11 +185,13 @@ const BrainDumpScreen = () => {
   );
 };
 
-const getStyles = (isCosmic: boolean) =>
+const getStyles = (isCosmic: boolean, t: any) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: isCosmic ? '#070712' : Tokens.colors.neutral.darkest,
+      backgroundColor: isCosmic
+        ? t.colors.cosmic?.obsidian || '#070712'
+        : t.colors.neutral.darkest,
     },
     centerContainer: {
       flex: 1,
@@ -191,59 +201,72 @@ const getStyles = (isCosmic: boolean) =>
     contentWrapper: {
       flex: 1,
       width: '100%',
-      maxWidth: Tokens.layout.maxWidth.content,
-      padding: Tokens.spacing[4],
+      maxWidth: t.layout?.maxWidth?.content || 960,
+      padding: t.spacing[4],
     },
     header: {
       flexDirection: 'row',
       alignItems: 'center',
-      marginBottom: isCosmic ? 16 : Tokens.spacing[5],
-      marginTop: Tokens.spacing[4],
+      marginBottom: isCosmic ? 16 : t.spacing[5],
+      marginTop: t.spacing[4],
     },
     title: {
-      fontFamily: Tokens.type.fontFamily.mono,
-      fontSize: Tokens.type.sm,
-      color: isCosmic ? '#EEF2FF' : Tokens.colors.text.primary,
+      fontFamily:
+        t.type?.fontFamily?.mono ||
+        t.typography?.mono?.fontFamily ||
+        'monospace',
+      fontSize: t.type?.sm || t.fontSizes?.[14] || 14,
+      color: isCosmic
+        ? t.colors.cosmic?.starlight || '#EEF2FF'
+        : t.colors.text?.primary || '#ffffff',
       fontWeight: '700',
-      letterSpacing: 2,
+      letterSpacing: HEADER_LETTER_SPACING,
     },
     headerLine: {
       flex: 1,
       height: 1,
       backgroundColor: isCosmic
         ? 'rgba(139, 92, 246, 0.3)'
-        : Tokens.colors.neutral.border,
-      marginLeft: Tokens.spacing[4],
+        : t.colors.neutral.border,
+      marginLeft: t.spacing[4],
     },
     loadingContainer: {
-      padding: Tokens.spacing[8],
+      padding: t.spacing[8],
       alignItems: 'center',
-      gap: Tokens.spacing[4],
+      gap: t.spacing[4],
     },
     loadingText: {
-      fontFamily: Tokens.type.fontFamily.mono,
-      fontSize: Tokens.type.sm,
-      color: isCosmic ? '#B9C2D9' : Tokens.colors.text.secondary,
-      letterSpacing: 1,
+      fontFamily:
+        t.type?.fontFamily?.mono ||
+        t.typography?.mono?.fontFamily ||
+        'monospace',
+      fontSize: t.type?.sm || t.fontSizes?.[14] || 14,
+      color: isCosmic
+        ? t.colors.cosmic?.mist || '#B9C2D9'
+        : t.colors.text?.secondary || '#888888',
+      letterSpacing: SUBHEADER_LETTER_SPACING,
       textTransform: 'uppercase',
     },
     errorContainer: {
-      marginTop: Tokens.spacing[2],
-      marginBottom: Tokens.spacing[4],
+      marginTop: t.spacing[2],
+      marginBottom: t.spacing[4],
       alignItems: 'center',
     },
     errorText: {
-      fontFamily: Tokens.type.fontFamily.mono,
-      fontSize: Tokens.type.xs,
-      color: Tokens.colors.brand[500],
+      fontFamily:
+        t.type?.fontFamily?.mono ||
+        t.typography?.mono?.fontFamily ||
+        'monospace',
+      fontSize: t.type?.xs || t.fontSizes?.[12] || 12,
+      color: t.colors.brand[500],
       textAlign: 'center',
     },
     connectButton: {
-      marginTop: Tokens.spacing[3],
-      backgroundColor: Tokens.colors.indigo.primary,
-      paddingHorizontal: Tokens.spacing[4],
-      paddingVertical: Tokens.spacing[2],
-      borderRadius: Tokens.radii.md,
+      marginTop: t.spacing[3],
+      backgroundColor: t.colors.indigo?.primary || t.colors.semantic.secondary,
+      paddingHorizontal: t.spacing[4],
+      paddingVertical: t.spacing[2],
+      borderRadius: t.radii.md,
     },
     connectButtonPressed: {
       opacity: 0.8,
@@ -252,83 +275,106 @@ const getStyles = (isCosmic: boolean) =>
       opacity: 0.6,
     },
     connectButtonText: {
-      fontFamily: Tokens.type.fontFamily.mono,
-      fontSize: Tokens.type.xs,
-      color: Tokens.colors.text.primary,
+      fontFamily:
+        t.type?.fontFamily?.mono ||
+        t.typography?.mono?.fontFamily ||
+        'monospace',
+      fontSize: t.type?.xs || t.fontSizes?.[12] || 12,
+      color: t.colors.text?.primary || '#ffffff',
       fontWeight: '700',
     },
     emptyState: {
-      marginTop: Tokens.spacing[12],
-      opacity: 0.3,
+      marginTop: t.spacing[12],
+      opacity: EMPTY_STATE_OPACITY,
     },
     listContent: {
-      paddingBottom: 120,
+      paddingBottom: LIST_PADDING_BOTTOM,
     },
     sortedSection: {
-      marginTop: Tokens.spacing[6],
-      paddingTop: Tokens.spacing[4],
+      marginTop: t.spacing[6],
+      paddingTop: t.spacing[4],
       borderTopWidth: 1,
       borderTopColor: isCosmic
         ? 'rgba(139, 92, 246, 0.2)'
-        : Tokens.colors.neutral.border,
+        : t.colors.neutral.border,
     },
     sortedHeader: {
-      fontFamily: Tokens.type.fontFamily.mono,
-      fontSize: Tokens.type.sm,
-      color: isCosmic ? '#8B5CF6' : Tokens.colors.brand[500],
-      marginBottom: Tokens.spacing[4],
-      letterSpacing: 1,
+      fontFamily:
+        t.type?.fontFamily?.mono ||
+        t.typography?.mono?.fontFamily ||
+        'monospace',
+      fontSize: t.type?.sm || t.fontSizes?.[14] || 14,
+      color: isCosmic
+        ? t.colors.cosmic?.nebulaViolet || '#8B5CF6'
+        : t.colors.brand[500],
+      marginBottom: t.spacing[4],
+      letterSpacing: SUBHEADER_LETTER_SPACING,
     },
     categorySection: {
-      marginBottom: Tokens.spacing[4],
+      marginBottom: t.spacing[4],
     },
     categoryTitle: {
-      fontFamily: Tokens.type.fontFamily.mono,
-      fontSize: Tokens.type.xs,
+      fontFamily:
+        t.type?.fontFamily?.mono ||
+        t.typography?.mono?.fontFamily ||
+        'monospace',
+      fontSize: t.type?.xs || t.fontSizes?.[12] || 12,
       fontWeight: '700',
-      color: isCosmic ? '#EEF2FF' : Tokens.colors.text.primary,
+      color: isCosmic
+        ? t.colors.cosmic?.starlight || '#EEF2FF'
+        : t.colors.text?.primary || '#ffffff',
       textTransform: 'uppercase',
-      marginBottom: Tokens.spacing[2],
+      marginBottom: t.spacing[2],
       backgroundColor: isCosmic
         ? 'rgba(139, 92, 246, 0.1)'
-        : Tokens.colors.neutral.dark,
-      paddingHorizontal: 8,
-      paddingVertical: 4,
-      borderRadius: 4,
+        : t.colors.neutral.dark,
+      paddingHorizontal: CATEGORY_TITLE_HORIZONTAL_PADDING,
+      paddingVertical: CATEGORY_TITLE_VERTICAL_PADDING,
+      borderRadius: CATEGORY_TITLE_BORDER_RADIUS,
       alignSelf: 'flex-start',
     },
     sortedItemRow: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'flex-start',
-      paddingVertical: 4,
+      paddingVertical: ITEM_VERTICAL_PADDING,
       marginBottom: 0,
     },
     sortedItemText: {
       flex: 1,
-      fontFamily: Tokens.type.fontFamily.mono,
-      fontSize: Tokens.type.xs,
-      color: isCosmic ? '#B9C2D9' : Tokens.colors.text.secondary,
-      lineHeight: Tokens.type.sm * 1.5,
-      marginRight: Tokens.spacing[3],
+      fontFamily:
+        t.type?.fontFamily?.mono ||
+        t.typography?.mono?.fontFamily ||
+        'monospace',
+      fontSize: t.type?.xs || t.fontSizes?.[12] || 12,
+      color: isCosmic
+        ? t.colors.cosmic?.mist || '#B9C2D9'
+        : t.colors.text?.secondary || '#888888',
+      lineHeight: (t.type?.sm || 14) * 1.5,
+      marginRight: t.spacing[3],
     },
     priorityBadge: {
-      paddingHorizontal: 6,
+      paddingHorizontal: BADGE_HORIZONTAL_PADDING,
       paddingVertical: 0,
-      borderRadius: isCosmic ? 4 : Tokens.radii.none,
-      minWidth: 40,
+      borderRadius: isCosmic ? 4 : t.radii.none,
+      minWidth: BADGE_MIN_WIDTH,
       alignItems: 'center',
       borderWidth: 1,
       borderColor: isCosmic
         ? 'rgba(185, 194, 217, 0.12)'
-        : Tokens.colors.neutral.border,
+        : t.colors.neutral.border,
     },
     priorityText: {
-      fontFamily: Tokens.type.fontFamily.mono,
-      fontSize: Tokens.type.xxs,
+      fontFamily:
+        t.type?.fontFamily?.mono ||
+        t.typography?.mono?.fontFamily ||
+        'monospace',
+      fontSize: t.fontSizes?.[10] || 10,
       fontWeight: '700',
       textTransform: 'uppercase',
-      color: isCosmic ? '#EEF2FF' : Tokens.colors.text.primary,
+      color: isCosmic
+        ? t.colors.cosmic?.starlight || '#EEF2FF'
+        : t.colors.text?.primary || '#ffffff',
     },
   });
 

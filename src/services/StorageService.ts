@@ -187,13 +187,23 @@ const StorageService = {
     }
   },
 
-  async set(key: string, value: string): Promise<boolean> {
+  async set(
+    key: string,
+    value: string,
+  ): Promise<{ success: boolean; error?: unknown }> {
     if (isWeb || isJestRuntime) {
       try {
         await AsyncStorage.setItem(key, value);
-        return true;
+        return { success: true };
       } catch (e) {
-        return false;
+        LoggerService.error({
+          service: 'StorageService',
+          operation: 'set',
+          message: 'Storage set error (AsyncStorage)',
+          error: e,
+          context: { key },
+        });
+        return { success: false, error: e };
       }
     }
 
@@ -202,41 +212,48 @@ const StorageService = {
         'INSERT OR REPLACE INTO kv_store (key, value) VALUES (?, ?)',
         [key, value],
       );
-      return true;
+      return { success: true };
     } catch (error) {
       LoggerService.error({
         service: 'StorageService',
         operation: 'set',
-        message: 'Storage set error',
+        message: 'Storage set error (SQLite)',
         error,
         context: { key },
       });
-      return false;
+      return { success: false, error };
     }
   },
 
-  async remove(key: string): Promise<boolean> {
+  async remove(key: string): Promise<{ success: boolean; error?: unknown }> {
     if (isWeb || isJestRuntime) {
       try {
         await AsyncStorage.removeItem(key);
-        return true;
+        return { success: true };
       } catch (e) {
-        return false;
+        LoggerService.error({
+          service: 'StorageService',
+          operation: 'remove',
+          message: 'Storage remove error (AsyncStorage)',
+          error: e,
+          context: { key },
+        });
+        return { success: false, error: e };
       }
     }
 
     try {
       await getDb().execute('DELETE FROM kv_store WHERE key = ?', [key]);
-      return true;
+      return { success: true };
     } catch (error) {
       LoggerService.error({
         service: 'StorageService',
         operation: 'remove',
-        message: 'Storage remove error',
+        message: 'Storage remove error (SQLite)',
         error,
         context: { key },
       });
-      return false;
+      return { success: false, error };
     }
   },
 
@@ -262,7 +279,8 @@ const StorageService = {
 
   async setJSON<T>(key: string, value: T): Promise<boolean> {
     try {
-      return await this.set(key, JSON.stringify(value));
+      const result = await this.set(key, JSON.stringify(value));
+      return result.success;
     } catch (error) {
       LoggerService.error({
         service: 'StorageService',
@@ -283,10 +301,18 @@ export const zustandStorage = {
     return StorageService.get(name);
   },
   setItem: (name: string, value: string): Promise<void> => {
-    return StorageService.set(name, value).then(() => {});
+    return StorageService.set(name, value).then((result) => {
+      if (!result.success) {
+        throw result.error || new Error(`Failed to set item: ${name}`);
+      }
+    });
   },
   removeItem: (name: string): Promise<void> => {
-    return StorageService.remove(name).then(() => {});
+    return StorageService.remove(name).then((result) => {
+      if (!result.success) {
+        throw result.error || new Error(`Failed to remove item: ${name}`);
+      }
+    });
   },
 };
 

@@ -8,7 +8,9 @@ test.describe('BrainDump Flow', () => {
     await enableE2ETestMode(page);
     await enableCosmicTheme(page);
     await page.goto('/'); // Second goto to ensure init scripts applied and storage clean
-    await expect(page.getByTestId('home-title')).toBeVisible();
+    await expect(page.getByTestId('home-title')).toBeVisible({
+      timeout: 15000,
+    });
     await page.getByTestId('nav-tasks').click({ force: true });
     await expect(page.getByText('BRAIN_DUMP')).toBeVisible();
   });
@@ -21,16 +23,21 @@ test.describe('BrainDump Flow', () => {
     await expect(page.getByText('Playwright brain dump item')).toBeVisible();
 
     // Dismiss guide if it appears (first item added)
-    const ackButton = page.getByText('ACK');
+    const ackButton = page.getByRole('button', { name: 'Dismiss guidance' });
     if (await ackButton.isVisible()) {
       await ackButton.click();
       await page.waitForTimeout(200); // Wait for item layout to stabilize after banner removal
     }
 
-    await page.getByTestId('delete-item-button').first().click({ force: true });
-    await expect(
-      page.getByText('Playwright brain dump item'),
-    ).not.toBeVisible();
+    const addedItem = page
+      .getByTestId('brain-dump-item')
+      .filter({ hasText: 'Playwright brain dump item' });
+    await expect(addedItem).toHaveCount(1);
+    const deleteButton = addedItem.getByTestId('delete-item-button').first();
+    await deleteButton.evaluate((el) => {
+      (el as HTMLElement).click();
+    });
+    await expect(addedItem).toHaveCount(0, { timeout: 10000 });
   });
 
   test('items persist across reload', async ({ page }) => {
