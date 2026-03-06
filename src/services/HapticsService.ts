@@ -1,12 +1,28 @@
 import { Vibration } from 'react-native';
 import { isWeb } from '../utils/PlatformUtils';
+import LoggerService from './LoggerService';
 
 // Try to import expo-haptics if available
 let Haptics: typeof import('expo-haptics') | null = null;
 try {
   Haptics = require('expo-haptics');
-} catch {
-  // expo-haptics not available, fall back to Vibration
+} catch (err) {
+  // Use LoggerService if available (may not be during early module loading)
+  try {
+    LoggerService.debug({
+      service: 'HapticsService',
+      operation: 'import',
+      message: 'expo-haptics not available, using Vibration fallback',
+      error: err,
+    });
+  } catch (loggerError) {
+    // Fallback to console if LoggerService not initialized
+    // eslint-disable-next-line no-console
+    console.debug(
+      '[HapticsService] expo-haptics not available; logger unavailable',
+      loggerError,
+    );
+  }
 }
 
 // Detect if device has haptic engine (iOS 10+)

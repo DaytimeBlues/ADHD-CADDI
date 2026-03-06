@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AccessibilityInfo, Alert, NativeModules, Share } from 'react-native';
+import { LoggerService } from '../../../services/LoggerService';
 import StorageService from '../../../services/StorageService';
 import {
   LoggerService,
