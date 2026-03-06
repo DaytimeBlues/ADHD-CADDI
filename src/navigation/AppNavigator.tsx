@@ -231,4 +231,5 @@ const AppNavigatorContent = () => (
 
 const AppNavigator = () => <AppNavigatorContent />;
 
+export { ROUTES };
 export default AppNavigator;

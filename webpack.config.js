@@ -65,6 +65,28 @@ module.exports = (env, argv) => {
           __dirname,
           'src/mocks/react-native-reanimated.web.js',
         ),
+        // Expo module mocks for web builds (native-only modules)
+        'expo-modules-core': path.resolve(
+          __dirname,
+          'src/mocks/expo-modules-core.web.js',
+        ),
+        'expo-asset': path.resolve(
+          __dirname,
+          'src/mocks/expo-modules-core.web.js',
+        ),
+        'expo-av': path.resolve(__dirname, 'src/mocks/expo-av.web.js'),
+        'expo-notifications': path.resolve(
+          __dirname,
+          'src/mocks/expo-notifications.web.js',
+        ),
+        'expo-haptics': path.resolve(
+          __dirname,
+          'src/mocks/expo-haptics.web.js',
+        ),
+        'expo-local-authentication': path.resolve(
+          __dirname,
+          'src/mocks/expo-local-authentication.web.js',
+        ),
       },
     },
     module: {

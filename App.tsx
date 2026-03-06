@@ -12,7 +12,7 @@ import {
   AppStateStatus,
 } from 'react-native';
 
-import AppNavigator from './src/navigation/AppNavigator';
+import AppNavigator, { ROUTES } from './src/navigation/AppNavigator';
 import StorageService from './src/services/StorageService';
 import { GoogleTasksSyncService } from './src/services/GoogleTasksSyncService';
 import OverlayService from './src/services/OverlayService';
@@ -225,10 +225,24 @@ const App = () => {
     BiometricService.authenticate();
   };
 
+  const linking = {
+    prefixes: ['https://daytimeblues.github.io/ADHD-CADDI-V1'],
+    config: {
+      screens: {
+        Main: '',
+        [ROUTES.FOG_CUTTER]: 'fog-cutter',
+        [ROUTES.POMODORO]: 'pomodoro',
+        [ROUTES.ANCHOR]: 'anchor',
+        [ROUTES.INBOX]: 'inbox',
+      },
+    },
+  };
+
   const content = isAuthenticated ? (
     <ErrorBoundary>
       <NavigationContainer
         ref={navigationRef}
+        linking={linking}
         onReady={() => {
           // Flush any overlay intents that were queued before navigation was ready
           flushOverlayIntentQueue();
