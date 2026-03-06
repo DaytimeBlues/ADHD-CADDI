@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { Tokens } from '../theme/tokens';
+import { Tokens, CosmicTokens } from '../theme/tokens';
 import { isWeb } from '../utils/PlatformUtils';
 
 export const getStyles = (isCosmic: boolean) =>
@@ -79,7 +79,9 @@ export const getStyles = (isCosmic: boolean) =>
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: Tokens.type.xs,
       fontWeight: '700',
-      color: isCosmic ? '#8B5CF6' : Tokens.colors.brand[500],
+      color: isCosmic
+        ? CosmicTokens.colors.semantic.primary
+        : Tokens.colors.brand[500],
       letterSpacing: 1,
     },
     activationCard: {

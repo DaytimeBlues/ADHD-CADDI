@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet, Platform } from 'react-native';
-import { Tokens } from '../../theme/tokens';
+import { Tokens, CosmicTokens } from '../../theme/tokens';
 import { useTheme } from '../../theme/useTheme';
 
 export interface BrainDumpActionBarProps {
@@ -118,7 +118,9 @@ const getStyles = (isCosmic: boolean) =>
     },
     clearText: {
       fontFamily: Tokens.type.fontFamily.mono,
-      color: isCosmic ? '#8B5CF6' : Tokens.colors.brand[500],
+      color: isCosmic
+        ? CosmicTokens.colors.semantic.primary
+        : Tokens.colors.brand[500],
       fontSize: Tokens.type.xs,
       fontWeight: '700',
       letterSpacing: 1,

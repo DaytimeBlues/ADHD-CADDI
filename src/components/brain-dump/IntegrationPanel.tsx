@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from '../../theme/useTheme';
-import { Tokens } from '../../theme/tokens';
+import { Tokens, CosmicTokens } from '../../theme/tokens';
 import {
   OAuthService,
   GoogleAuthData,
@@ -304,7 +304,9 @@ const getStyles = (isCosmic: boolean) =>
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: Tokens.type.xs,
       fontWeight: '700',
-      color: isCosmic ? '#8B5CF6' : Tokens.colors.brand[500],
+      color: isCosmic
+        ? CosmicTokens.colors.semantic.primary
+        : Tokens.colors.brand[500],
       letterSpacing: 1,
       marginBottom: 12,
     },

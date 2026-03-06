@@ -22,7 +22,7 @@ import RetentionService from '../services/RetentionService';
 import { ReentryPromptLevel } from '../services/RetentionService';
 import useReducedMotion from '../hooks/useReducedMotion';
 import useEntranceAnimation from '../hooks/useEntranceAnimation';
-import { Tokens } from '../theme/tokens';
+import { Tokens, CosmicTokens } from '../theme/tokens';
 import { useTheme } from '../theme/useTheme';
 import ModeCard, { ModeCardMode } from './ModeCard';
 import { ReEntryPrompt } from '../components/ui/ReEntryPrompt';
@@ -111,21 +111,21 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
         name: 'Resume',
         icon: 'play-circle',
         desc: 'CONTINUE',
-        accent: '#8B5CF6',
+        accent: CosmicTokens.colors.semantic.primary,
       },
       {
         id: 'ignite',
         name: 'Ignite',
         icon: 'fire',
         desc: 'START TASKS',
-        accent: '#8B5CF6',
+        accent: CosmicTokens.colors.semantic.primary,
       },
       {
         id: 'fogcutter',
         name: 'Fog Cutter',
         icon: 'weather-windy',
         desc: 'BREAK IT DOWN',
-        accent: '#8B5CF6',
+        accent: CosmicTokens.colors.semantic.primary,
       },
       {
         id: 'pomodoro',
@@ -153,7 +153,7 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
         name: 'CBT Guide',
         icon: 'brain',
         desc: 'LEARN',
-        accent: '#8B5CF6',
+        accent: CosmicTokens.colors.semantic.primary,
       },
     ],
     [],

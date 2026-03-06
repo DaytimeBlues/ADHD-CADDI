@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { LinearButton } from '../components/ui/LinearButton';
 import useTimer from '../hooks/useTimer';
-import { Tokens } from '../theme/tokens';
+import { Tokens, CosmicTokens } from '../theme/tokens';
 import { useTheme } from '../theme/useTheme';
 import { isWeb, isAndroid } from '../utils/PlatformUtils';
 import {
@@ -347,7 +347,9 @@ const getStyles = (isCosmic: boolean) =>
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: Tokens.type.xs,
       fontWeight: '700',
-      color: isCosmic ? '#8B5CF6' : Tokens.colors.brand[500],
+      color: isCosmic
+        ? CosmicTokens.colors.semantic.primary
+        : Tokens.colors.brand[500],
       letterSpacing: 1,
       marginBottom: Tokens.spacing[2],
       textTransform: 'uppercase',
@@ -372,7 +374,9 @@ const getStyles = (isCosmic: boolean) =>
     },
     patternName: {
       fontFamily: Tokens.type.fontFamily.sans,
-      color: isCosmic ? '#8B5CF6' : Tokens.colors.brand[400],
+      color: isCosmic
+        ? CosmicTokens.colors.semantic.primary
+        : Tokens.colors.brand[400],
       fontSize: Tokens.type['2xl'],
       fontWeight: '600',
       letterSpacing: 1,

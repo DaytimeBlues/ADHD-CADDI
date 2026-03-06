@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Tokens } from '../../theme/tokens';
+import { Tokens, CosmicTokens } from '../../theme/tokens';
 import { useTheme } from '../../theme/useTheme';
 import { ChronoDigits, HaloRing, RuneButton } from '../../ui/cosmic';
 import { LinearButton } from '../ui/LinearButton';
@@ -134,7 +134,9 @@ const getStyles = (isCosmic: boolean) =>
     },
     patternName: {
       fontFamily: Tokens.type.fontFamily.sans,
-      color: isCosmic ? '#8B5CF6' : Tokens.colors.brand[400],
+      color: isCosmic
+        ? CosmicTokens.colors.semantic.primary
+        : Tokens.colors.brand[400],
       fontSize: Tokens.type['2xl'],
       fontWeight: '600',
       letterSpacing: 1,

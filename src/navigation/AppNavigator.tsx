@@ -7,7 +7,7 @@ import {
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Tokens } from '../theme/tokens';
+import { Tokens, CosmicTokens } from '../theme/tokens';
 import { useTheme } from '../theme/useTheme';
 import { WebNavBar } from './WebNavBar';
 import { ROUTES } from './routes';
@@ -122,7 +122,7 @@ const TabNavigator = () => {
       sceneContainerStyle={isWeb ? webSceneContainerStyle : undefined}
       screenOptions={{
         tabBarActiveTintColor: isCosmic
-          ? '#8B5CF6'
+          ? CosmicTokens.colors.semantic.primary
           : Tokens.colors.indigo.primary,
         tabBarInactiveTintColor: isCosmic
           ? '#B9C2D9'

@@ -1,5 +1,5 @@
 import { StyleSheet, Platform } from 'react-native';
-import { Tokens } from '../theme/tokens';
+import { Tokens, CosmicTokens } from '../theme/tokens';
 
 export const styles = StyleSheet.create({
   container: {
@@ -118,7 +118,7 @@ export const styles = StyleSheet.create({
   },
   tabActiveCosmic: {
     borderBottomWidth: 2,
-    borderBottomColor: '#8B5CF6',
+    borderBottomColor: CosmicTokens.colors.semantic.primary,
   },
   tabText: {
     fontFamily: Tokens.type.fontFamily.sans,
@@ -134,7 +134,7 @@ export const styles = StyleSheet.create({
     color: Tokens.colors.indigo.primary,
   },
   tabTextActiveCosmic: {
-    color: '#8B5CF6',
+    color: CosmicTokens.colors.semantic.primary,
   },
   listContent: {
     padding: Tokens.spacing[4],
@@ -199,8 +199,8 @@ export const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   sourceBadgeCosmic: {
-    color: '#8B5CF6',
-    backgroundColor: 'rgba(139, 92, 246, 0.12)',
+    color: CosmicTokens.colors.semantic.primary,
+    backgroundColor: CosmicTokens.colors.semantic.primary + '1F',
   },
   timestamp: {
     fontFamily: Tokens.type.fontFamily.mono,
@@ -265,8 +265,8 @@ export const styles = StyleSheet.create({
     backgroundColor: Tokens.colors.indigo.subtle,
   },
   actionBtnTaskCosmic: {
-    borderColor: '#8B5CF6',
-    backgroundColor: 'rgba(139, 92, 246, 0.12)',
+    borderColor: CosmicTokens.colors.semantic.primary,
+    backgroundColor: CosmicTokens.colors.semantic.primary + '1F',
   },
   actionBtnNoteLinear: {
     borderColor: Tokens.colors.brand[400],

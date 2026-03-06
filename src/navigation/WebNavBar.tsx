@@ -8,7 +8,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { Tokens } from '../theme/tokens';
+import { Tokens, CosmicTokens } from '../theme/tokens';
 import { useTheme } from '../theme/useTheme';
 import HapticsService from '../services/HapticsService';
 import { isWeb } from '../utils/PlatformUtils';
@@ -24,7 +24,7 @@ export const WebNavBar = ({ state, navigation }: BottomTabBarProps) => {
       border: 'rgba(42, 53, 82, 0.3)',
       textPrimary: '#EEF2FF',
       textSecondary: '#B9C2D9',
-      accent: '#8B5CF6',
+      accent: CosmicTokens.colors.semantic.primary,
       logoGlow: Platform.select({
         web: { textShadow: '0 0 18px rgba(139, 92, 246, 0.35)' } as any,
         default: undefined,

@@ -1,12 +1,13 @@
 import { StyleSheet } from 'react-native';
+import { CosmicTokens } from '../../theme/tokens';
 
 const C = {
-  violet: '#8B5CF6',
-  teal: '#2DD4BF',
-  rose: '#FB7185',
-  gold: '#F6C177',
-  starlight: '#EEF2FF',
-  mist: '#B9C2D9',
+  violet: CosmicTokens.colors.semantic.primary,
+  teal: CosmicTokens.colors.semantic.success,
+  rose: CosmicTokens.colors.semantic.error,
+  gold: CosmicTokens.colors.semantic.warning,
+  starlight: CosmicTokens.colors.cosmic.starlight,
+  mist: CosmicTokens.colors.cosmic.mist,
   mutedText: 'rgba(238,242,255,0.56)',
   border: 'rgba(185, 194, 217, 0.3)',
   activeModeTab: 'rgba(139, 92, 246, 0.15)',

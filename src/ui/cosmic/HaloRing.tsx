@@ -23,6 +23,7 @@ import Animated, {
   Extrapolate,
   ReduceMotion,
 } from 'react-native-reanimated';
+import { CosmicTokens } from '../../theme/cosmicTokens';
 import { useTheme } from '../../theme/useTheme';
 import useReducedMotion from '../../hooks/useReducedMotion';
 import { HaloMode, GlowLevel } from './types';
@@ -102,15 +103,15 @@ export const HaloRing = memo(function HaloRing({
     if (!isCosmic) {
       return {
         track: 'rgba(255, 255, 255, 0.1)',
-        progress: '#8B5CF6',
-        glow: '#8B5CF6',
+        progress: CosmicTokens.colors.semantic.primary,
+        glow: CosmicTokens.colors.semantic.primary,
       };
     }
 
     return {
       track: 'rgba(185, 194, 217, 0.16)', // slate border color per spec
-      progress: '#8B5CF6', // nebulaViolet
-      glow: '#8B5CF6',
+      progress: CosmicTokens.colors.semantic.primary,
+      glow: CosmicTokens.colors.semantic.primary,
     };
   }, [isCosmic]);
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { Tokens } from '../../theme/tokens';
+import { Tokens, CosmicTokens } from '../../theme/tokens';
 import { useTheme } from '../../theme/useTheme';
 
 interface ExampleTaskChipProps {
@@ -64,7 +64,11 @@ export const EmptyStateExamples: React.FC<EmptyStateExamplesProps> = ({
       <Text
         style={[
           styles.title,
-          { color: isCosmic ? '#8B5CF6' : Tokens.colors.brand[500] },
+          {
+            color: isCosmic
+              ? CosmicTokens.colors.semantic.primary
+              : Tokens.colors.brand[500],
+          },
         ]}
       >
         TRY AN EXAMPLE

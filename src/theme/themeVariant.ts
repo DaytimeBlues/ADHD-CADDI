@@ -4,6 +4,8 @@
  * Type definitions and migration helpers for theme variants
  */
 import { LoggerService } from '../services/LoggerService';
+import { CosmicTokens } from './cosmicTokens';
+import { LinearColors } from './linearTokens';
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -140,7 +142,7 @@ export const THEME_METADATA: Record<
     description: 'Clean monochrome aesthetic with sharp edges',
     preview: {
       background: '#000000',
-      accent: '#8B5CF6',
+      accent: LinearColors.semantic.primary,
       text: '#FFFFFF',
     },
   },
@@ -149,7 +151,7 @@ export const THEME_METADATA: Record<
     description: 'Mystical deep space with ethereal glows',
     preview: {
       background: '#070712',
-      accent: '#8B5CF6',
+      accent: CosmicTokens.colors.semantic.primary,
       text: '#EEF2FF',
     },
   },

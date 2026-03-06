@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Tokens } from '../../theme/tokens';
+import { Tokens, CosmicTokens } from '../../theme/tokens';
 import { useTheme } from '../../theme/useTheme';
 import { SortedItem } from '../../services/AISortService';
 
@@ -58,7 +58,9 @@ const getStyles = (isCosmic: boolean) =>
     sortedHeader: {
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: Tokens.type.sm,
-      color: isCosmic ? '#8B5CF6' : Tokens.colors.brand[500],
+      color: isCosmic
+        ? CosmicTokens.colors.semantic.primary
+        : Tokens.colors.brand[500],
       marginBottom: Tokens.spacing[4],
       letterSpacing: 1,
     },

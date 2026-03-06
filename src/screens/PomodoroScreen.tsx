@@ -4,7 +4,7 @@ import SoundService from '../services/SoundService';
 import useTimer from '../hooks/useTimer';
 import { useTimerStore } from '../store/useTimerStore';
 import { LinearButton } from '../components/ui/LinearButton';
-import { Tokens } from '../theme/tokens';
+import { Tokens, CosmicTokens } from '../theme/tokens';
 import { useTheme } from '../theme/useTheme';
 import { isWeb } from '../utils/PlatformUtils';
 import {
@@ -282,7 +282,9 @@ const getStyles = (isCosmic: boolean) =>
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: Tokens.type.xs,
       fontWeight: '700',
-      color: isCosmic ? '#8B5CF6' : Tokens.colors.brand[500],
+      color: isCosmic
+        ? CosmicTokens.colors.semantic.primary
+        : Tokens.colors.brand[500],
       letterSpacing: 1,
       marginBottom: Tokens.spacing[2],
       textTransform: 'uppercase',
@@ -325,7 +327,9 @@ const getStyles = (isCosmic: boolean) =>
       alignItems: 'center',
       justifyContent: 'center',
       borderWidth: 1,
-      borderColor: isCosmic ? '#8B5CF6' : Tokens.colors.brand[700],
+      borderColor: isCosmic
+        ? CosmicTokens.colors.semantic.primary
+        : Tokens.colors.brand[700],
     },
     sessionCount: {
       fontFamily: Tokens.type.fontFamily.mono,

@@ -21,6 +21,7 @@ import {
   BrainDumpVoiceRecord,
   IntegrationPanel,
 } from '../components/brain-dump';
+import { CosmicTokens } from '../theme/tokens';
 import useBrainDump from '../hooks/useBrainDump';
 import type { SortedItem } from '../services/AISortService';
 
@@ -305,7 +306,7 @@ const getStyles = (isCosmic: boolean, t: any) =>
         'monospace',
       fontSize: t.type?.sm || t.fontSizes?.[14] || 14,
       color: isCosmic
-        ? t.colors.cosmic?.nebulaViolet || '#8B5CF6'
+        ? t.colors.cosmic?.nebulaViolet || CosmicTokens.colors.semantic.primary
         : t.colors.brand[500],
       marginBottom: t.spacing[4],
       letterSpacing: SUBHEADER_LETTER_SPACING,

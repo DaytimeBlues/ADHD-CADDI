@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Platform,
 } from 'react-native';
-import { Tokens } from '../../theme/tokens';
+import { Tokens, CosmicTokens } from '../../theme/tokens';
 import { useTheme } from '../../theme/useTheme';
 
 export type RecordingState = 'idle' | 'recording' | 'processing';
@@ -125,8 +125,12 @@ const getStyles = (isCosmic: boolean) =>
         : {}),
     },
     recordButtonActive: {
-      backgroundColor: isCosmic ? '#8B5CF6' : Tokens.colors.brand[500],
-      borderColor: isCosmic ? '#8B5CF6' : Tokens.colors.brand[500],
+      backgroundColor: isCosmic
+        ? CosmicTokens.colors.semantic.primary
+        : Tokens.colors.brand[500],
+      borderColor: isCosmic
+        ? CosmicTokens.colors.semantic.primary
+        : Tokens.colors.brand[500],
     },
     recordButtonProcessing: {
       opacity: 0.5,

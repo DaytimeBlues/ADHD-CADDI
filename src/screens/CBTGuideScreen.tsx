@@ -9,7 +9,7 @@ import {
   Linking,
   Platform,
 } from 'react-native';
-import { Tokens } from '../theme/tokens';
+import { Tokens, CosmicTokens } from '../theme/tokens';
 import { useTheme } from '../theme/useTheme';
 import { CADDI_OVERVIEW, CADDI_SOURCES } from '../config/caddi';
 import { EvidenceBadge } from '../components/ui/EvidenceBadge';
@@ -292,7 +292,9 @@ const getStyles = (isCosmic: boolean) =>
       backgroundColor: isCosmic
         ? 'rgba(42, 53, 82, 0.5)'
         : Tokens.colors.neutral.dark,
-      borderColor: isCosmic ? '#8B5CF6' : Tokens.colors.text.tertiary,
+      borderColor: isCosmic
+        ? CosmicTokens.colors.semantic.primary
+        : Tokens.colors.text.tertiary,
       transform: [{ scale: Tokens.motion.scales.hover }],
     },
     backButtonPressed: {
@@ -339,7 +341,9 @@ const getStyles = (isCosmic: boolean) =>
     evidenceBullet: {
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: 10,
-      color: isCosmic ? '#8B5CF6' : Tokens.colors.brand[400],
+      color: isCosmic
+        ? CosmicTokens.colors.semantic.primary
+        : Tokens.colors.brand[400],
       textTransform: 'uppercase',
     },
     linksRow: {
@@ -369,7 +373,9 @@ const getStyles = (isCosmic: boolean) =>
       }),
     },
     linkButtonHovered: {
-      borderColor: isCosmic ? '#8B5CF6' : Tokens.colors.text.secondary,
+      borderColor: isCosmic
+        ? CosmicTokens.colors.semantic.primary
+        : Tokens.colors.text.secondary,
       backgroundColor: isCosmic
         ? 'rgba(42, 53, 82, 0.5)'
         : Tokens.colors.neutral.darkest,
@@ -412,7 +418,9 @@ const getStyles = (isCosmic: boolean) =>
     categoryPillar: {
       fontFamily: Tokens.type.fontFamily.sans,
       fontSize: Tokens.type.xs,
-      color: isCosmic ? '#8B5CF6' : Tokens.colors.brand[400],
+      color: isCosmic
+        ? CosmicTokens.colors.semantic.primary
+        : Tokens.colors.brand[400],
       fontWeight: '600',
       textTransform: 'uppercase',
       letterSpacing: 0.5,
@@ -446,7 +454,9 @@ const getStyles = (isCosmic: boolean) =>
       }),
     },
     featureButtonHovered: {
-      borderColor: isCosmic ? '#8B5CF6' : Tokens.colors.brand[500],
+      borderColor: isCosmic
+        ? CosmicTokens.colors.semantic.primary
+        : Tokens.colors.brand[500],
       transform: [{ translateY: -2 }],
     },
     featureButtonPressed: {

@@ -29,6 +29,7 @@ import { CheckInService } from '../../services/CheckInService';
 import { navigationRef } from '../../navigation/navigationRef';
 import { ROUTES } from '../../navigation/routes';
 import { isWeb } from '../../utils/PlatformUtils';
+import { CosmicTokens } from '../../theme/tokens';
 
 import { useTaskStore } from '../../store/useTaskStore';
 import OverlayService from '../../services/OverlayService';
@@ -58,9 +59,9 @@ const SPIN_DURATION = 1200;
 
 // Cosmic colors (no hex outside tokens in app code — these mirror cosmicTokens)
 const COLORS = {
-  idle: '#8B5CF6', // nebulaViolet
+  idle: CosmicTokens.colors.semantic.primary,
   recording: '#2DD4BF', // auroraTeal
-  processing: '#8B5CF6', // nebulaViolet
+  processing: CosmicTokens.colors.semantic.primary,
   failed: '#FB7185', // cometRose
   offline: '#6B7A9C', // neutral.medium (muted)
   needsCheckin: '#F6C177', // gold
