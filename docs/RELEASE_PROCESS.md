@@ -28,24 +28,36 @@
 
 ### GitHub Pages Deployment
 
-**Current source of truth: manual deploy from `master`**
+**Current source of truth: GitHub Actions deploy from `main`**
 
-1. **Merge to master branch:**
+1. **Merge the validated branch into `main`:**
 
    ```bash
-   git checkout master
+   git checkout main
    git merge feature-branch
-   git push origin master
+   git push origin main
    ```
 
-2. **Deploy web build to `gh-pages`:**
+2. **Let `.github/workflows/pages.yml` run the canonical release flow:**
 
-   ```bash
-   npm run build:web
-   npm run deploy  # Pushes dist/ to gh-pages branch
-   ```
+   - run `npm run quality:gate:core`
+   - run `npm run e2e:smoke`
+   - build the production bundle
+   - deploy the Pages artifact
+   - run the post-deploy smoke test against
+     `https://daytimeblues.github.io/ADHD-CADDI/`
 
-3. **Confirm `gh-pages` is in sync with latest `master` release commit.**
+3. **Confirm the deployed Pages site matches the latest good `main` commit.**
+
+**Manual fallback (not canonical):**
+
+Use this only for recovery or emergency repair work when the Actions-based
+release path is unavailable.
+
+```bash
+npm run build:web
+npm run deploy
+```
 
 **Validation:**
 
@@ -57,11 +69,10 @@
 **Rollback:**
 
 ```bash
-# Revert gh-pages branch to previous commit
-git checkout gh-pages
-git log  # Find last good commit hash
-git reset --hard <commit-hash>
-git push --force origin gh-pages
+# Preferred: revert the bad change on main so Actions redeploys a known-good site
+git checkout main
+git revert <bad-commit-hash>
+git push origin main
 ```
 
 ---
@@ -210,7 +221,7 @@ If Google Analytics or similar integrated:
 1. **Create hotfix branch:**
 
    ```bash
-    git checkout master
+   git checkout main
    git checkout -b hotfix/critical-bug-fix
    ```
 
@@ -226,9 +237,9 @@ If Google Analytics or similar integrated:
 4. **Fast-track merge:**
 
    ```bash
-    git checkout master
+   git checkout main
    git merge hotfix/critical-bug-fix
-    git push origin master
+   git push origin main
    ```
 
 5. **Deploy immediately** (web via Actions, Android via manual build)
@@ -292,7 +303,7 @@ Follow **Semantic Versioning (semver):**
 
 ## Changelog Maintenance
 
-**Update `CHANGELOG.md` BEFORE merging to master:**
+**Update `CHANGELOG.md` BEFORE merging to main:**
 
 ```markdown
 ## [1.2.0] - 2026-02-15
@@ -326,13 +337,13 @@ Follow **Semantic Versioning (semver):**
 
 ## Disaster Recovery
 
-**If master branch corrupted:**
+**If main branch corrupted:**
 
 ```bash
 # Restore from last known good commit
-git checkout master
+git checkout main
 git reset --hard <last-good-commit-hash>
-git push --force origin master
+git push --force origin main
 ```
 
 **If production data lost (AsyncStorage):**
@@ -357,7 +368,7 @@ git push --force origin master
 
 ## Automation Opportunities
 
-**Current State:** Manual web deploy (`npm run deploy`) and manual Android builds
+**Current State:** automated web deploy via GitHub Actions and manual Android builds
 
 **Future Enhancements:**
 
@@ -368,6 +379,6 @@ git push --force origin master
 
 ---
 
-**Last Updated:** 2026-02-10  
+**Last Updated:** 2026-03-06  
 **Owner:** Release Manager  
 **Review Cycle:** Update after each major release

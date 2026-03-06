@@ -138,7 +138,7 @@ Google Sign-In on Android requires a Web client ID for backend authentication.
 5. **Authorized JavaScript origins** (optional, leave empty for now)
 6. **Authorized redirect URIs** (optional, leave empty for now)
 7. Click **"Create"**
-8. **Copy the Client ID** - this is your `REACT_APP_GOOGLE_WEB_CLIENT_ID`
+8. **Copy the Client ID** - this is your `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`
    - Format: `123456789012-abcdefghijklmnopqrstuvwxyz123456.apps.googleusercontent.com`
    - **Save this value** - you'll need it in Step 7
 
@@ -160,7 +160,7 @@ If you plan to build for iOS:
 1. Click **"Create Credentials"** → **"OAuth client ID"**
 2. Choose **"iOS"**
 3. Bundle ID: `com.sparkadhd` (or your iOS bundle ID)
-4. Copy the Client ID - this is your `REACT_APP_GOOGLE_IOS_CLIENT_ID`
+4. Copy the Client ID - this is your `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`
 
 ---
 
@@ -173,9 +173,9 @@ The app reads Google client IDs from environment variables at build time.
 Create a file named `.env` in the project root:
 
 ```bash
-# In: spark-adhd-backup/.env
-REACT_APP_GOOGLE_WEB_CLIENT_ID=YOUR_WEB_CLIENT_ID_FROM_STEP_6.apps.googleusercontent.com
-REACT_APP_GOOGLE_IOS_CLIENT_ID=YOUR_IOS_CLIENT_ID_FROM_STEP_6.apps.googleusercontent.com
+# In: C:\dev\ADHD-CADDI-V1\.env
+EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=YOUR_WEB_CLIENT_ID_FROM_STEP_6.apps.googleusercontent.com
+EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID=YOUR_IOS_CLIENT_ID_FROM_STEP_6.apps.googleusercontent.com
 ```
 
 **Replace** `YOUR_WEB_CLIENT_ID_FROM_STEP_6` with the actual Web Client ID you copied in Step 6.
@@ -189,15 +189,15 @@ For production builds or CI/CD:
 **Windows (PowerShell)**:
 
 ```powershell
-$env:REACT_APP_GOOGLE_WEB_CLIENT_ID="YOUR_WEB_CLIENT_ID.apps.googleusercontent.com"
-$env:REACT_APP_GOOGLE_IOS_CLIENT_ID="YOUR_IOS_CLIENT_ID.apps.googleusercontent.com"
+$env:EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID="YOUR_WEB_CLIENT_ID.apps.googleusercontent.com"
+$env:EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID="YOUR_IOS_CLIENT_ID.apps.googleusercontent.com"
 ```
 
 **macOS/Linux**:
 
 ```bash
-export REACT_APP_GOOGLE_WEB_CLIENT_ID="YOUR_WEB_CLIENT_ID.apps.googleusercontent.com"
-export REACT_APP_GOOGLE_IOS_CLIENT_ID="YOUR_IOS_CLIENT_ID.apps.googleusercontent.com"
+export EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID="YOUR_WEB_CLIENT_ID.apps.googleusercontent.com"
+export EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID="YOUR_IOS_CLIENT_ID.apps.googleusercontent.com"
 ```
 
 ---
@@ -213,8 +213,8 @@ After completing all steps, you should have:
 - ✅ OAuth consent screen configured with Tasks + Calendar scopes
 - ✅ Web OAuth client ID created
 - ✅ Android OAuth client ID exists (auto-created or manual)
-- ✅ Environment variable `REACT_APP_GOOGLE_WEB_CLIENT_ID` set
-- ✅ (Optional) Environment variable `REACT_APP_GOOGLE_IOS_CLIENT_ID` set for iOS
+- ✅ Environment variable `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` set
+- ✅ (Optional) Environment variable `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` set for iOS
 
 ### Quick Check
 

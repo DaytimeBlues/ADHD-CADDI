@@ -7,7 +7,8 @@ A behavioral activation tool for ADHD, designed as a high-performance **PWA (Pro
 
 ## Deployment Status
 
-- **Live PWA**: [https://daytimeblues.github.io/ADHD-CADDI-V1/](https://daytimeblues.github.io/ADHD-CADDI-V1/)
+- **Live PWA**: [https://daytimeblues.github.io/ADHD-CADDI/](https://daytimeblues.github.io/ADHD-CADDI/)
+- **Canonical Local Workspace**: `C:\dev\ADHD-CADDI-V1`
 
 ## Features
 
@@ -34,6 +35,13 @@ This is the recommended way to run and test the app.
 npm install
 ```
 
+### Worktree Workflow
+
+Use the clean clone at `C:\dev\ADHD-CADDI-V1` for `main` and the dedicated
+worktrees under `C:\dev` for parallel branches such as `W7`, `W8`, `W9`, and
+`INT`. The local `REC-*` folders are recovery snapshots from the old OneDrive
+copy and should only be used to review or cherry-pick rescued work.
+
 ### Running Locally
 
 ```bash
@@ -54,9 +62,15 @@ npm run e2e
 
 ### Deploying
 
-```bash
-npm run deploy  # Pushes to GitHub Pages
-```
+The canonical production deploy path is GitHub Actions:
+
+1. Merge a validated branch into `main`
+2. Push `main` to `origin`
+3. Let `.github/workflows/pages.yml` run the quality gates, build the web app,
+   deploy to GitHub Pages, and run the post-deploy smoke test
+
+Manual `npm run deploy` remains available as a fallback for repair/recovery
+work, but it is not the primary release path.
 
 ---
 

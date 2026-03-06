@@ -8,7 +8,8 @@
 
 | Key                     | Value                                           |
 | ----------------------- | ----------------------------------------------- |
-| **Repo Name**           | `adhd-caddi-v1`                                 |
+| **Repo Name**           | `ADHD-CADDI` (remote)                           |
+| **Local Workspace**     | `C:\dev\ADHD-CADDI-V1`                          |
 | **Goal**                | Speed of delivery (not learning a new stack)    |
 | **Primary Platforms**   | Web/PWA first (Android Chrome priority)         |
 | **Secondary Platforms** | Native Android bridge (optional, feature-gated) |
@@ -21,7 +22,7 @@
 | **Framework**     | React Native 0.74.3 + React Native Web                                         |
 | **Language**      | TypeScript                                                                     |
 | **Navigation**    | React Navigation 6 (Stack + Bottom Tabs)                                       |
-| **State**         | React `useState` / `useContext` (upgrade to Redux Toolkit if complexity grows) |
+| **State**         | Zustand stores + React hooks                                                    |
 | **Persistence**   | `@react-native-async-storage/async-storage` (local-only)                       |
 | **Bundler (Web)** | Webpack                                                                        |
 | **Testing**       | Jest + RTL (unit), Playwright (web E2E), Detox (native E2E)                    |
@@ -31,16 +32,21 @@
 
 ### Secrets Configuration
 
-**File**: `src/config/secrets.ts` (gitignored)
+**Files**:
 
-```typescript
-export const SECRETS = {
-  GOOGLE_CLIENT_ID: "your-client-id.apps.googleusercontent.com",
-  GOOGLE_API_KEY: "AIzaSy...",
-};
+- `.env` (local, gitignored)
+- `.env.example` (tracked reference)
+- `src/config/index.ts` (runtime config reader)
+
+```bash
+EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=your-web-client-id.apps.googleusercontent.com
+EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID=your-ios-client-id.apps.googleusercontent.com
+EXPO_PUBLIC_API_BASE_URL=https://adhd-caddi-api.vercel.app
 ```
 
-> Copy `secrets.example.ts` → `secrets.ts` and add your keys.
+> Use `.env.example` as the reference file. Variables prefixed with
+> `EXPO_PUBLIC_` are bundled into the web client, so do not store private
+> server-only secrets there.
 
 **Required Google API Scopes**:
 
@@ -326,35 +332,22 @@ npm run e2e          # Playwright E2E (web)
 
 ### GitHub Pages Deployment
 
-1. **Build**: `npm run build:web` → outputs to `dist/`
-2. **Deploy**: GitHub Actions workflow pushes `dist/` to `gh-pages` branch
-3. **URL**: `https://DaytimeBlues.github.io/spark-adhd-backup`
+1. **Build**: `npm run build:web` -> outputs to `dist/`
+2. **Deploy**: `.github/workflows/pages.yml` runs on push to `main`
+3. **Gate**: the workflow runs `quality:gate:core`, `e2e:smoke`, build, deploy, and post-deploy smoke validation
+4. **URL**: `https://daytimeblues.github.io/ADHD-CADDI/`
 
-### Recommended GitHub Action
+### Canonical Deploy Workflow
 
-```yaml
-# .github/workflows/deploy.yml
-name: Deploy to GitHub Pages
+- Trigger: push to `main`
+- Workflow: `.github/workflows/pages.yml`
+- Deploy mechanism: `actions/upload-pages-artifact` + `actions/deploy-pages`
+- Post-deploy validation: Playwright smoke test against the live Pages URL
 
-on:
-  push:
-    branches: [master]
+### Manual Fallback
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "18"
-      - run: npm ci
-      - run: npm run build:web
-      - uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-```
+`npm run deploy` still exists for emergency repair/recovery, but it is not the
+canonical release path.
 
 ### Verification Checklist
 
@@ -404,8 +397,8 @@ The project follows OWASP 2025 standards for web and mobile security.
 
 - **Security Checklist**: See [docs/SECURITY_CHECKLIST.md](./SECURITY_CHECKLIST.md) for current controls.
 - **Secret Scanning**: `gitleaks` is configured for local/CI scanning workflows.
-- **Credential Safety**: No secrets should be committed to the repository. Use `src/config/secrets.ts` (ignored) or environment variables.
+- **Credential Safety**: No secrets should be committed to the repository. Use `.env` locally, keep `.env.example` as the reference template, and treat `EXPO_PUBLIC_*` variables as client-visible.
 
 ---
 
-_Last updated: 2026-02-11_
+_Last updated: 2026-03-06_
