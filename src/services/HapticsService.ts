@@ -15,10 +15,13 @@ try {
       message: 'expo-haptics not available, using Vibration fallback',
       error: err,
     });
-  } catch {
+  } catch (loggerError) {
     // Fallback to console if LoggerService not initialized
     // eslint-disable-next-line no-console
-    console.debug('[HapticsService] expo-haptics not available');
+    console.debug(
+      '[HapticsService] expo-haptics not available; logger unavailable',
+      loggerError,
+    );
   }
 }
 

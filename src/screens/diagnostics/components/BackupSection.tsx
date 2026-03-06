@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { LoggerService } from '../../../services/LoggerService';
 import { Tokens } from '../../../theme/tokens';
 import type { BackupImportMode } from '../types';
 
@@ -92,7 +93,14 @@ export const BackupSection = ({
         <TouchableOpacity
           testID="diagnostics-export-backup"
           onPress={() => {
-            onExport().catch(() => undefined);
+            onExport().catch((error) => {
+              LoggerService.error({
+                service: 'BackupSection',
+                operation: 'onExport',
+                message: 'Backup export action failed',
+                error,
+              });
+            });
           }}
           disabled={isBackupBusy}
           style={[
@@ -108,7 +116,15 @@ export const BackupSection = ({
         <TouchableOpacity
           testID="diagnostics-import-backup"
           onPress={() => {
-            onImport().catch(() => undefined);
+            onImport().catch((error) => {
+              LoggerService.error({
+                service: 'BackupSection',
+                operation: 'onImport',
+                message: 'Backup import action failed',
+                error,
+                context: { importMode },
+              });
+            });
           }}
           disabled={isBackupBusy || !backupJson.trim()}
           style={[

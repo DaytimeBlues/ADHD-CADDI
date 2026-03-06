@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AccessibilityInfo } from 'react-native';
+import { LoggerService } from '../services/LoggerService';
 
 const useReducedMotion = (): boolean => {
   const [reduceMotionEnabled, setReduceMotionEnabled] = useState(false);
@@ -13,7 +14,13 @@ const useReducedMotion = (): boolean => {
         if (isMounted) {
           setReduceMotionEnabled(isEnabled);
         }
-      } catch {
+      } catch (error) {
+        LoggerService.warn({
+          service: 'useReducedMotion',
+          operation: 'loadReduceMotionPreference',
+          message: 'Failed to read reduced motion preference',
+          error,
+        });
         if (isMounted) {
           setReduceMotionEnabled(false);
         }

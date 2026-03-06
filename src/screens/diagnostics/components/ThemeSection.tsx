@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { LoggerService } from '../../../services/LoggerService';
 import { Tokens } from '../../../theme/tokens';
 import { GlowCard } from '../../../ui/cosmic';
 import type { ThemeOption } from '../types';
@@ -22,7 +23,15 @@ export const ThemeSection = ({
           <GlowCard
             glow={option.selected ? 'soft' : 'none'}
             onPress={() => {
-              onSelectTheme(option.variant).catch(() => undefined);
+              onSelectTheme(option.variant).catch((error) => {
+                LoggerService.error({
+                  service: 'ThemeSection',
+                  operation: 'onSelectTheme',
+                  message: 'Theme selection failed',
+                  error,
+                  context: { variant: option.variant },
+                });
+              });
             }}
             style={styles.themeOption}
             accessibilityLabel={`Select ${option.label} theme`}

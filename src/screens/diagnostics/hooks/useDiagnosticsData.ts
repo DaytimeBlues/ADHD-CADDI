@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { config } from '../../../config';
 import { GoogleTasksSyncService } from '../../../services/GoogleTasksSyncService';
+import { LoggerService } from '../../../services/LoggerService';
 import StorageService from '../../../services/StorageService';
 import { isAndroid, isIOS, isWeb } from '../../../utils/PlatformUtils';
 import type { DiagnosticEntry } from '../types';
@@ -126,7 +127,13 @@ export const useDiagnosticsData = (): UseDiagnosticsDataResult => {
             status: 'info',
           });
         }
-      } catch {
+      } catch (error) {
+        LoggerService.error({
+          service: 'useDiagnosticsData',
+          operation: 'readGoogleTasksLastSyncAt',
+          message: 'Failed to read last sync timestamp',
+          error,
+        });
         entries.push({
           label: 'Last Sync',
           value: 'Error reading timestamp',
@@ -144,7 +151,13 @@ export const useDiagnosticsData = (): UseDiagnosticsDataResult => {
           value: `${count}`,
           status: 'info',
         });
-      } catch {
+      } catch (error) {
+        LoggerService.error({
+          service: 'useDiagnosticsData',
+          operation: 'readExportedFingerprints',
+          message: 'Failed to read exported fingerprint cache',
+          error,
+        });
         entries.push({
           label: 'Exported Items',
           value: 'Error reading cache',
@@ -159,7 +172,13 @@ export const useDiagnosticsData = (): UseDiagnosticsDataResult => {
   }, []);
 
   useEffect(() => {
-    refreshDiagnostics().catch(() => {
+    refreshDiagnostics().catch((error) => {
+      LoggerService.error({
+        service: 'useDiagnosticsData',
+        operation: 'refreshDiagnostics',
+        message: 'Failed to refresh diagnostics data',
+        error,
+      });
       setIsRefreshing(false);
     });
   }, [refreshDiagnostics]);
