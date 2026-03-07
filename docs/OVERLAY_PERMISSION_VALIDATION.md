@@ -19,7 +19,7 @@
 1. Fresh install app or clear app data:
 
    ```bash
-   adb shell pm clear com.sparkadhd
+   adb shell pm clear com.adhdcaddi
    ```
 
 2. Launch app and navigate to Home screen
@@ -87,7 +87,7 @@
 1. Revoke permission via settings:
 
    ```bash
-   adb shell appops set com.sparkadhd SYSTEM_ALERT_WINDOW deny
+   adb shell appops set com.adhdcaddi SYSTEM_ALERT_WINDOW deny
    ```
 
 2. Return to app Home screen
@@ -122,7 +122,7 @@
 2. Verify service running:
 
    ```bash
-   adb shell dumpsys activity services com.sparkadhd.OverlayService
+   adb shell dumpsys activity services com.adhdcaddi.OverlayService
    ```
 
 3. Toggle switch OFF

@@ -26,9 +26,9 @@ For GenAI features specifically, this means:
 | Provider           | When                             | Trade-off                    |
 | :----------------- | :------------------------------- | :--------------------------- |
 | `vercel` (default) | API key is private, no CORS risk | Requires server round-trip   |
-| `gemini-direct`    | Set `REACT_APP_GEMINI_API_KEY`   | Faster, but key is in bundle |
+| `gemini-direct`    | Set `EXPO_PUBLIC_GEMINI_API_KEY` | Faster, but key is in bundle |
 
-The `config.aiProvider` field controls which path is taken. If `REACT_APP_AI_PROVIDER=vercel` is explicitly set, it always wins — even if a Gemini key is present.
+The `config.aiProvider` field controls which path is taken. If `EXPO_PUBLIC_AI_PROVIDER=vercel` is explicitly set, it always wins — even if a Gemini key is present. Direct client AI keys are for development only and should not be used in production bundles.
 
 ### Error Codes vs. Generic Messages
 
@@ -79,11 +79,11 @@ When running in a WebMCP-capable browser, external agents can call:
 
 ```js
 // In Chrome DevTools console:
-await globalThis.navigator.modelContext.callTool("start_timer", {
-  timerType: "ignite",
+await globalThis.navigator.modelContext.callTool('start_timer', {
+  timerType: 'ignite',
 });
-await globalThis.navigator.modelContext.callTool("navigate_to_screen", {
-  screen: "BrainDump",
+await globalThis.navigator.modelContext.callTool('navigate_to_screen', {
+  screen: 'BrainDump',
 });
 ```
 

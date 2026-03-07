@@ -16,8 +16,8 @@
 # CI currently compiles with API 34, so suppress missing-class warnings for that API type.
 -dontwarn android.app.ApplicationStartInfo
 
-# Spark ADHD native modules
--keep class com.sparkadhd.** { *; }
+# ADHD-CADDI native modules
+-keep class com.adhdcaddi.** { *; }
 
 # Keep @ReactMethod annotations
 -keepattributes *Annotation*

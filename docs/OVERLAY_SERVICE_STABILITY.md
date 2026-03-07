@@ -23,13 +23,13 @@ Verify OverlayService reliability, lifecycle correctness, and resilience under s
 
 ```bash
 # Watch service status
-watch -n 30 'adb shell dumpsys activity services com.sparkadhd.OverlayService'
+watch -n 30 'adb shell dumpsys activity services com.adhdcaddi.OverlayService'
 
 # Monitor memory usage
-adb shell dumpsys meminfo com.sparkadhd | grep TOTAL
+adb shell dumpsys meminfo com.adhdcaddi | grep TOTAL
 
 # Track CPU usage
-adb shell top -n 1 -d 1 | grep sparkadhd
+adb shell top -n 1 -d 1 | grep adhdcaddi
 ```
 
 **Success Criteria:**
@@ -60,7 +60,7 @@ adb shell top -n 1 -d 1 | grep sparkadhd
 3. Verify bubble displays correct count
 4. Force-stop app:
    ```bash
-   adb shell am force-stop com.sparkadhd
+   adb shell am force-stop com.adhdcaddi
    ```
 5. Restart app and re-enable overlay
 6. **Verify:** Bubble shows same count as before force-stop
@@ -77,7 +77,7 @@ adb shell top -n 1 -d 1 | grep sparkadhd
 - [ ] Count persists across app restarts
 - [ ] SharedPreferences file readable:
   ```bash
-  adb shell run-as com.sparkadhd cat shared_prefs/spark_overlay_prefs.xml
+  adb shell run-as com.adhdcaddi cat shared_prefs/spark_overlay_prefs.xml
   ```
 
 ---
@@ -93,7 +93,7 @@ adb shell top -n 1 -d 1 | grep sparkadhd
 
    ```bash
    # Find service PID
-   adb shell ps | grep com.sparkadhd
+   adb shell ps | grep com.adhdcaddi
 
    # Kill service (not entire app)
    adb shell kill -9 <service_pid>
@@ -150,7 +150,7 @@ adb shell top -n 1 -d 1 | grep sparkadhd
 1. Enable overlay
 2. Revoke `SYSTEM_ALERT_WINDOW` permission via appops:
    ```bash
-   adb shell appops set com.sparkadhd SYSTEM_ALERT_WINDOW deny
+   adb shell appops set com.adhdcaddi SYSTEM_ALERT_WINDOW deny
    ```
 3. Return to app
 4. **Verify:**
@@ -227,7 +227,7 @@ adb shell top -n 1 -d 1 | grep sparkadhd
 2. Open 10+ heavy apps (Chrome with many tabs, games, etc.)
 3. Monitor with:
    ```bash
-   adb shell dumpsys meminfo com.sparkadhd
+   adb shell dumpsys meminfo com.adhdcaddi
    ```
 4. **Expected:** System may kill service (`onDestroy` called), but no crash
 5. **Verify:** App gracefully handles service death, switch updates correctly
@@ -260,9 +260,9 @@ END_TIME=$(($(date +%s) + $DURATION_HOURS * 3600))
 
 while [ $(date +%s) -lt $END_TIME ]; do
   TIMESTAMP=$(date +"%Y-%m-%d %H:%M:%S")
-  MEM=$(adb shell dumpsys meminfo com.sparkadhd | grep "TOTAL" | awk '{print $2}')
+  MEM=$(adb shell dumpsys meminfo com.adhdcaddi | grep "TOTAL" | awk '{print $2}')
   CPU=$(adb shell top -n 1 | grep sparkadhd | awk '{print $9}')
-  SERVICE=$(adb shell dumpsys activity services com.sparkadhd.OverlayService | grep "app=" | wc -l)
+  SERVICE=$(adb shell dumpsys activity services com.adhdcaddi.OverlayService | grep "app=" | wc -l)
 
   echo "$TIMESTAMP,$MEM,$CPU,$SERVICE" | tee -a $LOGFILE
 

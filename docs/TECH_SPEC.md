@@ -8,7 +8,7 @@
 
 | Key                     | Value                                           |
 | ----------------------- | ----------------------------------------------- |
-| **Repo Name**           | `adhd-caddi-v1`                                 |
+| **Repo Name**           | `ADHD-CADDI`                                    |
 | **Goal**                | Speed of delivery (not learning a new stack)    |
 | **Primary Platforms**   | Web/PWA first (Android Chrome priority)         |
 | **Secondary Platforms** | Native Android bridge (optional, feature-gated) |
@@ -16,31 +16,25 @@
 
 ### Tech Stack
 
-| Layer             | Technology                                                                     |
-| ----------------- | ------------------------------------------------------------------------------ |
-| **Framework**     | React Native 0.74.3 + React Native Web                                         |
-| **Language**      | TypeScript                                                                     |
-| **Navigation**    | React Navigation 6 (Stack + Bottom Tabs)                                       |
-| **State**         | React `useState` / `useContext` (upgrade to Redux Toolkit if complexity grows) |
-| **Persistence**   | `@react-native-async-storage/async-storage` (local-only)                       |
-| **Bundler (Web)** | Webpack                                                                        |
-| **Testing**       | Jest + RTL (unit), Playwright (web E2E), Detox (native E2E)                    |
-| **CI/CD**         | GitHub Actions → GitHub Pages                                                  |
+| Layer             | Technology                                                               |
+| ----------------- | ------------------------------------------------------------------------ |
+| **Framework**     | React Native 0.74.3 + React Native Web                                   |
+| **Language**      | TypeScript                                                               |
+| **Navigation**    | React Navigation 6 (Stack + Bottom Tabs)                                 |
+| **State**         | Zustand + React local state                                              |
+| **Persistence**   | AsyncStorage on web/tests, `@op-engineering/op-sqlite` on native Android |
+| **Bundler (Web)** | Webpack                                                                  |
+| **Testing**       | Jest + RTL (unit), Playwright (web E2E), Detox (native E2E)              |
+| **CI/CD**         | GitHub Actions → GitHub Pages                                            |
 
 > Native Android testing and Android Studio workflows are only required when changing native modules (`android/`, overlay bridge/services, or native permissions/build logic).
 
 ### Secrets Configuration
 
-**File**: `src/config/secrets.ts` (gitignored)
-
-```typescript
-export const SECRETS = {
-  GOOGLE_CLIENT_ID: "your-client-id.apps.googleusercontent.com",
-  GOOGLE_API_KEY: "AIzaSy...",
-};
-```
-
-> Copy `secrets.example.ts` → `secrets.ts` and add your keys.
+- Public client config lives in `.env` / CI env vars via `EXPO_PUBLIC_*`
+- Real secrets must stay server-side (backend env vars, CI secrets, keystore storage)
+- `android/app/google-services.json` is local/CI provisioned and must not be committed
+- Direct client AI keys are development-only and should not be used for production Pages/mobile builds
 
 **Required Google API Scopes**:
 
@@ -187,16 +181,16 @@ Since we're using `AsyncStorage`, this is a key-value store with JSON serializat
 ```typescript
 const STORAGE_KEYS = {
   // User preferences
-  theme: "theme", // 'light' | 'dark'
+  theme: 'theme', // 'light' | 'dark'
 
   // Feature data
-  tasks: "tasks", // FogCutterTask[]
-  brainDump: "brainDump", // BrainDumpEntry[]
-  checkIns: "checkIns", // CheckInEntry[]
+  tasks: 'tasks', // FogCutterTask[]
+  brainDump: 'brainDump', // BrainDumpEntry[]
+  checkIns: 'checkIns', // CheckInEntry[]
 
   // Timer states (for resume on app reopen)
-  igniteState: "igniteState", // TimerState
-  pomodoroState: "pomodoroState", // PomodoroState
+  igniteState: 'igniteState', // TimerState
+  pomodoroState: 'pomodoroState', // PomodoroState
 };
 ```
 
@@ -238,7 +232,7 @@ interface TimerState {
 }
 
 interface PomodoroState extends TimerState {
-  mode: "work" | "break";
+  mode: 'work' | 'break';
   cycleCount: number;
 }
 ```
@@ -326,40 +320,23 @@ npm run e2e          # Playwright E2E (web)
 
 ### GitHub Pages Deployment
 
-1. **Build**: `npm run build:web` → outputs to `dist/`
-2. **Deploy**: GitHub Actions workflow pushes `dist/` to `gh-pages` branch
-3. **URL**: `https://DaytimeBlues.github.io/spark-adhd-backup`
+1. **Source of truth**: `main`
+2. **Workflow**: `.github/workflows/pages.yml`
+3. **Build**: `npm run build:web` → outputs to `dist/`
+4. **Publish**: GitHub Actions uploads `dist/` plus `dist/404.html` to GitHub Pages
+5. **URL**: `https://daytimeblues.github.io/ADHD-CADDI/`
 
-### Recommended GitHub Action
+### Deployment Notes
 
-```yaml
-# .github/workflows/deploy.yml
-name: Deploy to GitHub Pages
-
-on:
-  push:
-    branches: [master]
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "18"
-      - run: npm ci
-      - run: npm run build:web
-      - uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-```
+- GitHub Pages is configured for `build_type: workflow`
+- The Pages workflow runs lint, typecheck, unit tests, smoke E2E, then deploys
+- Failure logs are uploaded as artifacts to make failed runs diagnosable
 
 ### Verification Checklist
 
 - [ ] `npm run build:web` completes without errors
 - [ ] `dist/index.html` loads locally
+- [ ] `dist/404.html` exists for SPA refresh/deep-link fallback
 - [ ] Responsive: Works on mobile viewport (375px) and desktop (1440px)
 - [ ] All screens navigate correctly
 - [ ] AsyncStorage persists data across refreshes (via localStorage polyfill on web)
@@ -404,7 +381,7 @@ The project follows OWASP 2025 standards for web and mobile security.
 
 - **Security Checklist**: See [docs/SECURITY_CHECKLIST.md](./SECURITY_CHECKLIST.md) for current controls.
 - **Secret Scanning**: `gitleaks` is configured for local/CI scanning workflows.
-- **Credential Safety**: No secrets should be committed to the repository. Use `src/config/secrets.ts` (ignored) or environment variables.
+- **Credential Safety**: No secrets should be committed to the repository. Use public `EXPO_PUBLIC_*` vars only for client-safe config, and keep real secrets in backend/CI environment variables.
 
 ---
 

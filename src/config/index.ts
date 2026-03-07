@@ -31,10 +31,39 @@ export interface Config {
   aiMaxRetries: number;
 }
 
+type RuntimeEnv = Record<string, string | undefined>;
+
+const getRuntimeEnv = (): RuntimeEnv => {
+  if (typeof process === 'undefined' || !process.env) {
+    return {};
+  }
+
+  return process.env;
+};
+
+const getEnvironment = (env: RuntimeEnv): Config['environment'] => {
+  if (env.NODE_ENV === 'development' || env.EXPO_PUBLIC_ENV === 'development') {
+    return 'development';
+  }
+
+  if (env.EXPO_PUBLIC_ENV === 'staging') {
+    return 'staging';
+  }
+
+  return 'production';
+};
+
 const getConfig = (): Config => {
+  const env = getRuntimeEnv();
+  const environment = getEnvironment(env);
+  const allowInsecureDirectAi =
+    env.EXPO_PUBLIC_ENABLE_INSECURE_DIRECT_AI === 'true';
+  const canUseDirectClientAi =
+    environment !== 'production' || allowInsecureDirectAi;
+
   const config: Config = {
     apiBaseUrl: 'https://spark-adhd-api.vercel.app',
-    environment: 'production',
+    environment,
     googleWebClientId: undefined,
     googleIosClientId: undefined,
     aiProvider: 'vercel',
@@ -46,90 +75,88 @@ const getConfig = (): Config => {
   };
 
   // Log warning if direct AI provider is used in production
-  const warnDirectProvider = (provider: string) => {
-    if (config.environment === 'production') {
-      import('../services/LoggerService')
-        .then(({ LoggerService }) => {
-          LoggerService.warn({
-            service: 'config',
-            operation: 'warnDirectProvider',
-            message:
-              `[SECURITY WARNING] Using '${provider}' AI provider in production exposes API keys in the client bundle. ` +
-              "Consider using 'vercel' provider with a server-side proxy instead.",
-          });
-        })
-        .catch((error) => {
-          // eslint-disable-next-line no-console
-          console.warn(
-            '[config.warnDirectProvider] Failed to import LoggerService for security warning',
-            error,
-          );
+  const warnDirectProvider = (provider: string, blocked: boolean) => {
+    import('../services/LoggerService')
+      .then(({ LoggerService }) => {
+        LoggerService.warn({
+          service: 'config',
+          operation: blocked ? 'blockDirectProvider' : 'warnDirectProvider',
+          message: blocked
+            ? `[SECURITY WARNING] Ignoring '${provider}' in production because client-bundled API keys are public. Use the 'vercel' provider or explicitly set EXPO_PUBLIC_ENABLE_INSECURE_DIRECT_AI=true for non-production debugging.`
+            : `[SECURITY WARNING] Using '${provider}' exposes API keys in the client bundle. Prefer the 'vercel' provider with a server-side proxy.`,
         });
-    }
+      })
+      .catch((error) => {
+        // eslint-disable-next-line no-console
+        console.warn(
+          '[config.warnDirectProvider] Failed to import LoggerService for security warning',
+          error,
+        );
+      });
   };
 
-  if (typeof process !== 'undefined' && process.env) {
-    if (process.env.EXPO_PUBLIC_API_BASE_URL) {
-      config.apiBaseUrl = process.env.EXPO_PUBLIC_API_BASE_URL;
-    }
+  if (env.EXPO_PUBLIC_API_BASE_URL) {
+    config.apiBaseUrl = env.EXPO_PUBLIC_API_BASE_URL;
+  }
 
-    if (process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID) {
-      config.googleWebClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
-    }
+  if (env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID) {
+    config.googleWebClientId = env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+  }
 
-    if (process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID) {
-      config.googleIosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
-    }
+  if (env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID) {
+    config.googleIosClientId = env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
+  }
 
-    if (process.env.EXPO_PUBLIC_GEMINI_API_KEY) {
-      config.geminiApiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
-      // If a Gemini key is explicitly provided, default to direct mode
+  if (env.EXPO_PUBLIC_GEMINI_API_KEY) {
+    if (canUseDirectClientAi) {
+      config.geminiApiKey = env.EXPO_PUBLIC_GEMINI_API_KEY;
+    } else {
+      warnDirectProvider('gemini-direct', true);
+    }
+  }
+
+  if (env.EXPO_PUBLIC_MOONSHOT_API_KEY) {
+    if (canUseDirectClientAi) {
+      config.moonshotApiKey = env.EXPO_PUBLIC_MOONSHOT_API_KEY;
+    } else {
+      warnDirectProvider('kimi-direct', true);
+    }
+  }
+
+  if (env.EXPO_PUBLIC_KIMI_MODEL) {
+    config.kimiModel = env.EXPO_PUBLIC_KIMI_MODEL;
+  }
+
+  if (env.EXPO_PUBLIC_AI_TIMEOUT) {
+    config.aiTimeout = parseInt(env.EXPO_PUBLIC_AI_TIMEOUT, 10) || 8000;
+  }
+
+  if (env.EXPO_PUBLIC_AI_MAX_RETRIES) {
+    config.aiMaxRetries = parseInt(env.EXPO_PUBLIC_AI_MAX_RETRIES, 10) || 3;
+  }
+
+  if (env.EXPO_PUBLIC_AI_PROVIDER === 'vercel') {
+    config.aiProvider = 'vercel';
+  } else if (env.EXPO_PUBLIC_AI_PROVIDER === 'gemini-direct') {
+    if (canUseDirectClientAi) {
       config.aiProvider = 'gemini-direct';
-      warnDirectProvider('gemini-direct');
+      warnDirectProvider('gemini-direct', false);
+    } else {
+      warnDirectProvider('gemini-direct', true);
     }
-
-    if (process.env.EXPO_PUBLIC_MOONSHOT_API_KEY) {
-      config.moonshotApiKey = process.env.EXPO_PUBLIC_MOONSHOT_API_KEY;
-      // Default to kimi-direct if key provided but no provider set
-      if (!process.env.EXPO_PUBLIC_AI_PROVIDER) {
-        config.aiProvider = 'kimi-direct';
-        warnDirectProvider('kimi-direct');
-      }
-    }
-
-    if (process.env.EXPO_PUBLIC_KIMI_MODEL) {
-      config.kimiModel = process.env.EXPO_PUBLIC_KIMI_MODEL;
-    }
-
-    // Allow explicit override of provider
-    if (process.env.EXPO_PUBLIC_AI_PROVIDER === 'vercel') {
-      config.aiProvider = 'vercel';
-    } else if (process.env.EXPO_PUBLIC_AI_PROVIDER === 'gemini-direct') {
-      config.aiProvider = 'gemini-direct';
-      warnDirectProvider('gemini-direct');
-    } else if (process.env.EXPO_PUBLIC_AI_PROVIDER === 'kimi-direct') {
+  } else if (env.EXPO_PUBLIC_AI_PROVIDER === 'kimi-direct') {
+    if (canUseDirectClientAi) {
       config.aiProvider = 'kimi-direct';
-      warnDirectProvider('kimi-direct');
+      warnDirectProvider('kimi-direct', false);
+    } else {
+      warnDirectProvider('kimi-direct', true);
     }
-
-    if (process.env.EXPO_PUBLIC_AI_TIMEOUT) {
-      config.aiTimeout =
-        parseInt(process.env.EXPO_PUBLIC_AI_TIMEOUT, 10) || 8000;
-    }
-
-    if (process.env.EXPO_PUBLIC_AI_MAX_RETRIES) {
-      config.aiMaxRetries =
-        parseInt(process.env.EXPO_PUBLIC_AI_MAX_RETRIES, 10) || 3;
-    }
-
-    if (
-      process.env.NODE_ENV === 'development' ||
-      process.env.EXPO_PUBLIC_ENV === 'development'
-    ) {
-      config.environment = 'development';
-    } else if (process.env.EXPO_PUBLIC_ENV === 'staging') {
-      config.environment = 'staging';
-    }
+  } else if (env.EXPO_PUBLIC_GEMINI_API_KEY && canUseDirectClientAi) {
+    config.aiProvider = 'gemini-direct';
+    warnDirectProvider('gemini-direct', false);
+  } else if (env.EXPO_PUBLIC_MOONSHOT_API_KEY && canUseDirectClientAi) {
+    config.aiProvider = 'kimi-direct';
+    warnDirectProvider('kimi-direct', false);
   }
 
   return config;

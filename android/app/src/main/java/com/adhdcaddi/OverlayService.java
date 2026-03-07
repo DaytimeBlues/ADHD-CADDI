@@ -33,7 +33,7 @@ import androidx.core.app.NotificationCompat;
 public class OverlayService extends Service {
   private static final String CHANNEL_ID = "spark_overlay";
   private static final int NOTIFICATION_ID = 1001;
-  private static final String ACTION_STOP_OVERLAY = "com.sparkadhd.action.STOP_OVERLAY";
+  private static final String ACTION_STOP_OVERLAY = "com.adhdcaddi.action.STOP_OVERLAY";
   private static final String PREFS_NAME = "spark_overlay_prefs";
   private static final String KEY_LAST_COUNT = "last_count";
   private static final String KEY_BUBBLE_X = "bubble_x";

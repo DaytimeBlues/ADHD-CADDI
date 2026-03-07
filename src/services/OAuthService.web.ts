@@ -1,5 +1,6 @@
 /// <reference lib="dom" />
 import { LoggerService } from './LoggerService';
+import { getWebRedirectUri } from '../config/paths';
 
 /**
  * OAuthService (Web Version)
@@ -90,7 +91,7 @@ class OAuthServiceClass {
 
   async initiateGoogleAuth(): Promise<{ success: boolean; error?: string }> {
     try {
-      const redirectUri = `${window.location.origin}/ADHD-CADDI/`;
+      const redirectUri = getWebRedirectUri(window.location.origin);
       const codeVerifier = this.generateCodeVerifier();
       const codeChallenge = await this.generateCodeChallenge(codeVerifier);
 
@@ -139,7 +140,7 @@ class OAuthServiceClass {
 
   async initiateTodoistAuth(): Promise<{ success: boolean; error?: string }> {
     try {
-      const redirectUri = `${window.location.origin}/ADHD-CADDI/`;
+      const redirectUri = getWebRedirectUri(window.location.origin);
 
       const response = await fetch(`${API_BASE_URL}/api/todoist-oauth-init`, {
         method: 'POST',

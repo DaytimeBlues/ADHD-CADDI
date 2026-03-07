@@ -13,10 +13,8 @@ import {
 } from 'react-native';
 
 import AppNavigator, { ROUTES } from './src/navigation/AppNavigator';
-import StorageService from './src/services/StorageService';
 import { GoogleTasksSyncService } from './src/services/GoogleTasksSyncService';
 import OverlayService from './src/services/OverlayService';
-import WebMCPService from './src/services/WebMCPService';
 import { LoggerService } from './src/services/LoggerService';
 import { Tokens } from './src/theme/tokens';
 import { config } from './src/config';
@@ -27,16 +25,15 @@ import {
   type RootStackParamList,
 } from './src/navigation/navigationRef';
 import { agentEventBus } from './src/services/AgentEventBus';
-import { CheckInService } from './src/services/CheckInService';
-import { TimerService } from './src/services/TimerService';
 import { isWeb } from './src/utils/PlatformUtils';
+import { bootstrapApp } from './src/init/bootstrap';
 
 import { DriftCheckOverlay } from './src/components/DriftCheckOverlay';
 import { useDriftStore } from './src/store/useDriftStore';
-import { DriftService } from './src/services/DriftService';
 import { BiometricService } from './src/services/BiometricService';
 import { LockScreen } from './src/components/LockScreen';
 import ErrorBoundary from './src/components/ErrorBoundary';
+import { WEB_LINKING_PREFIXES } from './src/config/paths';
 
 // Initialize Sentry for error tracking
 if (config.environment === 'production') {
@@ -60,77 +57,26 @@ if (config.environment === 'production') {
   });
 }
 
-const CRITICAL_INIT_TIMEOUT_MS = 8000;
-
-const wait = (ms: number): Promise<void> =>
-  new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-
 export const useAppBootstrap = () => {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
 
-    const initializeCriticalServices = async () => {
-      await Promise.all([StorageService.init(), BiometricService.init()]);
-    };
-
-    const initializeNonBlockingServices = () => {
-      GoogleTasksSyncService.syncToBrainDump().catch((error) => {
-        LoggerService.error({
+    bootstrapApp()
+      .catch((error) => {
+        LoggerService.fatal({
           service: 'App',
-          operation: 'initializeNonBlockingServices',
-          message: 'Initial Google Tasks sync failed',
+          operation: 'useAppBootstrap',
+          message: 'bootstrapApp rejected unexpectedly',
           error,
         });
-      });
-      WebMCPService.init();
-      CheckInService.start();
-      DriftService.init();
-      TimerService.start();
-    };
-
-    const initializeApp = async () => {
-      try {
-        const hasGoogleConfig =
-          isWeb || config.googleWebClientId || config.googleIosClientId;
-
-        if (!hasGoogleConfig && !isWeb) {
-          LoggerService.warn({
-            service: 'App',
-            operation: 'initializeApp',
-            message:
-              '[Google Config] Missing EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID or EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID. Google Tasks/Calendar sync will be disabled. See android/app/google-services.json setup instructions.',
-          });
-        }
-
-        const initTimeout = wait(CRITICAL_INIT_TIMEOUT_MS).then(() => {
-          LoggerService.warn({
-            service: 'App',
-            operation: 'initializeApp',
-            message: `Critical app initialization exceeded ${CRITICAL_INIT_TIMEOUT_MS}ms. Continuing app launch.`,
-          });
-        });
-
-        await Promise.race([initializeCriticalServices(), initTimeout]);
-        initializeNonBlockingServices();
-      } catch (error) {
-        LoggerService.error({
-          service: 'App',
-          operation: 'initializeApp',
-          message: 'App initialization error',
-          error,
-        });
-      } finally {
+      })
+      .finally(() => {
         if (isMounted) {
           setIsReady(true);
         }
-      }
-    };
-
-    initializeApp();
+      });
 
     return () => {
       isMounted = false;
@@ -226,7 +172,7 @@ const App = () => {
   };
 
   const linking = {
-    prefixes: ['https://daytimeblues.github.io/ADHD-CADDI-V1'],
+    prefixes: WEB_LINKING_PREFIXES,
     config: {
       screens: {
         Main: '',

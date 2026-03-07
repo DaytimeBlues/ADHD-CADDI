@@ -7,7 +7,7 @@ A behavioral activation tool for ADHD, designed as a high-performance **PWA (Pro
 
 ## Deployment Status
 
-- **Live PWA**: [https://daytimeblues.github.io/ADHD-CADDI-V1/](https://daytimeblues.github.io/ADHD-CADDI-V1/)
+- **Live PWA**: [https://daytimeblues.github.io/ADHD-CADDI/](https://daytimeblues.github.io/ADHD-CADDI/)
 
 ## Features
 

@@ -28,24 +28,22 @@
 
 ### GitHub Pages Deployment
 
-**Current source of truth: manual deploy from `master`**
+**Current source of truth: push to `main`**
 
-1. **Merge to master branch:**
+1. **Merge to main branch:**
 
    ```bash
-   git checkout master
+   git checkout main
    git merge feature-branch
-   git push origin master
+   git push origin main
    ```
 
-2. **Deploy web build to `gh-pages`:**
+2. **Wait for the Pages workflow to finish:**
 
-   ```bash
-   npm run build:web
-   npm run deploy  # Pushes dist/ to gh-pages branch
-   ```
+   - Workflow: `.github/workflows/pages.yml`
+   - URL: `https://daytimeblues.github.io/ADHD-CADDI/`
 
-3. **Confirm `gh-pages` is in sync with latest `master` release commit.**
+3. **Confirm the deployed site matches the latest `main` release commit.**
 
 **Validation:**
 
@@ -57,11 +55,11 @@
 **Rollback:**
 
 ```bash
-# Revert gh-pages branch to previous commit
-git checkout gh-pages
-git log  # Find last good commit hash
-git reset --hard <commit-hash>
-git push --force origin gh-pages
+# Revert the bad change on main, then let Pages redeploy
+git checkout main
+git log  # Find the bad commit or last good point
+git revert <commit-hash>
+git push origin main
 ```
 
 ---
@@ -71,7 +69,8 @@ git push --force origin gh-pages
 ### Prerequisites
 
 - JDK 17 installed and `JAVA_HOME` set (see `docs/ANDROID_BUILD_BLOCKERS.md`)
-- Keystore file present at `android/app/release.keystore`
+- Local `android/app/google-services.json` present (or provisioned by CI)
+- For production release builds only: keystore file present at `android/app/release.keystore`
 - Environment variables set:
   ```bash
   export KEYSTORE_PASSWORD=<your-password>
@@ -79,7 +78,17 @@ git push --force origin gh-pages
   export KEY_PASSWORD=<your-key-password>
   ```
 
-### Build Release APK
+### Build Sideloadable APKs
+
+**Preview APK (recommended for direct install / non-Play-Store testing):**
+
+```bash
+npm run build:android:preview
+
+# Output: android/app/build/outputs/apk/preview/
+```
+
+**Release APK (signed, production-intent):**
 
 ```bash
 cd android
@@ -121,6 +130,12 @@ cd android
    ```
 
 ### Distribution
+
+**Direct install / sideload:**
+
+- USB install from local machine
+- Share CI-generated APK artifacts
+- Use the `preview` build for easiest install without release keystore distribution
 
 **Internal Testing:**
 
@@ -210,8 +225,8 @@ If Google Analytics or similar integrated:
 1. **Create hotfix branch:**
 
    ```bash
-    git checkout master
-   git checkout -b hotfix/critical-bug-fix
+    git checkout main
+    git checkout -b hotfix/critical-bug-fix
    ```
 
 2. **Apply minimal fix** (no refactoring, no scope creep)
@@ -226,9 +241,9 @@ If Google Analytics or similar integrated:
 4. **Fast-track merge:**
 
    ```bash
-    git checkout master
-   git merge hotfix/critical-bug-fix
-    git push origin master
+    git checkout main
+    git merge hotfix/critical-bug-fix
+    git push origin main
    ```
 
 5. **Deploy immediately** (web via Actions, Android via manual build)
@@ -292,7 +307,7 @@ Follow **Semantic Versioning (semver):**
 
 ## Changelog Maintenance
 
-**Update `CHANGELOG.md` BEFORE merging to master:**
+**Update `CHANGELOG.md` BEFORE merging to main:**
 
 ```markdown
 ## [1.2.0] - 2026-02-15
@@ -326,13 +341,12 @@ Follow **Semantic Versioning (semver):**
 
 ## Disaster Recovery
 
-**If master branch corrupted:**
+**If main branch corrupted:**
 
 ```bash
-# Restore from last known good commit
-git checkout master
-git reset --hard <last-good-commit-hash>
-git push --force origin master
+# Create a restore branch from the last known good commit
+git checkout -b restore/<date> <last-good-commit-hash>
+# Open a PR back to main or coordinate an administrative restore
 ```
 
 **If production data lost (AsyncStorage):**
@@ -357,7 +371,7 @@ git push --force origin master
 
 ## Automation Opportunities
 
-**Current State:** Manual web deploy (`npm run deploy`) and manual Android builds
+**Current State:** Workflow-driven Pages deploys from `main`; Android artifacts built in GitHub Actions and locally via Gradle/package scripts
 
 **Future Enhancements:**
 

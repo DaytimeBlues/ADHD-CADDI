@@ -1,6 +1,7 @@
 /// <reference lib="dom" />
 import { LoggerService } from './LoggerService';
 import { isWeb } from '../utils/PlatformUtils';
+import { getWebRedirectUri } from '../config/paths';
 
 /**
  * OAuthService
@@ -119,7 +120,7 @@ class OAuthServiceClass {
       }
 
       // Web: use backend-assisted PKCE flow
-      const redirectUri = `${window.location.origin}/ADHD-CADDI/`;
+      const redirectUri = getWebRedirectUri(window.location.origin);
       const codeVerifier = this.generateCodeVerifier();
       const codeChallenge = await this.generateCodeChallenge(codeVerifier);
 
@@ -214,7 +215,7 @@ class OAuthServiceClass {
   async initiateTodoistAuth(): Promise<{ success: boolean; error?: string }> {
     try {
       const redirectUri = isWeb
-        ? `${window.location.origin}/ADHD-CADDI/`
+        ? getWebRedirectUri(window.location.origin)
         : 'com.adhdcaddi:/oauth2callback';
 
       const response = await fetch(`${API_BASE_URL}/api/todoist-oauth-init`, {

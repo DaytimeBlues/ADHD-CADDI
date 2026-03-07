@@ -1,4 +1,4 @@
-# Google Services Setup Guide for Spark Focus OS
+# Google Services Setup Guide for ADHD-CADDI
 
 This guide walks through obtaining the required Google/Firebase configuration files and credentials needed for Google Tasks and Calendar sync functionality.
 
@@ -8,7 +8,7 @@ This guide walks through obtaining the required Google/Firebase configuration fi
 
 - Google account with access to Google Cloud Console and Firebase Console
 - Android development environment with `keytool` (comes with JDK)
-- Package name: `com.sparkadhd`
+- Package name: `com.adhdcaddi`
 
 ---
 
@@ -27,13 +27,14 @@ This guide walks through obtaining the required Google/Firebase configuration fi
 
 1. In your Firebase project dashboard, click the **Android icon** to add an Android app
 2. Fill in the registration form:
-   - **Android package name**: `com.sparkadhd` (must match exactly)
-   - **App nickname**: `Spark ADHD Android` (optional, for your reference)
+   - **Android package name**: `com.adhdcaddi` (must match exactly)
+   - **App nickname**: `ADHD-CADDI Android` (optional, for your reference)
    - **Debug signing certificate SHA-1**: See "Step 3" below to generate this
 3. Click **"Register app"**
 4. **Download `google-services.json`**:
    - Firebase will prompt you to download this file
    - Save it to: `android/app/google-services.json` in this repository
+   - This file is gitignored; keep it local or provision it in CI
    - This file contains your Firebase project configuration
 5. Skip the "Add Firebase SDK" steps (already configured in the app)
 6. Click **"Continue to console"**
@@ -83,7 +84,7 @@ Certificate fingerprints:
 
 1. Go back to Firebase Console → Project Settings (gear icon)
 2. Scroll down to **"Your apps"** section
-3. Find your Android app (`com.sparkadhd`)
+3. Find your Android app (`com.adhdcaddi`)
 4. Click **"Add fingerprint"**
 5. Paste the **SHA-1** fingerprint and click **"Save"**
 6. Click **"Add fingerprint"** again
@@ -134,11 +135,11 @@ Google Sign-In on Android requires a Web client ID for backend authentication.
 1. In Google Cloud Console, go to **"APIs & Services"** → **"Credentials"**
 2. Click **"Create Credentials"** → **"OAuth client ID"**
 3. Choose **"Web application"**
-4. Name: `Spark Focus OS Web Client`
+4. Name: `ADHD-CADDI Web Client`
 5. **Authorized JavaScript origins** (optional, leave empty for now)
 6. **Authorized redirect URIs** (optional, leave empty for now)
 7. Click **"Create"**
-8. **Copy the Client ID** - this is your `REACT_APP_GOOGLE_WEB_CLIENT_ID`
+8. **Copy the Client ID** - this is your `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`
    - Format: `123456789012-abcdefghijklmnopqrstuvwxyz123456.apps.googleusercontent.com`
    - **Save this value** - you'll need it in Step 7
 
@@ -148,9 +149,9 @@ Firebase automatically creates an Android client ID when you add SHA fingerprint
 
 1. Go to **"APIs & Services"** → **"Credentials"**
 2. Look for an OAuth 2.0 Client ID with type **"Android"**
-3. It should show your package name (`com.sparkadhd`) and SHA-1 fingerprint
+3. It should show your package name (`com.adhdcaddi`) and SHA-1 fingerprint
 4. If missing, click **"Create Credentials"** → **"OAuth client ID"** → **"Android"**:
-   - Package name: `com.sparkadhd`
+   - Package name: `com.adhdcaddi`
    - SHA-1 fingerprint: (paste the one from Step 3)
 
 ### iOS Client ID (Optional, for iOS builds)
@@ -159,8 +160,8 @@ If you plan to build for iOS:
 
 1. Click **"Create Credentials"** → **"OAuth client ID"**
 2. Choose **"iOS"**
-3. Bundle ID: `com.sparkadhd` (or your iOS bundle ID)
-4. Copy the Client ID - this is your `REACT_APP_GOOGLE_IOS_CLIENT_ID`
+3. Bundle ID: `com.adhdcaddi` (or your iOS bundle ID)
+4. Copy the Client ID - this is your `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`
 
 ---
 
@@ -173,9 +174,9 @@ The app reads Google client IDs from environment variables at build time.
 Create a file named `.env` in the project root:
 
 ```bash
-# In: spark-adhd-backup/.env
-REACT_APP_GOOGLE_WEB_CLIENT_ID=YOUR_WEB_CLIENT_ID_FROM_STEP_6.apps.googleusercontent.com
-REACT_APP_GOOGLE_IOS_CLIENT_ID=YOUR_IOS_CLIENT_ID_FROM_STEP_6.apps.googleusercontent.com
+# In: ADHD-CADDI/.env
+EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID=YOUR_WEB_CLIENT_ID_FROM_STEP_6.apps.googleusercontent.com
+EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID=YOUR_IOS_CLIENT_ID_FROM_STEP_6.apps.googleusercontent.com
 ```
 
 **Replace** `YOUR_WEB_CLIENT_ID_FROM_STEP_6` with the actual Web Client ID you copied in Step 6.
@@ -189,15 +190,15 @@ For production builds or CI/CD:
 **Windows (PowerShell)**:
 
 ```powershell
-$env:REACT_APP_GOOGLE_WEB_CLIENT_ID="YOUR_WEB_CLIENT_ID.apps.googleusercontent.com"
-$env:REACT_APP_GOOGLE_IOS_CLIENT_ID="YOUR_IOS_CLIENT_ID.apps.googleusercontent.com"
+$env:EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID="YOUR_WEB_CLIENT_ID.apps.googleusercontent.com"
+$env:EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID="YOUR_IOS_CLIENT_ID.apps.googleusercontent.com"
 ```
 
 **macOS/Linux**:
 
 ```bash
-export REACT_APP_GOOGLE_WEB_CLIENT_ID="YOUR_WEB_CLIENT_ID.apps.googleusercontent.com"
-export REACT_APP_GOOGLE_IOS_CLIENT_ID="YOUR_IOS_CLIENT_ID.apps.googleusercontent.com"
+export EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID="YOUR_WEB_CLIENT_ID.apps.googleusercontent.com"
+export EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID="YOUR_IOS_CLIENT_ID.apps.googleusercontent.com"
 ```
 
 ---
@@ -213,8 +214,8 @@ After completing all steps, you should have:
 - ✅ OAuth consent screen configured with Tasks + Calendar scopes
 - ✅ Web OAuth client ID created
 - ✅ Android OAuth client ID exists (auto-created or manual)
-- ✅ Environment variable `REACT_APP_GOOGLE_WEB_CLIENT_ID` set
-- ✅ (Optional) Environment variable `REACT_APP_GOOGLE_IOS_CLIENT_ID` set for iOS
+- ✅ Environment variable `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` set
+- ✅ (Optional) Environment variable `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` set for iOS
 
 ### Quick Check
 
@@ -255,7 +256,7 @@ Open the Diagnostics screen in the app (available in `__DEV__` mode from Home sc
 
 - File must be at exact path: `android/app/google-services.json`
 - Check file is not named `google-services.json.txt` (Windows hides extensions)
-- Verify package name in file matches `com.sparkadhd`
+- Verify package name in file matches `com.adhdcaddi`
 
 ---
 
@@ -301,4 +302,4 @@ If you encounter issues:
 
 **Last Updated**: February 16, 2026  
 **App Version**: 1.0.0  
-**Package**: com.sparkadhd
+**Package**: com.adhdcaddi

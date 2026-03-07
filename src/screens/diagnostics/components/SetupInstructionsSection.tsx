@@ -13,7 +13,7 @@ export const SetupInstructionsSection = () => {
         1. Create a Firebase project at console.firebase.google.com
       </Text>
       <Text style={styles.instructionStep}>
-        2. Add Android app with package ID: com.sparkadhd
+        2. Add Android app with package ID: com.adhdcaddi
       </Text>
       <Text style={styles.instructionStep}>
         3. Download google-services.json to android/app/
@@ -22,7 +22,7 @@ export const SetupInstructionsSection = () => {
         4. Enable Google Tasks API in Google Cloud Console
       </Text>
       <Text style={styles.instructionStep}>
-        5. Set REACT_APP_GOOGLE_WEB_CLIENT_ID environment variable
+        5. Set EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID environment variable
       </Text>
       <Text style={styles.instructionStep}>6. Rebuild the app</Text>
     </View>

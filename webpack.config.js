@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
@@ -6,6 +7,27 @@ const webpack = require('webpack');
 // Standard file watching can trigger memory access errors in some Windows environments.
 // Polling via Chokidar is a reliable workaround.
 process.env.CHOKIDAR_USEPOLLING = 'true';
+
+const copyPublicAssets = {
+  apply(compiler) {
+    compiler.hooks.afterEmit.tap('CopyPublicAssetsPlugin', () => {
+      const publicDir = path.resolve(__dirname, 'public');
+      const outputDir = compiler.options.output.path;
+
+      for (const entry of fs.readdirSync(publicDir, { withFileTypes: true })) {
+        if (entry.name === 'index.html') {
+          continue;
+        }
+
+        fs.cpSync(
+          path.join(publicDir, entry.name),
+          path.join(outputDir, entry.name),
+          { recursive: true },
+        );
+      }
+    });
+  },
+};
 
 module.exports = (env, argv) => {
   const isProduction = argv.mode === 'production';
@@ -139,6 +161,7 @@ module.exports = (env, argv) => {
       new HtmlWebpackPlugin({
         template: './public/index.html',
       }),
+      copyPublicAssets,
     ],
     devServer: {
       static: {
