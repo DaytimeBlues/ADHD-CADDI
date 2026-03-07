@@ -34,6 +34,7 @@ import { BiometricService } from './src/services/BiometricService';
 import { LockScreen } from './src/components/LockScreen';
 import ErrorBoundary from './src/components/ErrorBoundary';
 import { appLinking } from './src/navigation/linking';
+import { WEB_APP_BASE_PATH } from './src/config/paths';
 
 // Initialize Sentry for error tracking
 if (config.environment === 'production') {
@@ -84,6 +85,34 @@ export const useAppBootstrap = () => {
   }, []);
 
   return isReady;
+};
+
+const syncWebUrlFromNavigation = () => {
+  if (!isWeb || !navigationRef.isReady()) {
+    return;
+  }
+
+  const rootState = navigationRef.getRootState();
+  const targetPath = appLinking.getPathFromState?.(
+    rootState,
+    appLinking.config,
+  );
+
+  if (!targetPath) {
+    return;
+  }
+
+  const currentPath = window.location.pathname;
+  if (currentPath === targetPath) {
+    return;
+  }
+
+  if (
+    currentPath.startsWith(WEB_APP_BASE_PATH) ||
+    targetPath.startsWith(WEB_APP_BASE_PATH)
+  ) {
+    window.history.replaceState(null, '', targetPath);
+  }
 };
 
 const App = () => {
@@ -179,7 +208,9 @@ const App = () => {
         onReady={() => {
           // Flush any overlay intents that were queued before navigation was ready
           flushOverlayIntentQueue();
+          syncWebUrlFromNavigation();
         }}
+        onStateChange={syncWebUrlFromNavigation}
       >
         <StatusBar
           barStyle="light-content"
