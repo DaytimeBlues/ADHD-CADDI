@@ -125,7 +125,7 @@ jobs:
   android-release-build:
     name: Android Release Build Check
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     needs: android-build-and-test
     env:
       GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4g"
@@ -182,6 +182,9 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_6
+          emulator-boot-timeout: 900
+          no-boot-anim: true
+          disable-animations: true
           script: |
             adb install android/app/build/outputs/apk/release/app-release.apk
             adb shell am start -n com.adhdcaddi/.MainActivity
