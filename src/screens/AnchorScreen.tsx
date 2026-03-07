@@ -255,7 +255,11 @@ const AnchorScreen = () => {
                   style={getStyles(isCosmic).patternButton}
                 >
                   <View style={getStyles(isCosmic).patternIcon}>
-                    <Text style={getStyles(isCosmic).patternEmoji}>
+                    <Text
+                      style={getStyles(isCosmic).patternEmoji}
+                      accessibilityElementsHidden={true}
+                      importantForAccessibility="no"
+                    >
                       {p === '478' ? '🌙' : p === 'box' ? '📦' : '⚡'}
                     </Text>
                   </View>
