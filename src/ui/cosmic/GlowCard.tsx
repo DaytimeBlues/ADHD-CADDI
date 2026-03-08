@@ -218,6 +218,31 @@ export const GlowCard = memo(function GlowCard({
   const pressedLinearStyle =
     isPressedInternal && !isCosmic ? styles.pressedLinear : undefined;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const getStyleWithFocus = (state: any) => {
+    const baseStyle = [
+      containerStyle,
+      glowStyle,
+      style as ViewStyle,
+      pressedLinearStyle,
+      { transform: [{ scale: scaleAnim }] },
+    ];
+
+    if (state?.focused && onPress) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const focusStyle = Platform.select({
+        web: {
+          outlineWidth: 2,
+          outlineStyle: 'solid',
+          outlineColor: isCosmic ? '#8B5CF6' : '#7C3AED',
+        },
+      }) as ViewStyle;
+      baseStyle.push(focusStyle);
+    }
+
+    return baseStyle;
+  };
+
   return (
     <AnimatedPressable
       testID={testID}
@@ -225,13 +250,7 @@ export const GlowCard = memo(function GlowCard({
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
       disabled={disabled}
-      style={[
-        containerStyle,
-        glowStyle,
-        style as ViewStyle,
-        pressedLinearStyle,
-        { transform: [{ scale: scaleAnim }] },
-      ]}
+      style={getStyleWithFocus}
       accessibilityState={{
         ...accessibilityState,
         disabled,
