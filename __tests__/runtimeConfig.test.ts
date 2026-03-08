@@ -1,4 +1,4 @@
-import { createConfig } from '../src/config';
+import { createConfig } from '../src/config/runtimeConfig';
 
 describe('runtime config', () => {
   it('reports invalid API URLs as startup errors and falls back safely', () => {
@@ -37,6 +37,41 @@ describe('runtime config', () => {
     expect(config.startupWarnings).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ code: 'DIRECT_AI_KEY_MISSING' }),
+      ]),
+    );
+  });
+
+  it('blocks direct AI in production even when insecure override is set', () => {
+    const config = createConfig({
+      EXPO_PUBLIC_ENV: 'production',
+      EXPO_PUBLIC_AI_PROVIDER: 'kimi-direct',
+      EXPO_PUBLIC_ENABLE_INSECURE_DIRECT_AI: 'true',
+      EXPO_PUBLIC_MOONSHOT_API_KEY: 'public-key',
+    });
+
+    expect(config.aiProvider).toBe('vercel');
+    expect(config.moonshotApiKey).toBeUndefined();
+    expect(config.startupWarnings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: 'UNSAFE_DIRECT_AI_ENABLED' }),
+        expect.objectContaining({ code: 'PUBLIC_DIRECT_AI_KEY' }),
+      ]),
+    );
+  });
+
+  it('falls back safely when AI timeout and retry values are out of range', () => {
+    const config = createConfig({
+      EXPO_PUBLIC_ENV: 'development',
+      EXPO_PUBLIC_AI_TIMEOUT: '999999',
+      EXPO_PUBLIC_AI_MAX_RETRIES: '-4',
+    });
+
+    expect(config.aiTimeout).toBe(8000);
+    expect(config.aiMaxRetries).toBe(3);
+    expect(config.startupWarnings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: 'INVALID_AI_TIMEOUT' }),
+        expect.objectContaining({ code: 'INVALID_AI_MAX_RETRIES' }),
       ]),
     );
   });

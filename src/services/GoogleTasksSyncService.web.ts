@@ -1,25 +1,13 @@
 import { SortedItem } from './AISortService';
+import type {
+  GoogleExportResult,
+  GoogleTasksSyncResult,
+} from './google-sync/types';
 
-export interface GoogleTasksSyncResult {
-  importedCount: number;
-  skippedCount: number;
-  markedCompletedCount: number;
-  syncTokenUpdated: boolean;
-}
-
-export interface GoogleExportResult {
-  createdTasks: number;
-  createdEvents: number;
-  skippedCount: number;
-  authRequired: boolean;
-  errorCode?:
-    | 'auth_required'
-    | 'auth_failed'
-    | 'network'
-    | 'rate_limited'
-    | 'api_error';
-  errorMessage?: string;
-}
+export type {
+  GoogleExportResult,
+  GoogleTasksSyncResult,
+} from './google-sync/types';
 
 class GoogleTasksSyncServiceClass {
   configureGoogleSignIn(): void {

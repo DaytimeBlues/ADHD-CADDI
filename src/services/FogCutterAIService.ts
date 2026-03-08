@@ -1,5 +1,7 @@
 import { config } from '../config';
 import { LoggerService } from './LoggerService';
+import { createOperationContext } from './OperationContext';
+import { fetchWithPolicy } from './network/requestPolicy';
 
 export interface MicroStep {
   id: string;
@@ -52,18 +54,23 @@ const FogCutterAIService = {
       return DEFAULT_FALLBACK_STEPS;
     }
 
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), config.aiTimeout);
+    const operationContext = createOperationContext({
+      feature: 'fog-cutter-ai',
+    });
 
     try {
-      const response = await fetch(`${config.apiBaseUrl}/api/microsteps`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ task: title }),
-        signal: controller.signal,
-      });
-
-      clearTimeout(timer);
+      const response = await fetchWithPolicy(
+        `${config.apiBaseUrl}/api/microsteps`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ task: title }),
+        },
+        {
+          timeoutMs: config.aiTimeout,
+          operationContext,
+        },
+      );
 
       if (!response.ok) {
         LoggerService.warn({
@@ -83,7 +90,6 @@ const FogCutterAIService = {
 
       return parseMicroSteps(payload);
     } catch (err) {
-      clearTimeout(timer);
       // Network errors / timeouts / CORS → silent fallback, not a UI crash
       LoggerService.warn({
         service: 'FogCutterAIService',

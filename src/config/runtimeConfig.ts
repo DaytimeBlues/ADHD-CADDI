@@ -4,6 +4,8 @@ export interface StartupDiagnostic {
   severity: 'error' | 'warning';
   code:
     | 'INVALID_API_BASE_URL'
+    | 'INVALID_AI_TIMEOUT'
+    | 'INVALID_AI_MAX_RETRIES'
     | 'MISSING_GOOGLE_CLIENT_IDS'
     | 'PUBLIC_DIRECT_AI_KEY'
     | 'DIRECT_AI_KEY_MISSING'
@@ -33,6 +35,12 @@ export interface Config {
 type RuntimeEnv = Record<string, string | undefined>;
 
 const DEFAULT_API_BASE_URL = 'https://spark-adhd-api.vercel.app';
+const DEFAULT_AI_TIMEOUT_MS = 8000;
+const DEFAULT_AI_MAX_RETRIES = 3;
+const MIN_AI_TIMEOUT_MS = 1000;
+const MAX_AI_TIMEOUT_MS = 60000;
+const MIN_AI_MAX_RETRIES = 0;
+const MAX_AI_MAX_RETRIES = 5;
 
 const getRuntimeEnv = (): RuntimeEnv => {
   if (typeof process === 'undefined' || !process.env) {
@@ -54,13 +62,31 @@ const getEnvironment = (env: RuntimeEnv): Config['environment'] => {
   return 'production';
 };
 
-const parsePositiveInteger = (value: string | undefined, fallback: number) => {
+const parseIntegerInRange = (
+  value: string | undefined,
+  fallback: number,
+  min: number,
+  max: number,
+) => {
   if (!value) {
-    return fallback;
+    return {
+      value: fallback,
+      isValid: true,
+    };
   }
 
   const parsed = parseInt(value, 10);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+  if (!Number.isFinite(parsed) || parsed < min || parsed > max) {
+    return {
+      value: fallback,
+      isValid: false,
+    };
+  }
+
+  return {
+    value: parsed,
+    isValid: true,
+  };
 };
 
 const isValidUrl = (value: string): boolean => {
@@ -78,8 +104,7 @@ export const createConfig = (env: RuntimeEnv = getRuntimeEnv()): Config => {
   const startupWarnings: StartupDiagnostic[] = [];
   const allowInsecureDirectAi =
     env.EXPO_PUBLIC_ENABLE_INSECURE_DIRECT_AI === 'true';
-  const canUseDirectClientAi =
-    environment !== 'production' || allowInsecureDirectAi;
+  const canUseDirectClientAi = environment !== 'production';
 
   let apiBaseUrl = env.EXPO_PUBLIC_API_BASE_URL || DEFAULT_API_BASE_URL;
   if (!isValidUrl(apiBaseUrl)) {
@@ -94,6 +119,19 @@ export const createConfig = (env: RuntimeEnv = getRuntimeEnv()): Config => {
     apiBaseUrl = DEFAULT_API_BASE_URL;
   }
 
+  const aiTimeout = parseIntegerInRange(
+    env.EXPO_PUBLIC_AI_TIMEOUT,
+    DEFAULT_AI_TIMEOUT_MS,
+    MIN_AI_TIMEOUT_MS,
+    MAX_AI_TIMEOUT_MS,
+  );
+  const aiMaxRetries = parseIntegerInRange(
+    env.EXPO_PUBLIC_AI_MAX_RETRIES,
+    DEFAULT_AI_MAX_RETRIES,
+    MIN_AI_MAX_RETRIES,
+    MAX_AI_MAX_RETRIES,
+  );
+
   const config: Config = {
     apiBaseUrl,
     environment,
@@ -103,12 +141,32 @@ export const createConfig = (env: RuntimeEnv = getRuntimeEnv()): Config => {
     geminiApiKey: undefined,
     moonshotApiKey: undefined,
     kimiModel: env.EXPO_PUBLIC_KIMI_MODEL || 'kimi-k2.5',
-    aiTimeout: parsePositiveInteger(env.EXPO_PUBLIC_AI_TIMEOUT, 8000),
-    aiMaxRetries: parsePositiveInteger(env.EXPO_PUBLIC_AI_MAX_RETRIES, 3),
+    aiTimeout: aiTimeout.value,
+    aiMaxRetries: aiMaxRetries.value,
     sentryDsn: env.EXPO_PUBLIC_SENTRY_DSN,
     startupErrors,
     startupWarnings,
   };
+
+  if (!aiTimeout.isValid) {
+    startupWarnings.push({
+      severity: 'warning',
+      code: 'INVALID_AI_TIMEOUT',
+      envVar: 'EXPO_PUBLIC_AI_TIMEOUT',
+      feature: 'ai',
+      message: `EXPO_PUBLIC_AI_TIMEOUT must be between ${MIN_AI_TIMEOUT_MS} and ${MAX_AI_TIMEOUT_MS} milliseconds. Falling back to ${DEFAULT_AI_TIMEOUT_MS}.`,
+    });
+  }
+
+  if (!aiMaxRetries.isValid) {
+    startupWarnings.push({
+      severity: 'warning',
+      code: 'INVALID_AI_MAX_RETRIES',
+      envVar: 'EXPO_PUBLIC_AI_MAX_RETRIES',
+      feature: 'ai',
+      message: `EXPO_PUBLIC_AI_MAX_RETRIES must be between ${MIN_AI_MAX_RETRIES} and ${MAX_AI_MAX_RETRIES}. Falling back to ${DEFAULT_AI_MAX_RETRIES}.`,
+    });
+  }
 
   if (!config.googleWebClientId && !config.googleIosClientId) {
     startupWarnings.push({
@@ -129,6 +187,17 @@ export const createConfig = (env: RuntimeEnv = getRuntimeEnv()): Config => {
       feature: 'observability',
       message:
         'EXPO_PUBLIC_SENTRY_DSN is not configured. Production crashes will only appear in local console output.',
+    });
+  }
+
+  if (environment === 'production' && allowInsecureDirectAi) {
+    startupWarnings.push({
+      severity: 'warning',
+      code: 'UNSAFE_DIRECT_AI_ENABLED',
+      envVar: 'EXPO_PUBLIC_ENABLE_INSECURE_DIRECT_AI',
+      feature: 'ai',
+      message:
+        'EXPO_PUBLIC_ENABLE_INSECURE_DIRECT_AI is ignored in production. Direct client-side AI providers stay blocked for production builds.',
     });
   }
 
@@ -163,7 +232,7 @@ export const createConfig = (env: RuntimeEnv = getRuntimeEnv()): Config => {
         envVar: 'EXPO_PUBLIC_ENABLE_INSECURE_DIRECT_AI',
         feature: provider,
         message:
-          'Direct client-side AI providers are blocked in production unless EXPO_PUBLIC_ENABLE_INSECURE_DIRECT_AI=true is set intentionally.',
+          'Direct client-side AI providers are blocked in production. Route requests through the Vercel backend instead.',
       });
       return;
     }

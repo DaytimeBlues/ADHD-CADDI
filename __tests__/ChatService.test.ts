@@ -7,6 +7,7 @@ describe('ChatService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     ChatService.clearHistory();
+    config.environment = 'development';
     config.aiTimeout = 5000;
     config.aiMaxRetries = 0;
     config.apiBaseUrl = 'https://test.local';
@@ -44,6 +45,12 @@ describe('ChatService', () => {
     const messages = ChatService.getMessages();
     expect(messages[messages.length - 1].role).toBe('assistant');
     expect(messages[messages.length - 1].content).toBe('Hello from Vercel');
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://test.local/api/chat',
+      expect.objectContaining({
+        headers: expect.anything(),
+      }),
+    );
   });
 
   it('sends a message through the Kimi provider', async () => {
@@ -61,6 +68,20 @@ describe('ChatService', () => {
     const messages = ChatService.getMessages();
     expect(messages[messages.length - 1].role).toBe('assistant');
     expect(messages[messages.length - 1].content).toBe('Hello from Kimi');
+  });
+
+  it('blocks direct AI provider calls in production builds', async () => {
+    config.environment = 'production';
+    config.aiProvider = 'kimi-direct';
+    global.fetch = jest.fn();
+
+    await ChatService.sendMessage('Hello Kimi');
+
+    const messages = ChatService.getMessages();
+    expect(messages[messages.length - 1].content).toContain(
+      'Direct AI is disabled for production builds',
+    );
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 
   it('handles network failures with user-friendly error', async () => {

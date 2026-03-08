@@ -5,6 +5,7 @@ import {
   createOperationContext,
   type OperationContext,
 } from './OperationContext';
+import { fetchWithPolicy, sleep } from './network/requestPolicy';
 
 export interface ChatMessage {
   id: string;
@@ -63,12 +64,6 @@ const sanitizeInput = (input: string): string => {
     .replace(/javascript:/gi, '')
     .trim();
 };
-
-/**
- * Sleep helper for retry delays
- */
-const sleep = (ms: number): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, ms));
 
 class ChatService {
   private messages: ChatMessage[] = [];
@@ -293,6 +288,13 @@ class ChatService {
     assistantMsg: ChatMessage,
     operationContext: OperationContext,
   ): Promise<void> {
+    if (config.environment === 'production') {
+      throw new ChatError(
+        'CHAT_AUTH',
+        'Direct AI is disabled for production builds. Use the server-backed provider.',
+      );
+    }
+
     if (!config.moonshotApiKey) {
       assistantMsg.content =
         'Moonshot API key is missing. Please set EXPO_PUBLIC_MOONSHOT_API_KEY.';
@@ -317,13 +319,8 @@ class ChatService {
       });
     }
 
-    const timeoutMs = config.aiTimeout;
-    const timeoutId = setTimeout(() => {
-      this.abortController?.abort();
-    }, timeoutMs);
-
     try {
-      const response = await fetch(
+      const response = await fetchWithPolicy(
         'https://api.moonshot.cn/v1/chat/completions',
         {
           method: 'POST',
@@ -339,11 +336,13 @@ class ChatService {
             })),
             temperature: 0.7,
           }),
+        },
+        {
+          timeoutMs: config.aiTimeout,
           signal: this.abortController?.signal,
+          operationContext,
         },
       );
-
-      clearTimeout(timeoutId);
 
       if (!response.ok) {
         const errBody = await response.text();
@@ -370,7 +369,6 @@ class ChatService {
       assistantMsg.content = reply || 'Kimi returned an empty response.';
       this.notify();
     } catch (error) {
-      clearTimeout(timeoutId);
       throw error;
     }
   }
@@ -379,30 +377,29 @@ class ChatService {
     assistantMsg: ChatMessage,
     operationContext: OperationContext,
   ): Promise<void> {
-    const timeoutMs = config.aiTimeout;
-    const timeoutId = setTimeout(() => {
-      this.abortController?.abort();
-    }, timeoutMs);
-
     try {
-      const response = await fetch(`${config.apiBaseUrl}/api/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Correlation-ID': operationContext.correlationId,
+      const response = await fetchWithPolicy(
+        `${config.apiBaseUrl}/api/chat`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            messages: this.messages
+              .filter((m) => m.role !== 'system')
+              .map((m) => ({
+                role: m.role,
+                content: m.content,
+              })),
+          }),
         },
-        body: JSON.stringify({
-          messages: this.messages
-            .filter((m) => m.role !== 'system')
-            .map((m) => ({
-              role: m.role,
-              content: m.content,
-            })),
-        }),
-        signal: this.abortController?.signal,
-      });
-
-      clearTimeout(timeoutId);
+        {
+          timeoutMs: config.aiTimeout,
+          signal: this.abortController?.signal,
+          operationContext,
+        },
+      );
 
       if (!response.ok) {
         throw new Error('Chat API error');
@@ -414,7 +411,6 @@ class ChatService {
         'I am having trouble connecting to my brain. Please try again.';
       this.notify();
     } catch (error) {
-      clearTimeout(timeoutId);
       throw error;
     }
   }
