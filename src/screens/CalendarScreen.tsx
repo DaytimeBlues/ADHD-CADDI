@@ -193,8 +193,6 @@ const CalendarScreen = () => {
                     focused && styles.navButtonFocused,
                     focused && isCosmic && styles.navButtonFocusedCosmic,
                   ]}
-                  accessibilityLabel="Previous month"
-                  accessibilityRole="button"
                 >
                   <Text
                     style={[
@@ -213,7 +211,6 @@ const CalendarScreen = () => {
                 </Text>
                 <Pressable
                   onPress={nextMonth}
-                  accessibilityLabel="Go to next month"
                   accessibilityHint="Navigates to the next month"
                   accessibilityRole="button"
                   style={({
@@ -234,8 +231,6 @@ const CalendarScreen = () => {
                     focused && styles.navButtonFocused,
                     focused && isCosmic && styles.navButtonFocusedCosmic,
                   ]}
-                  accessibilityLabel="Next month"
-                  accessibilityRole="button"
                 >
                   <Text
                     style={[
