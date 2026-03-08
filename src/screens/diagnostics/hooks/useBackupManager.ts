@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { AccessibilityInfo, Alert, NativeModules, Share } from 'react-native';
+import { LoggerService } from '../../../services/LoggerService';
 import StorageService from '../../../services/StorageService';
 import {
   LoggerService,
@@ -269,7 +270,13 @@ export const useBackupManager = (
       let parsed: unknown;
       try {
         parsed = JSON.parse(backupJson);
-      } catch {
+      } catch (error) {
+        LoggerService.warn({
+          service: 'useBackupManager',
+          operation: 'importBackup.parseBackupJson',
+          message: 'Failed to parse backup JSON',
+          error,
+        });
         announceBackupStatus('Invalid JSON. Import canceled.');
         return;
       }
@@ -324,7 +331,13 @@ export const useBackupManager = (
   ]);
 
   useEffect(() => {
-    refreshLastBackupExportAt().catch(() => {
+    refreshLastBackupExportAt().catch((error) => {
+      LoggerService.error({
+        service: 'useBackupManager',
+        operation: 'refreshLastBackupExportAt',
+        message: 'Unable to read last backup export time',
+        error,
+      });
       announceBackupStatus('Unable to read last backup export time.');
     });
   }, [announceBackupStatus, refreshLastBackupExportAt]);

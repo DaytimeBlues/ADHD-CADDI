@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { LayoutAnimation, UIManager } from 'react-native';
+import { LoggerService } from '../services/LoggerService';
 import StorageService from '../services/StorageService';
 import { useBrainDumpItems, DumpItem } from './useBrainDumpItems';
 import {
@@ -116,7 +117,13 @@ export const useBrainDump = (autoRecord?: boolean): UseBrainDumpReturn => {
           try {
             await handleAISortBase(sortItems);
           } catch (error) {
-            // Error is handled by the sorting hook
+            LoggerService.error({
+              service: 'useBrainDump',
+              operation: 'onTranscriptionSuccess.handleAISortBase',
+              message: 'AI sort failed after transcription',
+              error,
+              context: { sortItemCount: sortItems.length },
+            });
           }
         }
       },

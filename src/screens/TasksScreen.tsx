@@ -20,20 +20,11 @@ import Animated, {
 } from 'react-native-reanimated';
 import { CosmicBackground, GlowCard, RuneButton } from '../ui/cosmic';
 import { useTaskStore } from '../store/useTaskStore';
-import type { Task, TaskPriority } from '../types/task';
-
-// Cosmic priority colors
-const PRIORITY_COLORS: Record<TaskPriority, string> = {
-  urgent: '#FB7185', // cometRose
-  important: '#F6C177', // starlightGold
-  normal: '#8B5CF6', // nebulaViolet
-};
-
-const PRIORITY_LABELS: Record<TaskPriority, string> = {
-  urgent: 'URGENT',
-  important: 'IMPORTANT',
-  normal: 'STABLE',
-};
+import type { Task } from '../types/task';
+import {
+  TASK_PRIORITY_COLORS,
+  TASK_PRIORITY_LABELS,
+} from './TasksScreen.constants';
 
 const DONE_STAT_COLOR = '#EEF2FF';
 const CHECKBOX_BORDER_COLOR = 'rgba(185, 194, 217, 0.3)';
@@ -167,7 +158,10 @@ export const TasksScreen = memo(function TasksScreen() {
               style={styles.statCard}
             >
               <Text
-                style={[styles.statValue, { color: PRIORITY_COLORS.urgent }]}
+                style={[
+                  styles.statValue,
+                  { color: TASK_PRIORITY_COLORS.urgent },
+                ]}
               >
                 {stats.urgent}
               </Text>
@@ -181,7 +175,10 @@ export const TasksScreen = memo(function TasksScreen() {
               style={styles.statCard}
             >
               <Text
-                style={[styles.statValue, { color: PRIORITY_COLORS.normal }]}
+                style={[
+                  styles.statValue,
+                  { color: TASK_PRIORITY_COLORS.normal },
+                ]}
               >
                 {stats.total - stats.completed}
               </Text>
@@ -342,11 +339,11 @@ const TaskItem = memo(function TaskItem({
           <Animated.View
             style={[
               styles.checkbox,
-              task.completed && {
-                backgroundColor: PRIORITY_COLORS[task.priority],
-                borderColor: PRIORITY_COLORS[task.priority],
-              },
               styles.checkboxDefaultBorder,
+              task.completed && {
+                backgroundColor: TASK_PRIORITY_COLORS[task.priority],
+                borderColor: TASK_PRIORITY_COLORS[task.priority],
+              },
               animatedCheckboxStyle,
             ]}
           >
@@ -368,16 +365,16 @@ const TaskItem = memo(function TaskItem({
             <View
               style={[
                 styles.priorityBadge,
-                { backgroundColor: `${PRIORITY_COLORS[task.priority]}15` },
+                { backgroundColor: `${TASK_PRIORITY_COLORS[task.priority]}15` },
               ]}
             >
               <Text
                 style={[
                   styles.priorityLabel,
-                  { color: PRIORITY_COLORS[task.priority] },
+                  { color: TASK_PRIORITY_COLORS[task.priority] },
                 ]}
               >
-                {PRIORITY_LABELS[task.priority]}
+                {TASK_PRIORITY_LABELS[task.priority]}
               </Text>
             </View>
             {task.dueDate && (
@@ -421,7 +418,7 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 10,
     fontWeight: '600',
-    color: '#8B5CF6', // nebulaViolet
+    color: TASK_PRIORITY_COLORS.normal,
     letterSpacing: 3,
     marginTop: -2,
   },
