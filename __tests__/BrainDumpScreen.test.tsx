@@ -94,8 +94,7 @@ jest.mock('../src/services/LoggerService', () => ({
 }));
 
 jest.mock('../src/components/brain-dump', () => {
-  const { Text, View, Pressable } = require('react-native');
-
+  const { Pressable, Text, View } = require('react-native');
   return {
     BrainDumpItem: ({ item }: { item: { text: string } }) => (
       <Text>{item.text}</Text>

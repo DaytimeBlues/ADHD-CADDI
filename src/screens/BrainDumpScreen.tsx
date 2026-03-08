@@ -70,7 +70,11 @@ const BrainDumpScreen = () => {
   } = useBrainDump(route.params?.autoRecord);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView
+      style={styles.container}
+      accessibilityLabel="Brain dump screen"
+      accessibilityRole="summary"
+    >
       {isCosmic && (
         <CosmicBackground variant="nebula">
           <View style={StyleSheet.absoluteFill} />

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * InboxScreen
  *
  * Triage screen for captured items. Every capture lands here before being
@@ -6,7 +6,7 @@
  * All | Unreviewed | Promoted | Discarded
  */
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -42,11 +42,11 @@ const FILTER_TABS: { key: FilterTab; label: string }[] = [
 ];
 
 const SOURCE_LABELS: Record<string, string> = {
-  voice: '🎙 Voice',
-  text: '✏️ Text',
-  photo: '📷 Photo',
-  paste: '📋 Paste',
-  meeting: '📝 Meeting',
+  voice: 'Voice',
+  text: 'Text',
+  photo: 'Photo',
+  paste: 'Paste',
+  meeting: 'Meeting',
 };
 
 // ============================================================================
@@ -188,7 +188,7 @@ function CaptureRow({
                 isCosmic && styles.actionBtnTextCosmic,
               ]}
             >
-              → Task
+              {'->'} Task
             </Text>
           </Pressable>
 
@@ -210,7 +210,7 @@ function CaptureRow({
                 isCosmic && styles.actionBtnTextCosmic,
               ]}
             >
-              → Note
+              {'->'} Note
             </Text>
           </Pressable>
 
@@ -278,15 +278,22 @@ const InboxScreen = (): JSX.Element => {
   const [items, setItems] = useState<CaptureItem[]>([]);
   const [activeFilter, setActiveFilter] = useState<FilterTab>('all');
   const [isLoading, setIsLoading] = useState(true);
+  const isMountedRef = useRef(true);
 
   const loadItems = useCallback(async (): Promise<void> => {
+    if (isMountedRef.current) {
+      setIsLoading(true);
+    }
+
     try {
       const filter =
         activeFilter === 'all'
           ? undefined
           : { status: activeFilter as CaptureStatus };
       const result = await CaptureService.getAll(filter);
-      setItems(result);
+      if (isMountedRef.current) {
+        setItems(result);
+      }
     } catch (error) {
       LoggerService.error({
         service: 'InboxScreen',
@@ -295,39 +302,19 @@ const InboxScreen = (): JSX.Element => {
         error,
       });
     } finally {
-      setIsLoading(false);
+      if (isMountedRef.current) {
+        setIsLoading(false);
+      }
     }
   }, [activeFilter]);
 
   useEffect(() => {
-    let isMounted = true;
-    setIsLoading(true);
-    CaptureService.getAll(
-      activeFilter === 'all'
-        ? undefined
-        : { status: activeFilter as CaptureStatus },
-    )
-      .then((result) => {
-        if (isMounted) {
-          setItems(result);
-          setIsLoading(false);
-        }
-      })
-      .catch((error) => {
-        LoggerService.error({
-          service: 'InboxScreen',
-          operation: 'load',
-          message: 'Failed to load items',
-          error,
-        });
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      });
+    isMountedRef.current = true;
+    loadItems();
     return () => {
-      isMounted = false;
+      isMountedRef.current = false;
     };
-  }, [activeFilter]);
+  }, [loadItems]);
 
   // Subscribe to badge changes to refresh list reactively
   useEffect(() => {
@@ -397,6 +384,8 @@ const InboxScreen = (): JSX.Element => {
       <SafeAreaView
         style={[styles.container, isCosmic ? styles.bgCosmic : styles.bgLinear]}
         testID="inbox-screen"
+        accessibilityLabel="Inbox screen"
+        accessibilityRole="summary"
       >
         {/* Header */}
         <View style={[styles.header, isCosmic && styles.headerCosmic]}>
@@ -405,6 +394,7 @@ const InboxScreen = (): JSX.Element => {
             style={styles.closeBtn}
             testID="inbox-close"
             accessibilityLabel="Close inbox"
+            accessibilityRole="button"
           >
             <Text
               style={[
@@ -412,7 +402,7 @@ const InboxScreen = (): JSX.Element => {
                 isCosmic && styles.closeBtnTextCosmic,
               ]}
             >
-              ✕
+              X
             </Text>
           </Pressable>
           <Text style={[styles.title, isCosmic && styles.titleCosmic]}>
@@ -599,6 +589,8 @@ const styles = StyleSheet.create({
   },
   tab: {
     flex: 1,
+    minHeight: 44,
+    justifyContent: 'center',
     paddingVertical: Tokens.spacing[3],
     alignItems: 'center',
   },

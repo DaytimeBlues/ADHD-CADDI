@@ -115,11 +115,17 @@ export const TasksScreen = memo(function TasksScreen() {
   return (
     <CosmicBackground variant="ridge">
       {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
+      <View
+        style={[styles.header, { paddingTop: insets.top + 16 }]}
+        accessibilityLabel="Tasks screen"
+        accessibilityRole="summary"
+      >
         <View style={styles.headerRow}>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
             style={styles.backButton}
+            accessibilityLabel="Go back"
+            accessibilityRole="button"
           >
             <Text style={styles.backIcon}>←</Text>
           </TouchableOpacity>
@@ -378,7 +384,12 @@ const TaskItem = memo(function TaskItem({
         </View>
 
         {/* Delete button */}
-        <TouchableOpacity onPress={onDelete} style={styles.deleteButton}>
+        <TouchableOpacity
+          onPress={onDelete}
+          style={styles.deleteButton}
+          accessibilityLabel="Delete task"
+          accessibilityRole="button"
+        >
           <Text style={styles.deleteIcon}>✕</Text>
         </TouchableOpacity>
       </View>
@@ -413,8 +424,8 @@ const styles = StyleSheet.create({
   },
   backButton: {
     marginRight: 16,
-    width: 32,
-    height: 32,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -537,8 +548,8 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   deleteButton: {
-    width: 32,
-    height: 32,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -80,6 +80,7 @@ export const CaptureBubble = memo(function CaptureBubble() {
   const shakeAnim = useRef(new Animated.Value(0)).current;
   const pulseLoop = useRef<Animated.CompositeAnimation | null>(null);
   const spinLoop = useRef<Animated.CompositeAnimation | null>(null);
+  const useNativeDriver = !isWeb;
 
   // Subscribe to badge count updates from CaptureService
   useEffect(() => {
@@ -119,13 +120,13 @@ export const CaptureBubble = memo(function CaptureBubble() {
             toValue: 1.15,
             duration: PULSE_DURATION / 2,
             easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
+            useNativeDriver,
           }),
           Animated.timing(pulseAnim, {
             toValue: 1,
             duration: PULSE_DURATION / 2,
             easing: Easing.inOut(Easing.ease),
-            useNativeDriver: true,
+            useNativeDriver,
           }),
         ]),
       );
@@ -147,7 +148,7 @@ export const CaptureBubble = memo(function CaptureBubble() {
           toValue: 1,
           duration: SPIN_DURATION,
           easing: Easing.linear,
-          useNativeDriver: true,
+          useNativeDriver,
         }),
       );
       spinLoop.current.start();
@@ -167,31 +168,31 @@ export const CaptureBubble = memo(function CaptureBubble() {
       Animated.timing(shakeAnim, {
         toValue: 8,
         duration: 60,
-        useNativeDriver: true,
+        useNativeDriver,
         easing: Easing.linear,
       }),
       Animated.timing(shakeAnim, {
         toValue: -8,
         duration: 60,
-        useNativeDriver: true,
+        useNativeDriver,
         easing: Easing.linear,
       }),
       Animated.timing(shakeAnim, {
         toValue: 6,
         duration: 60,
-        useNativeDriver: true,
+        useNativeDriver,
         easing: Easing.linear,
       }),
       Animated.timing(shakeAnim, {
         toValue: -6,
         duration: 60,
-        useNativeDriver: true,
+        useNativeDriver,
         easing: Easing.linear,
       }),
       Animated.timing(shakeAnim, {
         toValue: 0,
         duration: 60,
-        useNativeDriver: true,
+        useNativeDriver,
         easing: Easing.linear,
       }),
     ]).start(() => {
