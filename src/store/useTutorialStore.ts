@@ -50,7 +50,7 @@ export const brainDumpOnboardingFlow: TutorialFlow = {
       whyText:
         'ADHD brains are great at generating ideas, not holding them. Externalizing prevents mental overflow.',
       howText:
-        "Speak or type freely. Don't organize yet—just get it all out. You'll sort later.",
+        "Speak or type freely. Don't organize yet - just get it all out. You'll sort later.",
       iconName: 'microphone',
     },
     {
@@ -67,7 +67,7 @@ export const brainDumpOnboardingFlow: TutorialFlow = {
       title: "You're Ready",
       whyText: 'Progress, not perfection. Even capturing one thought is a win.',
       howText:
-        'Start dumping whenever your mind feels cluttered. You can replay this tour from Settings anytime.',
+        'Start dumping whenever your mind feels cluttered. Use the TOUR button here anytime you want to replay this guide.',
       iconName: 'check-circle',
     },
   ],

@@ -43,7 +43,7 @@ const BADGE_SIZE = 22;
 const PULSE_DURATION = 900;
 const SPIN_DURATION = 1200;
 
-// Cosmic colors (no hex outside tokens in app code — these mirror cosmicTokens)
+// Cosmic colors (no hex outside tokens in app code - these mirror cosmicTokens)
 const COLORS = {
   idle: '#8B5CF6', // nebulaViolet
   recording: '#2DD4BF', // auroraTeal
@@ -161,7 +161,7 @@ export const CaptureBubble = memo(function CaptureBubble() {
     };
   }, [bubbleState, spinAnim, useNativeDriver]);
 
-  // Shake animation (failed state — plays once)
+  // Shake animation (failed state - plays once)
   const runShake = useCallback(() => {
     shakeAnim.setValue(0);
     Animated.sequence([
@@ -271,15 +271,15 @@ export const CaptureBubble = memo(function CaptureBubble() {
   const fabIcon = useMemo((): string => {
     switch (bubbleState) {
       case 'recording':
-        return '⏹';
+        return 'STOP';
       case 'processing':
-        return '⟳';
+        return '...';
       case 'failed':
-        return '✕';
+        return 'X';
       case 'offline':
-        return '⊗';
+        return 'OFF';
       case 'needs-checkin':
-        return '🎯';
+        return 'CHK';
       default:
         return '+';
     }
