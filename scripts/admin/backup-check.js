@@ -1,6 +1,9 @@
 const { readFileSync } = require('fs');
 const { resolve } = require('path');
 
+const writeStdout = (message) => process.stdout.write(`${message}\n`);
+const writeStderr = (message) => process.stderr.write(`${message}\n`);
+
 const backupManagerPath = resolve(
   process.cwd(),
   'src/screens/diagnostics/hooks/useBackupManager.ts',
@@ -37,12 +40,12 @@ if (!backupSource.includes('StorageService.STORAGE_KEYS.backupLastExportAt')) {
   );
 }
 
-console.log('Admin backup check');
+writeStdout('Admin backup check');
 
 if (diagnostics.length === 0) {
-  console.log('PASS: backup wiring looks consistent.');
+  writeStdout('PASS: backup wiring looks consistent.');
   process.exit(0);
 }
 
-diagnostics.forEach((diagnostic) => console.error(`ERROR: ${diagnostic}`));
+diagnostics.forEach((diagnostic) => writeStderr(`ERROR: ${diagnostic}`));
 process.exit(1);

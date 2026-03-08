@@ -1,6 +1,8 @@
 const { existsSync, readFileSync } = require('fs');
 const { resolve } = require('path');
 
+const writeStdout = (message) => process.stdout.write(`${message}\n`);
+
 const cwd = process.cwd();
 const envExamplePath = resolve(cwd, '.env.example');
 
@@ -66,16 +68,16 @@ if (!existsSync(envExamplePath)) {
   });
 }
 
-console.log('Admin config check');
-console.log(`API base URL: ${apiBaseUrl}`);
+writeStdout('Admin config check');
+writeStdout(`API base URL: ${apiBaseUrl}`);
 
 if (diagnostics.length === 0) {
-  console.log('PASS: no config diagnostics found.');
+  writeStdout('PASS: no config diagnostics found.');
   process.exit(0);
 }
 
 diagnostics.forEach((diagnostic) => {
-  console.log(`${diagnostic.severity.toUpperCase()}: ${diagnostic.message}`);
+  writeStdout(`${diagnostic.severity.toUpperCase()}: ${diagnostic.message}`);
 });
 
 process.exit(diagnostics.some((item) => item.severity === 'error') ? 1 : 0);

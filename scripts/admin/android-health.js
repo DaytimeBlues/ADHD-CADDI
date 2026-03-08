@@ -1,7 +1,10 @@
 const { existsSync } = require('fs');
 const { resolve } = require('path');
 
-console.log('Admin android health');
+const writeStdout = (message) => process.stdout.write(`${message}\n`);
+const writeStderr = (message) => process.stderr.write(`${message}\n`);
+
+writeStdout('Admin android health');
 
 const requiredFiles = [
   'android/gradlew.bat',
@@ -12,12 +15,12 @@ const missing = requiredFiles.filter(
 );
 
 if (missing.length > 0) {
-  missing.forEach((path) => console.error(`ERROR: missing ${path}`));
+  missing.forEach((path) => writeStderr(`ERROR: missing ${path}`));
   process.exit(1);
 }
 
-console.log('PASS: Android health entrypoints are present.');
-console.log(
+writeStdout('PASS: Android health entrypoints are present.');
+writeStdout(
   'Run scripts/check_android_health.bat on Windows for the full environment check.',
 );
 process.exit(0);

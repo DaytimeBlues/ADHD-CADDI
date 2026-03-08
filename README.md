@@ -28,7 +28,7 @@ This is the recommended way to run and test the app.
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 20
 
 ### Installation
 
@@ -116,7 +116,7 @@ Profile package IDs:
 
 ### Backend Options for Personal Use
 
-- Default API endpoint is `https://adhd-caddi-api.vercel.app`
+- Default API endpoint is `https://spark-adhd-api.vercel.app`
 - If the API is unavailable, core app flows still work; AI sorting shows a graceful error
 - For a zero-cloud personal workflow, use the local features and avoid AI sort
 
@@ -139,6 +139,7 @@ npm run test:e2e:android
 
 - Public client config lives in `EXPO_PUBLIC_*` variables.
 - Real secrets must stay on the server side.
+- Direct client-side AI providers are for development/staging only and stay blocked for production builds.
 - Admin checks are documented in [docs/ops-admin.md](docs/ops-admin.md).
 
 ## Dependency Policy
