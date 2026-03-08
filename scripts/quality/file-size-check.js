@@ -18,34 +18,33 @@
 const fs = require('fs');
 const path = require('path');
 
-// Configuration
 const SOFT_CAP = 350;
 const HARD_CAP = 450;
 const SRC_DIR = path.join(__dirname, '..', '..', 'src');
 
-// File patterns to check
 const CHECK_PATTERNS = [/\.(ts|tsx)$/];
 
-// File patterns to exclude
 const EXCLUDE_PATTERNS = [
-  /\.d\.ts$/, // Type definitions
-  /\.test\.(ts|tsx)$/, // Test files
-  /\.spec\.(ts|tsx)$/, // Spec files
-  /__tests__\//, // Test directories
-  /__mocks__\//, // Mock directories
-  /theme\/tokens/, // Token files (static data)
-  /\.web\.(ts|tsx)$/, // Web adapters (should be thin)
+  /\.d\.ts$/,
+  /\.test\.(ts|tsx)$/,
+  /\.spec\.(ts|tsx)$/,
+  /__tests__\//,
+  /__mocks__\//,
+  /theme\/tokens/,
+  /\.web\.(ts|tsx)$/,
 ];
+
+function writeLine(message = '', stream = process.stdout) {
+  stream.write(`${message}\n`);
+}
 
 function shouldCheckFile(filePath) {
   const relativePath = path.relative(SRC_DIR, filePath);
 
-  // Must match check patterns
   if (!CHECK_PATTERNS.some((pattern) => pattern.test(filePath))) {
     return false;
   }
 
-  // Must not match exclude patterns
   if (EXCLUDE_PATTERNS.some((pattern) => pattern.test(relativePath))) {
     return false;
   }
@@ -77,9 +76,10 @@ function getAllFiles(dir, files = []) {
 
 function formatLineCount(count) {
   if (count > HARD_CAP) {
-    return `\x1b[31m${count.toString().padStart(4)}\x1b[0m`; // Red
-  } else if (count > SOFT_CAP) {
-    return `\x1b[33m${count.toString().padStart(4)}\x1b[0m`; // Yellow
+    return `\x1b[31m${count.toString().padStart(4)}\x1b[0m`;
+  }
+  if (count > SOFT_CAP) {
+    return `\x1b[33m${count.toString().padStart(4)}\x1b[0m`;
   }
   return count.toString().padStart(4);
 }
@@ -92,7 +92,7 @@ function main() {
     reportTopIndex !== -1 ? parseInt(args[reportTopIndex + 1], 10) || 20 : 20;
 
   if (!fs.existsSync(SRC_DIR)) {
-    console.error(`Error: Source directory not found: ${SRC_DIR}`);
+    writeLine(`Error: Source directory not found: ${SRC_DIR}`, process.stderr);
     process.exit(1);
   }
 
@@ -101,29 +101,24 @@ function main() {
 
   const fileStats = filesToCheck.map((filePath) => ({
     path: path.relative(SRC_DIR, filePath),
-    fullPath: filePath,
     lines: countLines(filePath),
   }));
 
-  // Sort by line count descending
-  fileStats.sort((a, b) => b.lines - a.lines);
+  fileStats.sort((left, right) => right.lines - left.lines);
 
-  // Find violations
   const softCapViolations = fileStats.filter(
-    (f) => f.lines > SOFT_CAP && f.lines <= HARD_CAP,
+    (file) => file.lines > SOFT_CAP && file.lines <= HARD_CAP,
   );
-  const hardCapViolations = fileStats.filter((f) => f.lines > HARD_CAP);
+  const hardCapViolations = fileStats.filter((file) => file.lines > HARD_CAP);
 
-  // Report
-  console.log('\n=== File Size Report ===\n');
-  console.log(`Soft cap: ${SOFT_CAP} lines`);
-  console.log(`Hard cap: ${HARD_CAP} lines`);
-  console.log(`Files checked: ${filesToCheck.length}`);
-  console.log('');
+  writeLine('\n=== File Size Report ===\n');
+  writeLine(`Soft cap: ${SOFT_CAP} lines`);
+  writeLine(`Hard cap: ${HARD_CAP} lines`);
+  writeLine(`Files checked: ${filesToCheck.length}`);
+  writeLine();
 
-  // Top N files
-  console.log(`Top ${reportTop} largest files:`);
-  console.log('-'.repeat(60));
+  writeLine(`Top ${reportTop} largest files:`);
+  writeLine('-'.repeat(60));
   fileStats.slice(0, reportTop).forEach((file) => {
     const status =
       file.lines > HARD_CAP
@@ -131,61 +126,55 @@ function main() {
         : file.lines > SOFT_CAP
           ? ' [soft cap]'
           : '';
-    console.log(`${formatLineCount(file.lines)}  ${file.path}${status}`);
+    writeLine(`${formatLineCount(file.lines)}  ${file.path}${status}`);
   });
 
-  // Violations summary
-  console.log('\n' + '='.repeat(60));
+  writeLine('\n' + '='.repeat(60));
 
   if (hardCapViolations.length > 0) {
-    console.log(
-      `\n❌ HARD CAP VIOLATIONS (${hardCapViolations.length} files):`,
+    writeLine(
+      `\nHARD CAP VIOLATIONS (${hardCapViolations.length} files):`,
+      process.stderr,
     );
     hardCapViolations.forEach((file) => {
-      console.log(`   ${file.lines} lines: ${file.path}`);
+      writeLine(`   ${file.lines} lines: ${file.path}`, process.stderr);
     });
   }
 
   if (softCapViolations.length > 0) {
-    console.log(
-      `\n⚠️  Soft cap violations (${softCapViolations.length} files):`,
-    );
+    writeLine(`\nSoft cap violations (${softCapViolations.length} files):`);
     softCapViolations.slice(0, 10).forEach((file) => {
-      console.log(`   ${file.lines} lines: ${file.path}`);
+      writeLine(`   ${file.lines} lines: ${file.path}`);
     });
     if (softCapViolations.length > 10) {
-      console.log(`   ... and ${softCapViolations.length - 10} more`);
+      writeLine(`   ... and ${softCapViolations.length - 10} more`);
     }
   }
 
   if (hardCapViolations.length === 0 && softCapViolations.length === 0) {
-    console.log('\n✅ All files within size limits');
+    writeLine('\nAll files within size limits');
   }
 
-  // Summary stats
-  console.log('\n' + '='.repeat(60));
-  console.log('Summary:');
-  console.log(`  Total files: ${fileStats.length}`);
-  console.log(
-    `  Under soft cap: ${fileStats.filter((f) => f.lines <= SOFT_CAP).length}`,
+  writeLine('\n' + '='.repeat(60));
+  writeLine('Summary:');
+  writeLine(`  Total files: ${fileStats.length}`);
+  writeLine(
+    `  Under soft cap: ${fileStats.filter((file) => file.lines <= SOFT_CAP).length}`,
   );
-  console.log(`  Over soft cap: ${softCapViolations.length}`);
-  console.log(`  Over hard cap: ${hardCapViolations.length}`);
+  writeLine(`  Over soft cap: ${softCapViolations.length}`);
+  writeLine(`  Over hard cap: ${hardCapViolations.length}`);
 
-  // Exit with error if hard cap violations in CI mode
   if (isCI && hardCapViolations.length > 0) {
-    console.log('\n❌ CI check failed: Hard cap violations found\n');
+    writeLine('\nCI check failed: Hard cap violations found\n', process.stderr);
     process.exit(1);
   }
 
-  // Always exit with error on hard cap violations
   if (hardCapViolations.length > 0) {
-    console.log('\n');
+    writeLine('\n', process.stderr);
     process.exit(1);
   }
 
-  console.log('\n');
-  process.exit(0);
+  writeLine();
 }
 
 main();

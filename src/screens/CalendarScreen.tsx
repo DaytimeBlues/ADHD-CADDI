@@ -367,7 +367,9 @@ const CalendarScreen = () => {
               <Pressable
                 onPress={handleConnectGoogleCalendar}
                 disabled={isConnectButtonDisabled}
-                accessibilityLabel={buttonTextByConnectionStatus[connectionStatus]}
+                accessibilityLabel={
+                  buttonTextByConnectionStatus[connectionStatus]
+                }
                 accessibilityHint="Connect or disconnect your Google Calendar for syncing"
                 accessibilityRole="button"
                 accessibilityState={{ disabled: isConnectButtonDisabled }}
