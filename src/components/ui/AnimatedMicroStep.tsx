@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, StyleSheet } from 'react-native';
 import Animated, { FadeInUp, Layout } from 'react-native-reanimated';
-import { Tokens } from '../../theme/tokens';
+import { CosmicTokens, Tokens } from '../../theme/tokens';
 import { useTheme } from '../../theme/useTheme';
 
 interface AnimatedMicroStepProps {
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
     fontSize: Tokens.type.sm,
   },
   stepTextCosmic: {
-    color: '#B9C2D9',
+    color: CosmicTokens.colors.cosmic?.mist,
   },
   stepTextLinear: {
     color: Tokens.colors.text.secondary,

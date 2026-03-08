@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { Tokens } from '../../theme/tokens';
+import { CosmicTokens, Tokens } from '../../theme/tokens';
 import { useTheme } from '../../theme/useTheme';
 
 interface ExampleTaskChipProps {
@@ -47,6 +47,9 @@ const EXAMPLE_TASKS = [
   'Fix the bug',
 ];
 
+const COSMIC_CHIP_BACKGROUND = `${CosmicTokens.colors.brand[500]}33`;
+const COSMIC_CHIP_BORDER = `${CosmicTokens.colors.brand[500]}66`;
+
 export const EmptyStateExamples: React.FC<EmptyStateExamplesProps> = ({
   onExamplePress,
 }) => {
@@ -90,7 +93,7 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
   },
   titleCosmic: {
-    color: '#8B5CF6',
+    color: CosmicTokens.colors.brand[500],
   },
   titleLinear: {
     color: Tokens.colors.brand[500],
@@ -108,8 +111,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   chipCosmic: {
-    backgroundColor: 'rgba(139, 92, 246, 0.2)',
-    borderColor: 'rgba(139, 92, 246, 0.4)',
+    backgroundColor: COSMIC_CHIP_BACKGROUND,
+    borderColor: COSMIC_CHIP_BORDER,
   },
   chipLinear: {
     backgroundColor: Tokens.colors.neutral.darker,
@@ -123,7 +126,7 @@ const styles = StyleSheet.create({
     fontSize: Tokens.type.sm,
   },
   chipTextCosmic: {
-    color: '#B9C2D9',
+    color: CosmicTokens.colors.cosmic?.mist,
   },
   chipTextLinear: {
     color: Tokens.colors.text.secondary,

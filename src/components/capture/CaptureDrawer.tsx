@@ -24,7 +24,7 @@ import RecordingService from '../../services/RecordingService';
 import { LoggerService } from '../../services/LoggerService';
 import { RuneButton } from '../../ui/cosmic/RuneButton';
 import { useTaskStore } from '../../store/useTaskStore';
-import type { BubbleState } from './CaptureBubble';
+import type { BubbleState } from './captureTypes';
 import { isWeb } from '../../utils/PlatformUtils';
 
 // ============================================================================

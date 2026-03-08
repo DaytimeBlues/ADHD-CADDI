@@ -29,26 +29,13 @@ import { CheckInService } from '../../services/CheckInService';
 import { navigationRef } from '../../navigation/navigationRef';
 import { ROUTES } from '../../navigation/routes';
 import { isWeb } from '../../utils/PlatformUtils';
-
 import { useTaskStore } from '../../store/useTaskStore';
 import OverlayService from '../../services/OverlayService';
 import { CaptureDrawer } from './CaptureDrawer';
+import type { BubbleState } from './captureTypes';
 
 // ============================================================================
 // TYPES
-// ============================================================================
-
-export type BubbleState =
-  | 'idle'
-  | 'recording'
-  | 'processing'
-  | 'needs-review'
-  | 'failed'
-  | 'offline'
-  | 'needs-checkin';
-
-// ============================================================================
-// CONSTANTS
 // ============================================================================
 
 const FAB_SIZE = 60;

@@ -38,6 +38,12 @@ export const CADDI_OVERVIEW = {
   bullets: ['RCT PROVEN (2025)', 'INATTENTIVE FOCUSED', 'ACTIVATION BASED'],
 } as const;
 
+const CADDI_SOURCE_URLS = {
+  rct2025: 'https://doi.org/10.3389/fpsyt.2025.1564506',
+  qualitative2024: 'https://pubmed.ncbi.nlm.nih.gov/38905212/',
+  registry: 'https://clinicaltrials.gov/ct2/show/NCT04090983',
+} as const;
+
 export const CADDI_SOURCES: CaddiEvidenceSource[] = [
   {
     id: 'caddi-rct-2025',
@@ -47,7 +53,7 @@ export const CADDI_SOURCES: CaddiEvidenceSource[] = [
     tier: 'A',
     sourceType: 'rct',
     claimStrength: 'trial-supported',
-    url: 'https://doi.org/10.3389/fpsyt.2025.1564506',
+    url: CADDI_SOURCE_URLS.rct2025,
   },
   {
     id: 'caddi-qual-2024',
@@ -57,7 +63,7 @@ export const CADDI_SOURCES: CaddiEvidenceSource[] = [
     tier: 'B',
     sourceType: 'qualitative',
     claimStrength: 'practice-informed',
-    url: 'https://pubmed.ncbi.nlm.nih.gov/38905212/',
+    url: CADDI_SOURCE_URLS.qualitative2024,
   },
   {
     id: 'caddi-registry',
@@ -66,7 +72,7 @@ export const CADDI_SOURCES: CaddiEvidenceSource[] = [
     tier: 'A',
     sourceType: 'registry',
     claimStrength: 'trial-supported',
-    url: 'https://clinicaltrials.gov/ct2/show/NCT04090983',
+    url: CADDI_SOURCE_URLS.registry,
   },
 ];
 

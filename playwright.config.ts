@@ -6,7 +6,9 @@ import { defineConfig, devices } from '@playwright/test';
  * @see https://playwright.dev/docs/test-configuration
  */
 
-const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:3000';
+const DEFAULT_WEB_BASE_URL = 'http://localhost:3000';
+const WEB_SERVER_TIMEOUT_MS = 300_000;
+const baseURL = process.env.PLAYWRIGHT_BASE_URL || DEFAULT_WEB_BASE_URL;
 
 export default defineConfig({
   testDir: './e2e',
@@ -103,8 +105,8 @@ export default defineConfig({
     ? undefined
     : {
         command: 'npm run web',
-        url: 'http://localhost:3000',
+        url: DEFAULT_WEB_BASE_URL,
         reuseExistingServer: !process.env.CI,
-        timeout: 300 * 1000,
+        timeout: WEB_SERVER_TIMEOUT_MS,
       },
 });
