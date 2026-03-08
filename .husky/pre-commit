@@ -1,4 +1,7 @@
-# This repo's git state repeatedly fails lint-staged's backup stash step on
-# Windows with "Needed a single revision". Skip stashing and run the staged-file
-# checks directly so commits still exercise eslint/prettier/jest.
+#!/bin/sh
+# Pre-commit hook for ADHD-CADDI
+# This hook runs lint-staged on staged files
+
+# Use --no-stash to avoid Windows git stash issues
+# The stash backup feature can fail on Windows with "Needed a single revision"
 npx lint-staged --no-stash

@@ -37,7 +37,9 @@
     "admin:backup-check": "node scripts/admin/backup-check.js",
     "admin:web-health": "node scripts/admin/web-health.js",
     "admin:android-health": "node scripts/admin/android-health.js",
-    "admin:check": "npm run admin:config-check && npm run admin:storage-status && npm run admin:backup-check && npm run admin:web-health && npm run admin:android-health"
+    "admin:check": "npm run admin:config-check && npm run admin:storage-status && npm run admin:backup-check && npm run admin:web-health && npm run admin:android-health",
+    "verify": "npm run lint && npx tsc --noEmit && npm test -- --runInBand && npm run admin:check",
+    "quality:report": "node scripts/quality/file-size-check.js --report-top 30"
   },
   "dependencies": {
     "@op-engineering/op-sqlite": "^14.1.4",
