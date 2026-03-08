@@ -55,6 +55,7 @@ const SOURCE_LABELS: Record<string, string> = {
 
 function CaptureSkeleton({ isCosmic }: { isCosmic: boolean }) {
   const opacity = React.useRef(new Animated.Value(0.3)).current;
+  const useNativeDriver = Platform.OS !== 'web';
 
   React.useEffect(() => {
     const anim = Animated.loop(
@@ -63,19 +64,19 @@ function CaptureSkeleton({ isCosmic }: { isCosmic: boolean }) {
           toValue: 0.7,
           duration: 800,
           easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
+          useNativeDriver,
         }),
         Animated.timing(opacity, {
           toValue: 0.3,
           duration: 800,
           easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
+          useNativeDriver,
         }),
       ]),
     );
     anim.start();
     return () => anim.stop();
-  }, [opacity]);
+  }, [opacity, useNativeDriver]);
 
   const bgStyle = isCosmic ? styles.skeletonBgCosmic : styles.skeletonBgLinear;
   const blockStyle = isCosmic

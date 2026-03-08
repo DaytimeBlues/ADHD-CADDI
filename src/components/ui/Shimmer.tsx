@@ -5,6 +5,7 @@ import {
   Animated,
   ViewStyle,
   DimensionValue,
+  Platform,
 } from 'react-native';
 import { useTheme } from '../../theme/useTheme';
 
@@ -23,6 +24,7 @@ export const Shimmer: React.FC<ShimmerProps> = ({
 }) => {
   const { isCosmic } = useTheme();
   const shimmerAnim = React.useRef(new Animated.Value(0)).current;
+  const useNativeDriver = Platform.OS !== 'web';
 
   React.useEffect(() => {
     const animation = Animated.loop(
@@ -30,12 +32,12 @@ export const Shimmer: React.FC<ShimmerProps> = ({
         Animated.timing(shimmerAnim, {
           toValue: 1,
           duration: 1500,
-          useNativeDriver: true,
+          useNativeDriver,
         }),
         Animated.timing(shimmerAnim, {
           toValue: 0,
           duration: 1500,
-          useNativeDriver: true,
+          useNativeDriver,
         }),
       ]),
     );
@@ -45,7 +47,7 @@ export const Shimmer: React.FC<ShimmerProps> = ({
     return () => {
       animation.stop();
     };
-  }, [shimmerAnim]);
+  }, [shimmerAnim, useNativeDriver]);
 
   const translateX = shimmerAnim.interpolate({
     inputRange: [0, 1],

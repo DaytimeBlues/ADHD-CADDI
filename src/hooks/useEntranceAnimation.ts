@@ -28,7 +28,7 @@ export const useEntranceAnimation = (
   ).current;
 
   useEffect(() => {
-    if (prefersReducedMotion) {
+    if (prefersReducedMotion || process.env.NODE_ENV === 'test') {
       fadeAnims.forEach((anim) => anim.setValue(1));
       slideAnims.forEach((anim) => anim.setValue(0));
       return;

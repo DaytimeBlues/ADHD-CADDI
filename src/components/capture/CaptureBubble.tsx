@@ -138,7 +138,7 @@ export const CaptureBubble = memo(function CaptureBubble() {
     return () => {
       pulseLoop.current?.stop();
     };
-  }, [bubbleState, pulseAnim]);
+  }, [bubbleState, pulseAnim, useNativeDriver]);
 
   // Spin animation (processing state)
   useEffect(() => {
@@ -159,7 +159,7 @@ export const CaptureBubble = memo(function CaptureBubble() {
     return () => {
       spinLoop.current?.stop();
     };
-  }, [bubbleState, spinAnim]);
+  }, [bubbleState, spinAnim, useNativeDriver]);
 
   // Shake animation (failed state — plays once)
   const runShake = useCallback(() => {
@@ -203,7 +203,7 @@ export const CaptureBubble = memo(function CaptureBubble() {
         );
       }, 3000);
     });
-  }, [shakeAnim, badgeCount]);
+  }, [badgeCount, shakeAnim, useNativeDriver]);
 
   // Run shake when entering failed state
   useEffect(() => {
