@@ -1,4 +1,9 @@
 import { config } from '../config';
+import {
+  createOperationContext,
+  type OperationContext,
+} from './OperationContext';
+import { fetchWithPolicy, sleep } from './network/requestPolicy';
 
 export type SortCategory =
   | 'task'
@@ -154,24 +159,26 @@ function classifyError(error: unknown): AiSortError {
 async function fetchWithRetry(
   items: string[],
   timezone: string | undefined,
+  operationContext: OperationContext,
   maxRetries: number = 0,
   timeoutMs: number = 8000,
 ): Promise<SortedItem[]> {
   let lastError: AiSortError | null = null;
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), timeoutMs);
-
     try {
-      const response = await fetch(`${config.apiBaseUrl}/api/sort`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items, timezone }),
-        signal: controller.signal,
-      });
-
-      clearTimeout(timer);
+      const response = await fetchWithPolicy(
+        `${config.apiBaseUrl}/api/sort`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ items, timezone }),
+        },
+        {
+          timeoutMs,
+          operationContext,
+        },
+      );
 
       let payload: unknown = null;
       try {
@@ -201,7 +208,6 @@ async function fetchWithRetry(
 
       return assertSortResponse(payload).sorted;
     } catch (err) {
-      clearTimeout(timer);
       lastError = classifyError(err);
 
       // Do not retry network or timeout errors — they're systemic
@@ -211,7 +217,7 @@ async function fetchWithRetry(
 
       // Exponential backoff: 1s, 2s, 4s
       if (attempt < maxRetries) {
-        await new Promise((r) => setTimeout(r, 1000 * 2 ** attempt));
+        await sleep(1000 * 2 ** attempt);
       }
     }
   }
@@ -226,6 +232,7 @@ async function fetchWithRetry(
 
 const AISortService = {
   async sortItems(items: string[], timezone?: string): Promise<SortedItem[]> {
+    const operationContext = createOperationContext({ feature: 'ai-sort' });
     const cleanedItems = items
       .map((item) => item.trim())
       .filter(Boolean)
@@ -244,6 +251,7 @@ const AISortService = {
     const result = await fetchWithRetry(
       cleanedItems,
       timezone,
+      operationContext,
       config.aiMaxRetries,
       config.aiTimeout,
     );

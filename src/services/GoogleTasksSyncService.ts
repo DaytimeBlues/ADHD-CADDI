@@ -10,6 +10,37 @@ import {
   GoogleApiError,
 } from './GoogleTasksApiClient';
 import NetInfo from '@react-native-community/netinfo';
+import { createOperationContext } from './OperationContext';
+import { withOperationContext } from './LoggerService';
+import {
+  buildExportFingerprint,
+  GOOGLE_CALENDAR_SCOPE,
+  GOOGLE_TASKS_INBOX_NAME,
+  GOOGLE_TASKS_SCOPE,
+  MAX_EXPORT_CONCURRENCY,
+  MAX_MARK_CONCURRENCY,
+  generateSyncItemId,
+  normalizeText,
+} from './google-sync/constants';
+import {
+  getExportedFingerprints,
+  getProcessedIds,
+  readSyncState,
+  setExportedFingerprints,
+  setProcessedIds,
+  writeSyncState,
+} from './google-sync/storage';
+import type {
+  BrainDumpItem,
+  GoogleExportResult,
+  GoogleTasksSyncResult,
+  GoogleTasksSyncState,
+} from './google-sync/types';
+
+export type {
+  GoogleExportResult,
+  GoogleTasksSyncResult,
+} from './google-sync/types';
 
 /**
  * GoogleTasksSyncService
@@ -17,74 +48,6 @@ import NetInfo from '@react-native-community/netinfo';
  * Handles synchronization between Spark and Google Tasks/Calendar.
  * Orchestrates high-level sync flows using GoogleTasksApiClient and GoogleAuthService.
  */
-
-interface GoogleTasksSyncState {
-  listId?: string;
-  syncToken?: string;
-}
-
-interface BrainDumpItem {
-  id: string;
-  text: string;
-  createdAt: string;
-  source: 'text' | 'audio' | 'google';
-  googleTaskId?: string;
-}
-
-export interface GoogleTasksSyncResult {
-  importedCount: number;
-  skippedCount: number;
-  markedCompletedCount: number;
-  syncTokenUpdated: boolean;
-}
-
-export interface GoogleExportResult {
-  createdTasks: number;
-  createdEvents: number;
-  skippedCount: number;
-  authRequired: boolean;
-  errorCode?:
-    | 'auth_required'
-    | 'auth_failed'
-    | 'network'
-    | 'rate_limited'
-    | 'api_error';
-  errorMessage?: string;
-}
-
-const GOOGLE_TASKS_SCOPE = 'https://www.googleapis.com/auth/tasks';
-const GOOGLE_CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar.events';
-const GOOGLE_TASKS_INBOX_NAME = 'Spark Inbox';
-const MAX_PROCESSED_IDS = 500;
-const MAX_MARK_CONCURRENCY = 4;
-const MAX_EXPORT_CONCURRENCY = 4;
-const MAX_EXPORTED_FINGERPRINTS = 1000;
-
-const generateSyncItemId = (): string => {
-  return `google-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-};
-
-const ensureStringArray = (value: unknown): string[] => {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-
-  return value.filter((item): item is string => typeof item === 'string');
-};
-
-const normalizeText = (value: string): string => {
-  return value.trim().replace(/\s+/g, ' ');
-};
-
-const buildExportFingerprint = (item: SortedItem): string => {
-  return [
-    item.category,
-    normalizeText(item.text).toLowerCase(),
-    item.dueDate ?? '',
-    item.start ?? '',
-    item.end ?? '',
-  ].join('|');
-};
 
 class GoogleTasksSyncServiceClass {
   private readonly authService = new GoogleAuthService([
@@ -117,44 +80,6 @@ class GoogleTasksSyncServiceClass {
 
   private async getAccessToken(): Promise<string | null> {
     return this.authService.getAccessToken();
-  }
-
-  private async readSyncState(): Promise<GoogleTasksSyncState> {
-    const state = await StorageService.getJSON<GoogleTasksSyncState>(
-      StorageService.STORAGE_KEYS.googleTasksSyncState,
-    );
-
-    if (!state || typeof state !== 'object') {
-      return {};
-    }
-
-    return {
-      listId: typeof state.listId === 'string' ? state.listId : undefined,
-      syncToken:
-        typeof state.syncToken === 'string' ? state.syncToken : undefined,
-    };
-  }
-
-  private async writeSyncState(nextState: GoogleTasksSyncState): Promise<void> {
-    await StorageService.setJSON(
-      StorageService.STORAGE_KEYS.googleTasksSyncState,
-      nextState,
-    );
-  }
-
-  private async getProcessedIds(): Promise<string[]> {
-    const value = await StorageService.getJSON<unknown>(
-      StorageService.STORAGE_KEYS.googleTasksProcessedIds,
-    );
-    return ensureStringArray(value);
-  }
-
-  private async setProcessedIds(ids: string[]): Promise<void> {
-    const unique = Array.from(new Set(ids)).slice(-MAX_PROCESSED_IDS);
-    await StorageService.setJSON(
-      StorageService.STORAGE_KEYS.googleTasksProcessedIds,
-      unique,
-    );
   }
 
   private isAuthError(error: unknown): boolean {
@@ -256,25 +181,11 @@ class GoogleTasksSyncServiceClass {
     return { items: allItems, nextSyncToken };
   }
 
-  private async getExportedFingerprints(): Promise<string[]> {
-    const value = await StorageService.getJSON<unknown>(
-      StorageService.STORAGE_KEYS.googleTasksExportedFingerprints,
-    );
-    return ensureStringArray(value);
-  }
-
-  private async setExportedFingerprints(fingerprints: string[]): Promise<void> {
-    const unique = Array.from(new Set(fingerprints)).slice(
-      -MAX_EXPORTED_FINGERPRINTS,
-    );
-    await StorageService.setJSON(
-      StorageService.STORAGE_KEYS.googleTasksExportedFingerprints,
-      unique,
-    );
-  }
-
   async syncSortedItemsToGoogle(
     items: SortedItem[],
+    operationContext = createOperationContext({
+      feature: 'google-sync-export',
+    }),
   ): Promise<GoogleExportResult> {
     const result: GoogleExportResult = {
       createdTasks: 0,
@@ -291,9 +202,14 @@ class GoogleTasksSyncServiceClass {
     const networkState = await NetInfo.fetch();
     if (!networkState.isConnected) {
       LoggerService.info({
-        service: 'GoogleTasksSyncService',
-        operation: 'syncSortedItemsToGoogle',
-        message: 'Device offline. Queuing items for export.',
+        ...withOperationContext(
+          {
+            service: 'GoogleTasksSyncService',
+            operation: 'syncSortedItemsToGoogle',
+            message: 'Device offline. Queuing items for export.',
+          },
+          operationContext,
+        ),
       });
       this.offlineQueue.push(...items);
       result.skippedCount = items.length;
@@ -322,7 +238,7 @@ class GoogleTasksSyncServiceClass {
       result.skippedCount = items.length;
       return result;
     }
-    const exportedFingerprints = await this.getExportedFingerprints();
+    const exportedFingerprints = await getExportedFingerprints();
     const exportedSet = new Set(exportedFingerprints);
 
     for (let index = 0; index < items.length; index += MAX_EXPORT_CONCURRENCY) {
@@ -397,7 +313,7 @@ class GoogleTasksSyncServiceClass {
       );
     }
 
-    await this.setExportedFingerprints(Array.from(exportedSet));
+    await setExportedFingerprints(Array.from(exportedSet));
     return result;
   }
 
@@ -405,7 +321,12 @@ class GoogleTasksSyncServiceClass {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  async syncToBrainDump(retryCount = 0): Promise<GoogleTasksSyncResult> {
+  async syncToBrainDump(
+    retryCount = 0,
+    operationContext = createOperationContext({
+      feature: 'google-sync-import',
+    }),
+  ): Promise<GoogleTasksSyncResult> {
     const result: GoogleTasksSyncResult = {
       importedCount: 0,
       skippedCount: 0,
@@ -420,9 +341,14 @@ class GoogleTasksSyncServiceClass {
     const networkState = await NetInfo.fetch();
     if (!networkState.isConnected) {
       LoggerService.info({
-        service: 'GoogleTasksSyncService',
-        operation: 'syncToBrainDump',
-        message: 'Sync skipped: device is offline',
+        ...withOperationContext(
+          {
+            service: 'GoogleTasksSyncService',
+            operation: 'syncToBrainDump',
+            message: 'Sync skipped: device is offline',
+          },
+          operationContext,
+        ),
       });
       return result;
     }
@@ -434,7 +360,7 @@ class GoogleTasksSyncServiceClass {
         return result;
       }
 
-      const syncState = await this.readSyncState();
+      const syncState = await readSyncState();
       const listId =
         syncState.listId || (await this.ensureSparkInboxList(accessToken));
 
@@ -460,7 +386,7 @@ class GoogleTasksSyncServiceClass {
         (await StorageService.getJSON<BrainDumpItem[]>(
           StorageService.STORAGE_KEYS.brainDump,
         )) || [];
-      const processedIds = await this.getProcessedIds();
+      const processedIds = await getProcessedIds();
       const processedSet = new Set(processedIds);
       const existingGoogleTaskIds = new Set(
         existingItems
@@ -524,14 +450,14 @@ class GoogleTasksSyncServiceClass {
         });
       }
 
-      await this.setProcessedIds(Array.from(processedSet));
+      await setProcessedIds(Array.from(processedSet));
 
       const nextState: GoogleTasksSyncState = {
         listId,
         syncToken: delta.nextSyncToken,
       };
 
-      await this.writeSyncState(nextState);
+      await writeSyncState(nextState);
       if (delta.nextSyncToken && delta.nextSyncToken !== syncState.syncToken) {
         result.syncTokenUpdated = true;
       }
@@ -544,16 +470,21 @@ class GoogleTasksSyncServiceClass {
       return result;
     } catch (error) {
       LoggerService.error({
-        service: 'GoogleTasksSyncService',
-        operation: 'syncToBrainDump',
-        message: `Sync failed (attempt ${retryCount + 1})`,
-        error,
+        ...withOperationContext(
+          {
+            service: 'GoogleTasksSyncService',
+            operation: 'syncToBrainDump',
+            message: `Sync failed (attempt ${retryCount + 1})`,
+            error,
+          },
+          operationContext,
+        ),
       });
 
       if (retryCount < this.MAX_SYNC_RETRIES) {
         const backoffDelay = this.BASE_RETRY_DELAY_MS * Math.pow(2, retryCount);
         await this.delay(backoffDelay);
-        return this.syncToBrainDump(retryCount + 1);
+        return this.syncToBrainDump(retryCount + 1, operationContext);
       }
       throw error;
     } finally {
@@ -571,12 +502,20 @@ class GoogleTasksSyncServiceClass {
     }
 
     this.pollTimer = setInterval(() => {
-      this.syncToBrainDump().catch((error) => {
+      const operationContext = createOperationContext({
+        feature: 'google-sync-polling',
+      });
+      this.syncToBrainDump(0, operationContext).catch((error) => {
         LoggerService.error({
-          service: 'GoogleTasksSyncService',
-          operation: 'startForegroundPolling',
-          message: 'Foreground Google Tasks poll failed',
-          error,
+          ...withOperationContext(
+            {
+              service: 'GoogleTasksSyncService',
+              operation: 'startForegroundPolling',
+              message: 'Foreground Google Tasks poll failed',
+              error,
+            },
+            operationContext,
+          ),
         });
       });
     }, intervalMs);
@@ -588,26 +527,45 @@ class GoogleTasksSyncServiceClass {
 
     this.netInfoUnsubscribe = NetInfo.addEventListener((state) => {
       if (state.isConnected) {
-        LoggerService.info({
-          service: 'GoogleTasksSyncService',
-          operation: 'NetInfoListener',
-          message: 'Connection restored. Triggering sync and processing queue.',
+        const operationContext = createOperationContext({
+          feature: 'google-sync-polling',
         });
-        this.syncToBrainDump().catch((error) => {
+        LoggerService.info({
+          ...withOperationContext(
+            {
+              service: 'GoogleTasksSyncService',
+              operation: 'NetInfoListener',
+              message:
+                'Connection restored. Triggering sync and processing queue.',
+            },
+            operationContext,
+          ),
+        });
+        this.syncToBrainDump(0, operationContext).catch((error) => {
           LoggerService.warn({
-            service: 'GoogleTasksSyncService',
-            operation: 'NetInfoListener',
-            message: 'Sync retry failed after connection restore.',
-            error,
+            ...withOperationContext(
+              {
+                service: 'GoogleTasksSyncService',
+                operation: 'NetInfoListener',
+                message: 'Sync retry failed after connection restore.',
+                error,
+              },
+              operationContext,
+            ),
           });
         });
-        this.processOfflineQueue().catch((error) => {
+        this.processOfflineQueue(operationContext).catch((error) => {
           LoggerService.warn({
-            service: 'GoogleTasksSyncService',
-            operation: 'NetInfoListener',
-            message:
-              'Offline queue processing failed after connection restore.',
-            error,
+            ...withOperationContext(
+              {
+                service: 'GoogleTasksSyncService',
+                operation: 'NetInfoListener',
+                message:
+                  'Offline queue processing failed after connection restore.',
+                error,
+              },
+              operationContext,
+            ),
           });
         });
       }
@@ -617,27 +575,47 @@ class GoogleTasksSyncServiceClass {
     NetInfo.fetch()
       .then((state) => {
         if (state.isConnected) {
-          this.processOfflineQueue().catch((error) => {
+          const operationContext = createOperationContext({
+            feature: 'google-sync-polling',
+          });
+          this.processOfflineQueue(operationContext).catch((error) => {
             LoggerService.warn({
-              service: 'GoogleTasksSyncService',
-              operation: 'startForegroundPolling',
-              message: 'Startup offline queue processing failed.',
-              error,
+              ...withOperationContext(
+                {
+                  service: 'GoogleTasksSyncService',
+                  operation: 'startForegroundPolling',
+                  message: 'Startup offline queue processing failed.',
+                  error,
+                },
+                operationContext,
+              ),
             });
           });
         }
       })
       .catch((error) => {
+        const operationContext = createOperationContext({
+          feature: 'google-sync-polling',
+        });
         LoggerService.warn({
-          service: 'GoogleTasksSyncService',
-          operation: 'startForegroundPolling',
-          message: 'NetInfo fetch failed during polling startup.',
-          error,
+          ...withOperationContext(
+            {
+              service: 'GoogleTasksSyncService',
+              operation: 'startForegroundPolling',
+              message: 'NetInfo fetch failed during polling startup.',
+              error,
+            },
+            operationContext,
+          ),
         });
       });
   }
 
-  private async processOfflineQueue(): Promise<void> {
+  private async processOfflineQueue(
+    operationContext = createOperationContext({
+      feature: 'google-sync-export',
+    }),
+  ): Promise<void> {
     if (this.offlineQueue.length === 0 || isWeb) {
       return;
     }
@@ -645,11 +623,16 @@ class GoogleTasksSyncServiceClass {
     const items = [...this.offlineQueue];
     this.offlineQueue = [];
     LoggerService.info({
-      service: 'GoogleTasksSyncService',
-      operation: 'processOfflineQueue',
-      message: `Processing ${items.length} queued items.`,
+      ...withOperationContext(
+        {
+          service: 'GoogleTasksSyncService',
+          operation: 'processOfflineQueue',
+          message: `Processing ${items.length} queued items.`,
+        },
+        operationContext,
+      ),
     });
-    await this.syncSortedItemsToGoogle(items);
+    await this.syncSortedItemsToGoogle(items, operationContext);
   }
 
   stopForegroundPolling(): void {

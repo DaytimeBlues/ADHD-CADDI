@@ -3,6 +3,8 @@ import AISortService from '../src/services/AISortService';
 jest.mock('../src/config', () => ({
   config: {
     apiBaseUrl: 'https://spark-adhd-api.vercel.app',
+    aiTimeout: 8000,
+    aiMaxRetries: 0,
   },
 }));
 
@@ -32,6 +34,12 @@ describe('AISortService', () => {
     const result = await AISortService.sortItems(['Book dentist']);
 
     expect(fetch).toHaveBeenCalledTimes(1);
+    expect(fetch).toHaveBeenCalledWith(
+      'https://spark-adhd-api.vercel.app/api/sort',
+      expect.objectContaining({
+        headers: expect.anything(),
+      }),
+    );
     expect(result).toEqual([
       { text: 'Book dentist', category: 'task', priority: 'high' },
       { text: 'Lunch Friday', category: 'event', priority: 'medium' },
