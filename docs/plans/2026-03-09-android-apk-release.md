@@ -18,24 +18,30 @@ Completed:
 - Task 2: added the in-app `APP_READY` marker from `App.tsx`
 - Task 3: added signed sideload helper and signing-boundary tests
 - Task 4: aligned release docs, tech spec, audit, and test matrix
+- Task 5: merged the feature branch to `main` and pushed merge commit `a67ef8a`
 
 Verification completed:
 
 - focused Android contract tests pass
 - TypeScript `npx tsc --noEmit` passes
 - `npm run admin:android-health` passes
+- merged `main` worktree re-verifies with the same results
+- `npm run lint` still reports the same pre-existing 20 warnings and 0 errors
+- post-push workflow state for `a67ef8a`:
+  - `CI`: success
+  - `CodeQL Security Analysis`: success
+  - `Secret Scanning (Gitleaks)`: success
+  - `Deploy to GitHub Pages`: success
+  - `Android CI`: still running during this update, specifically the `Android Release Build Check` job
 
 Open follow-up:
 
-- `npm run lint` still fails on pre-existing repo-wide warnings outside this batch
-- no merge to `main` yet, so GitHub Pages remains unchanged
+- monitor the `Android CI` run for `a67ef8a` until the `Android Release Build Check` job completes
+- decide separately whether to clean up the pre-existing repo-wide lint warnings outside this batch
 
 ## Next Session Checklist
 
-1. Review `docs/ANDROID_AUDIT_2026-03-09.md`
-2. Review current branch diff
-3. Decide whether to fix repo-wide lint warnings or document them as pre-existing
-4. Commit branch changes
-5. Push `codex/android-apk-release`
-6. Merge to `main` if approved
-7. Confirm GitHub Actions and, after merge, GitHub Pages state
+1. Review the latest `Android CI` run for commit `a67ef8a`
+2. Confirm the `Android Release Build Check` job finishes green
+3. If it fails, inspect the workflow logs before making further Android release claims
+4. Separately triage the repo-wide lint warnings if they become a priority

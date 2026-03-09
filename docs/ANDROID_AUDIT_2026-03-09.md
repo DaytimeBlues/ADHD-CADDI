@@ -15,6 +15,23 @@ The current automated source of truth is [`.github/workflows/android.yml`](/C:/U
 
 ## Current Release Status
 
+### Integration status as of 2026-03-09
+
+- `main` was updated to merge commit `a67ef8a` (`merge: formalize android apk release readiness`)
+- `origin/main` now points to `a67ef8a`
+- local verification passed before push:
+  - focused Android contract tests
+  - `npx tsc --noEmit`
+  - `npm run admin:android-health`
+  - `npm run lint` with the same pre-existing 20 warnings and 0 errors
+- post-push GitHub Actions state for `a67ef8a`:
+  - `CI`: success
+  - `CodeQL Security Analysis`: success
+  - `Secret Scanning (Gitleaks)`: success
+  - `Deploy to GitHub Pages`: success
+  - `Android CI`: still running at the time of this audit update, with `Android Build and E2E Tests` already green and `Android Release Build Check` still in progress
+- GitHub Pages deploy is no longer blocked by the feature branch living only off `main`
+
 ### `CI release smoke`
 
 Meaning:
