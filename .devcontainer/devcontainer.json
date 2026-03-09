@@ -1,0 +1,20 @@
+{
+  "name": "Security Research - seclab-taskflow-agent",
+  "image": "ghcr.io/githubsecuritylab/seclab-taskflow-agent:latest",
+  "secrets": {
+    "GH_TOKEN": {
+      "description": "GitHub PAT with models permission for GitHub API access.",
+      "documentationUrl": "https://github.com/settings/personal-access-tokens/new"
+    },
+    "AI_API_TOKEN": {
+      "description": "GitHub PAT with models permission for GitHub Models AI API.",
+      "documentationUrl": "https://github.com/settings/personal-access-tokens/new"
+    }
+  },
+  "postCreateCommand": "pip install seclab-taskflows && echo 'Ready! Run: python -m seclab_taskflow_agent --help'",
+  "customizations": {
+    "vscode": {
+      "extensions": ["GitHub.copilot", "ms-python.python"]
+    }
+  }
+}
