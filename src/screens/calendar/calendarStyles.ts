@@ -5,6 +5,15 @@
 import { StyleSheet, Platform } from 'react-native';
 import { Tokens } from '../../theme/tokens';
 
+const createWebFocusOutline = (color: string): object =>
+  Platform.OS === 'web'
+    ? {
+        outlineWidth: 2,
+        outlineStyle: 'solid',
+        outlineColor: color,
+      }
+    : {};
+
 export const calendarStyles = (isCosmic: boolean) =>
   StyleSheet.create({
     // Container
@@ -157,13 +166,9 @@ export const calendarStyles = (isCosmic: boolean) =>
       }),
       transform: [{ scale: Tokens.motion.scales.press }],
     },
-    navButtonFocused: Platform.select({
-      web: {
-        outlineWidth: 2,
-        outlineStyle: 'solid',
-        outlineColor: isCosmic ? '#8B5CF6' : Tokens.colors.indigo.primary,
-      },
-    }) as any,
+    navButtonFocused: createWebFocusOutline(
+      isCosmic ? '#8B5CF6' : Tokens.colors.indigo.primary,
+    ),
     navButtonText: {
       color: isCosmic ? '#EEF2FF' : Tokens.colors.text.primary,
       fontSize: Tokens.type.h2,
@@ -248,13 +253,9 @@ export const calendarStyles = (isCosmic: boolean) =>
         : Tokens.colors.neutral.darkest,
       transform: [{ scale: Tokens.motion.scales.press }],
     },
-    dayCellFocused: Platform.select({
-      web: {
-        outlineWidth: 2,
-        outlineStyle: 'solid',
-        outlineColor: isCosmic ? '#8B5CF6' : Tokens.colors.indigo.primary,
-      },
-    }) as any,
+    dayCellFocused: createWebFocusOutline(
+      isCosmic ? '#8B5CF6' : Tokens.colors.indigo.primary,
+    ),
     dayText: {
       fontFamily: Tokens.type.fontFamily.sans,
       color: isCosmic ? '#EEF2FF' : Tokens.colors.text.secondary,
@@ -387,13 +388,9 @@ export const calendarStyles = (isCosmic: boolean) =>
         ? 'rgba(17, 26, 51, 0.9)'
         : Tokens.colors.neutral.darkest,
     },
-    googleCalendarButtonFocused: Platform.select({
-      web: {
-        outlineWidth: 2,
-        outlineStyle: 'solid',
-        outlineColor: isCosmic ? '#8B5CF6' : Tokens.colors.indigo.primary,
-      },
-    }) as any,
+    googleCalendarButtonFocused: createWebFocusOutline(
+      isCosmic ? '#8B5CF6' : Tokens.colors.indigo.primary,
+    ),
     googleCalendarButtonDisabled: {
       backgroundColor: isCosmic
         ? 'rgba(11, 16, 34, 0.4)'

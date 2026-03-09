@@ -5,6 +5,7 @@
  */
 
 import { StyleSheet } from 'react-native';
+import type { ThemeContextValue } from '../../theme/useTheme';
 
 // --- Constants ---
 const LIST_PADDING_BOTTOM = 120;
@@ -20,8 +21,7 @@ const CATEGORY_TITLE_BORDER_RADIUS = 4;
 
 export const getBrainDumpStyles = (
   isCosmic: boolean,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  t: any,
+  t: ThemeContextValue['t'],
 ) =>
   StyleSheet.create({
     container: {
