@@ -33,9 +33,10 @@ def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
 def localAppData = System.getenv('LOCALAPPDATA')
 
 if (isWindows && localAppData != null && !localAppData.isEmpty()) {
-    rootProject.buildDir = file("${localAppData}/Temp/adhd-caddi-android/build-root")
+    def windowsBuildRoot = "${localAppData}/ADHD-CADDI-V1/android-build"
+    rootProject.buildDir = file("${windowsBuildRoot}/build-root")
     subprojects { subproject ->
-        subproject.buildDir = file("${localAppData}/Temp/adhd-caddi-android/${subproject.name}")
+        subproject.buildDir = file("${windowsBuildRoot}/${subproject.name}")
     }
 }
 

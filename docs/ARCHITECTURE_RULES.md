@@ -144,13 +144,7 @@ When refactoring:
 
 Current known violations (to be addressed):
 
-- CaptureDrawer.tsx (1,306 lines) - Phase 1
-- CalendarScreen.tsx (810 lines) - Phase 1
-- GoogleTasksSyncService.ts (654 lines) - Phase 1
-- OAuthService.ts + OAuthService.web.ts (958 combined) - Phase 1
-- FogCutterScreen.tsx (743 lines) - Phase 2
-- IgniteScreen.tsx (604 lines) - Phase 2
-- CheckInScreen.tsx (593 lines) - Phase 2
-- TasksScreen.tsx (591 lines) - Phase 2
-- BrainDumpScreen.tsx (456 lines) - Phase 2
-- HomeScreen.tsx (468 lines) - Phase 2
+- CaptureBubble.tsx (483 lines) - active hard-cap violation
+- HomeScreen.tsx (469 lines) - active hard-cap violation
+- cosmicTokens.ts (459 lines) - active hard-cap violation, exception not yet documented
+- BrainDumpScreen.tsx (457 lines) - active hard-cap violation

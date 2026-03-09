@@ -2,11 +2,8 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   SafeAreaView,
-  Switch,
-  Animated,
   AccessibilityInfo,
   TouchableOpacity,
 } from 'react-native';
@@ -15,21 +12,25 @@ import { useShareAction } from '../hooks/useShareAction';
 import StorageService from '../services/StorageService';
 import { LoggerService } from '../services/LoggerService';
 import ActivationService, {
-  ActivationDailyTrendPoint,
   ActivationSummary,
+  ActivationDailyTrendPoint,
 } from '../services/ActivationService';
-import RetentionService from '../services/RetentionService';
-import { ReentryPromptLevel } from '../services/RetentionService';
+import RetentionService, {
+  ReentryPromptLevel,
+} from '../services/RetentionService';
 import useReducedMotion from '../hooks/useReducedMotion';
 import useEntranceAnimation from '../hooks/useEntranceAnimation';
-import { Tokens } from '../theme/tokens';
 import { useTheme } from '../theme/useTheme';
-import ModeCard, { ModeCardMode } from './ModeCard';
-import { ReEntryPrompt } from '../components/ui/ReEntryPrompt';
+import { ModeCardMode } from './ModeCard';
 import { ROUTES } from '../navigation/routes';
-import { CosmicBackground, GlowCard } from '../ui/cosmic';
+import { CosmicBackground } from '../ui/cosmic';
 import { getStyles } from './HomeScreen.styles';
 import { isAndroid } from '../utils/PlatformUtils';
+import { useHomeMetrics } from './home/useHomeMetrics';
+import { HomeActivationCard } from './home/HomeActivationCard';
+import { HomeOverlayCard } from './home/HomeOverlayCard';
+import { HomeDebugPanel } from './home/HomeDebugPanel';
+import { HomeModesGrid } from './home/HomeModesGrid';
 
 type NavigatorState = {
   routeNames?: string[];
@@ -42,8 +43,6 @@ type NavigationNode = {
   getState?: () => NavigatorState | undefined;
   getParent?: () => NavigationNode | undefined;
 };
-
-// Types moved to hooks or handled by consumption
 
 const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
   const { isCosmic } = useTheme();
@@ -73,34 +72,11 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
     useState<ReentryPromptLevel>('none');
   const prefersReducedMotion = useReducedMotion();
 
-  const trendMetrics = useMemo(() => {
-    if (activationTrend.length === 0) {
-      return null;
-    }
-    const today = activationTrend[activationTrend.length - 1];
-    const yesterday =
-      activationTrend.length > 1
-        ? activationTrend[activationTrend.length - 2]
-        : null;
-    const maxStarted = Math.max(...activationTrend.map((d) => d.started));
-
-    const todayCount = today.started;
-    const yesterdayCount = yesterday ? yesterday.started : 0;
-    const delta = todayCount - yesterdayCount;
-    const deltaStr = delta > 0 ? `+${delta}` : `${delta}`;
-    const isPositive = delta > 0;
-    const isNeutral = delta === 0;
-
-    return {
-      todayCount,
-      deltaStr,
-      isPositive,
-      isNeutral,
-      maxStarted,
-    };
-  }, [activationTrend]);
-
-  // Logic extracted to useOverlayEvents and useShareAction
+  const { trendMetrics, hasActivationData, showReentryPrompt } = useHomeMetrics(
+    activationSummary,
+    activationTrend,
+    reentryPromptLevel,
+  );
 
   const cardWidth = '49%';
 
@@ -164,8 +140,6 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
     prefersReducedMotion,
   );
 
-  // Logic extracted to useOverlayEvents
-
   const loadStreak = useCallback(async () => {
     try {
       const reentryPrompt = await RetentionService.getReentryPromptLevel();
@@ -203,8 +177,6 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
   useEffect(() => {
     loadStreak();
   }, [loadStreak]);
-
-  // Logic extracted to useOverlayEvents and useShareAction
 
   const navigateByRouteName = useCallback(
     (routeName: string) => {
@@ -246,7 +218,10 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
   const styles = useMemo(() => getStyles(isCosmic), [isCosmic]);
 
   return (
-    <CosmicBackground variant="ridge" style={StyleSheet.absoluteFill}>
+    <CosmicBackground
+      variant="ridge"
+      style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}
+    >
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.maxWidthWrapper}>
@@ -289,175 +264,79 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
               </View>
             </View>
 
-            {activationSummary && activationSummary.started > 0 && (
-              <GlowCard
-                glow="medium"
-                tone="raised"
-                padding="md"
-                style={styles.activationCard}
-              >
-                <View style={styles.activationHeader}>
-                  <Text style={styles.activationTitle}>WEEKLY_METRICS</Text>
-                  <Text style={styles.activationRate}>
-                    {Math.round(activationSummary.completionRate * 100)}%
-                  </Text>
-                </View>
-                <View style={styles.activationGrid}>
-                  <View style={styles.statBox}>
-                    <Text style={styles.statLabel}>STARTED</Text>
-                    <Text style={styles.statValue}>
-                      {activationSummary.started}
-                    </Text>
-                  </View>
-                  <View style={styles.statBox}>
-                    <Text style={styles.statLabel}>COMPLETED</Text>
-                    <Text style={styles.statValue}>
-                      {activationSummary.completed}
-                    </Text>
-                  </View>
-                  {trendMetrics && (
-                    <>
-                      <View style={styles.statBox}>
-                        <Text style={styles.statLabel}>TODAY</Text>
-                        <Text style={styles.statValue}>
-                          {trendMetrics.todayCount}
-                        </Text>
-                      </View>
-                      <View style={styles.statBox}>
-                        <Text style={styles.statLabel}>DELTA</Text>
-                        <Text
-                          style={[
-                            styles.statValue,
-                            trendMetrics.isPositive
-                              ? styles.textSuccess
-                              : trendMetrics.isNeutral
-                                ? styles.textNeutral
-                                : styles.textError,
-                          ]}
-                        >
-                          {trendMetrics.deltaStr}
-                        </Text>
-                      </View>
-                    </>
-                  )}
-                </View>
-
-                {(reentryPromptLevel === 'gentle_restart' ||
-                  reentryPromptLevel === 'fresh_restart') && (
-                  <ReEntryPrompt
-                    level={reentryPromptLevel}
-                    onPrimaryAction={() => navigateByRouteName(ROUTES.FOCUS)}
-                    testID="reentry-prompt"
-                  />
-                )}
-              </GlowCard>
+            {hasActivationData && activationSummary && (
+              <HomeActivationCard
+                activationSummary={activationSummary}
+                trendMetrics={trendMetrics}
+                reentryPromptLevel={reentryPromptLevel}
+                showReentryPrompt={showReentryPrompt}
+                styles={{
+                  activationCard: styles.activationCard,
+                  activationHeader: styles.activationHeader,
+                  activationTitle: styles.activationTitle,
+                  activationRate: styles.activationRate,
+                  activationGrid: styles.activationGrid,
+                  statBox: styles.statBox,
+                  statLabel: styles.statLabel,
+                  statValue: styles.statValue,
+                  textSuccess: styles.textSuccess,
+                  textError: styles.textError,
+                  textNeutral: styles.textNeutral,
+                }}
+                onPrimaryAction={() => navigateByRouteName(ROUTES.FOCUS)}
+              />
             )}
 
             {isAndroid && (
-              <GlowCard
-                glow={isOverlayEnabled ? 'medium' : 'soft'}
-                tone={isOverlayEnabled ? 'raised' : 'base'}
-                padding="sm"
-                style={[
-                  styles.overlayCard,
-                  isOverlayEnabled && styles.overlayCardActive,
-                ]}
-              >
-                <View style={styles.overlayTextGroup}>
-                  <Text style={styles.overlayTitle}>FOCUS_OVERLAY</Text>
-                  <Text
-                    style={[
-                      styles.overlayStatus,
-                      isOverlayEnabled && styles.overlayStatusActive,
-                    ]}
-                    accessibilityLiveRegion="polite"
-                  >
-                    {isOverlayPermissionRequesting
-                      ? 'REQ_PERM...'
-                      : isOverlayEnabled
-                        ? 'ACTIVE'
-                        : 'INACTIVE'}
-                  </Text>
-                </View>
-                <Switch
-                  testID="home-overlay-toggle"
-                  accessibilityRole="switch"
-                  accessibilityLabel="home-overlay-toggle"
-                  accessibilityState={{
-                    checked: isOverlayEnabled,
-                    busy: isOverlayPermissionRequesting,
-                    disabled: isOverlayPermissionRequesting,
-                  }}
-                  trackColor={{
-                    false: Tokens.colors.neutral[700],
-                    true: Tokens.colors.brand[500],
-                  }}
-                  thumbColor={Tokens.colors.neutral[0]}
-                  ios_backgroundColor={Tokens.colors.neutral[700]}
-                  onValueChange={toggleOverlay}
-                  disabled={isOverlayPermissionRequesting}
-                  value={isOverlayEnabled}
-                  style={{ transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
-                />
-              </GlowCard>
+              <HomeOverlayCard
+                isOverlayEnabled={isOverlayEnabled}
+                isOverlayPermissionRequesting={isOverlayPermissionRequesting}
+                styles={{
+                  overlayCard: styles.overlayCard,
+                  overlayCardActive: styles.overlayCardActive,
+                  overlayTextGroup: styles.overlayTextGroup,
+                  overlayTitle: styles.overlayTitle,
+                  overlayStatus: styles.overlayStatus,
+                  overlayStatusActive: styles.overlayStatusActive,
+                }}
+                onToggle={toggleOverlay}
+              />
             )}
 
             {isAndroid && __DEV__ && (
-              <View style={styles.debugPanel}>
-                <Text style={styles.debugTitle}>LOGS</Text>
-                {overlayEvents.length === 0 ? (
-                  <Text style={styles.debugText}>NULL</Text>
-                ) : (
-                  overlayEvents.map((event) => (
-                    <Text key={event.id} style={styles.debugText}>
-                      {new Date(event.timestamp).toLocaleTimeString([], {
-                        hour12: false,
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        second: '2-digit',
-                      })}{' '}
-                      :: {event.label}
-                    </Text>
-                  ))
-                )}
-                <View style={styles.debugButtonRow}>
-                  <TouchableOpacity
-                    onPress={handleCopyDiagnostics}
-                    style={styles.debugButton}
-                  >
-                    <Text style={styles.debugButtonText}>COPY_DIAG</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => navigateByRouteName(ROUTES.DIAGNOSTICS)}
-                    style={styles.debugButton}
-                  >
-                    <Text style={styles.debugButtonText}>DIAGNOSTICS</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
+              <HomeDebugPanel
+                overlayEvents={overlayEvents.map((e) => ({
+                  id: e.id,
+                  timestamp: e.timestamp,
+                  label: e.label,
+                }))}
+                styles={{
+                  debugPanel: styles.debugPanel,
+                  debugTitle: styles.debugTitle,
+                  debugText: styles.debugText,
+                  debugButtonRow: styles.debugButtonRow,
+                  debugButton: styles.debugButton,
+                  debugButtonText: styles.debugButtonText,
+                }}
+                onCopyDiagnostics={handleCopyDiagnostics}
+                onNavigateDiagnostics={() =>
+                  navigateByRouteName(ROUTES.DIAGNOSTICS)
+                }
+              />
             )}
 
-            <View style={[styles.modesGrid, styles.negativeMarginTop24]}>
-              {modes.map((mode, index) => (
-                <Animated.View
-                  key={mode.id}
-                  style={[
-                    {
-                      width: cardWidth,
-                      opacity: fadeAnims[index],
-                      transform: [{ translateY: slideAnims[index] }],
-                    },
-                    styles.zIndex10,
-                  ]}
-                >
-                  <ModeCard
-                    mode={mode}
-                    onPress={() => handlePress(mode.id)}
-                    testID={`mode-${mode.id}`}
-                  />
-                </Animated.View>
-              ))}
-            </View>
+            <HomeModesGrid
+              modes={modes}
+              fadeAnims={fadeAnims}
+              slideAnims={slideAnims}
+              cardWidth={cardWidth}
+              styles={{
+                modesGrid: styles.modesGrid,
+                negativeMarginTop24: styles.negativeMarginTop24,
+                zIndex10: styles.zIndex10,
+              }}
+              onModePress={handlePress}
+            />
           </View>
         </ScrollView>
       </SafeAreaView>
