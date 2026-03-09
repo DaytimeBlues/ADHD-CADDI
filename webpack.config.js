@@ -147,6 +147,14 @@ module.exports = (env, argv) => {
             },
           },
         },
+        // Fix for webpack 5 ESM module resolution - add .web.js extension for react-native-google-signin
+        {
+          test: /\.js$/,
+          include: /node_modules\/@react-native-google-signin\/google-signin/,
+          resolve: {
+            fullySpecified: false,
+          },
+        },
         {
           test: /\.(png|jpg|gif|svg)$/,
           type: 'asset/resource',
