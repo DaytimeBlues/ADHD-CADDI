@@ -88,6 +88,7 @@ jobs:
           path: |
             android/app/build/reports/tests/
             android/app/build/test-results/
+          if-no-files-found: ignore
           retention-days: 30
 
       - name: Detox E2E Tests
