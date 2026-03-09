@@ -18,7 +18,8 @@ Completed:
 - Task 2: added the in-app `APP_READY` marker from `App.tsx`
 - Task 3: added signed sideload helper and signing-boundary tests
 - Task 4: aligned release docs, tech spec, audit, and test matrix
-- Task 5: merged the feature branch to `main` and pushed merge commit `a67ef8a`
+- Task 5: merged the feature branch to `main` as `a67ef8a`
+- Task 6: pushed the follow-up documentation update on `main` as `88580a7`
 
 Verification completed:
 

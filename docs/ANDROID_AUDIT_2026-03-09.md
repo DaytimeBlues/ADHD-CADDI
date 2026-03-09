@@ -17,14 +17,14 @@ The current automated source of truth is [`.github/workflows/android.yml`](/C:/U
 
 ### Integration status as of 2026-03-09
 
-- `main` was updated to merge commit `a67ef8a` (`merge: formalize android apk release readiness`)
-- `origin/main` now points to `a67ef8a`
+- `main` now includes merge commit `a67ef8a` (`merge: formalize android apk release readiness`)
+- `origin/main` currently points to `88580a7` (`docs: record android release integration status`)
 - local verification passed before push:
   - focused Android contract tests
   - `npx tsc --noEmit`
   - `npm run admin:android-health`
   - `npm run lint` with the same pre-existing 20 warnings and 0 errors
-- post-push GitHub Actions state for `a67ef8a`:
+- post-push GitHub Actions state for merge commit `a67ef8a`:
   - `CI`: success
   - `CodeQL Security Analysis`: success
   - `Secret Scanning (Gitleaks)`: success
