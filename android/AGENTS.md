@@ -11,7 +11,7 @@ Native Android module with custom overlay service and Gradle-based build.
 | App build config     | `android/app/build.gradle`                                 | SDK versions, deps, signing |
 | Project build config | `android/build.gradle`                                     | AGP, buildTools, ext vars   |
 | Manifest             | `android/app/src/main/AndroidManifest.xml`                 | Permissions + services      |
-| Network security     | `android/app/src/main/res/xml/network_security_config.xml` | Cleartext dev hosts         |
+| Network security     | `android/app/src/debug/res/xml/network_security_config.xml` | Debug-only cleartext dev hosts |
 | Proguard rules       | `android/app/proguard-rules.pro`                           | Release keep rules          |
 | Gradle wrapper       | `android/gradle/wrapper/gradle-wrapper.properties`         | Gradle 8.6                  |
 
@@ -24,5 +24,5 @@ Native Android module with custom overlay service and Gradle-based build.
 ## ANTI-PATTERNS (THIS DIRECTORY)
 
 - Do not hardcode signing credentials; use env vars.
-- Do not loosen network security config beyond local dev hosts.
+- Do not loosen debug network security config beyond local dev hosts.
 - Do not remove overlay permissions without updating Home/OverlayService flow.

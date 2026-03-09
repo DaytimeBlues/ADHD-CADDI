@@ -6,7 +6,7 @@ Date: 2026-03-09
 
 This Android review is a lightweight `OWASP MASVS`-style audit based on the app manifest, Gradle config, network security config, and custom native overlay code. The Android surface is relatively small, which is good, but there are still a few meaningful findings around backup posture, release transport policy, and privileged overlay capabilities.
 
-Current Android security posture: `5.8/10`
+Current Android security posture: `7.1/10`
 
 Main positives:
 
@@ -17,16 +17,18 @@ Main positives:
 
 Main concerns:
 
-- app backups are globally enabled without visible scoping rules
-- cleartext exceptions are present in the shipped network security config
 - the app uses high-risk overlay permissions, so release governance around that feature needs to stay explicit and documented
+- CI release proof is improving, but Android release launch verification is still the main delivery uncertainty
 
 ## Findings
 
 ### MASVS-001
 
+Status:
+- Resolved
+
 Severity:
-- High
+- Previously High
 
 Area:
 - Storage / local data exposure
@@ -37,36 +39,38 @@ Location:
 Evidence:
 
 ```xml
-<application ... android:allowBackup="true" ...>
+<application ... android:allowBackup="false" ...>
 ```
 
 Impact:
-- Android backup/restore is globally enabled, but there is no visible `fullBackupContent` or `dataExtractionRules` policy in the manifest or resources. That means app data can be included in backup flows more broadly than intended. For an app that stores mental-health-adjacent notes, tasks, and check-in state, that is a real privacy concern.
+- The main release manifest now defaults to no app backup, which removes the earlier broad backup exposure risk for local app data.
 
 Why it matters:
 - In plain terms, backup settings decide whether Android is allowed to copy app data off the device. If that is turned on without a rule file, you are trusting the platform default instead of explicitly saying what is safe to copy.
 
-Recommended fix:
-- Default to `android:allowBackup="false"` unless you have a documented restore requirement.
-- If backup must stay enabled, add explicit `fullBackupContent` and `dataExtractionRules` files and exclude sensitive app state.
+Implemented fix:
+- The main manifest now sets `android:allowBackup="false"`.
+
+Follow-up:
+- If restore support is ever required later, add explicit `fullBackupContent` and `dataExtractionRules` files instead of re-enabling unrestricted backup.
 
 ### MASVS-002
 
+Status:
+- Resolved
+
 Severity:
-- Medium
+- Previously Medium
 
 Area:
 - Network transport security
 
 Location:
 - [AndroidManifest.xml](/C:/dev/ADHD-CADDI-V1/android/app/src/main/AndroidManifest.xml#L14)
-- [network_security_config.xml](/C:/dev/ADHD-CADDI-V1/android/app/src/main/res/xml/network_security_config.xml#L1)
+- [AndroidManifest.xml](/C:/dev/ADHD-CADDI-V1/android/app/src/debug/AndroidManifest.xml#L1)
+- [network_security_config.xml](/C:/dev/ADHD-CADDI-V1/android/app/src/debug/res/xml/network_security_config.xml#L1)
 
 Evidence:
-
-```xml
-<application ... android:networkSecurityConfig="@xml/network_security_config" ...>
-```
 
 ```xml
 <network-security-config>
@@ -78,13 +82,14 @@ Evidence:
 ```
 
 Impact:
-- The release app still ships with a cleartext exception config, even though it is limited to local development hosts. That is lower risk than allowing arbitrary cleartext traffic, but it still means the production manifest is carrying a dev transport exception instead of a debug-only one.
+- The cleartext exception no longer ships from the main manifest. It is now scoped to the debug Android source set, which is the safer default for release builds.
 
 Why it matters:
 - A secure mobile release should make the safe thing the default. Development exceptions are normal, but they should usually live in debug-only resources or build variants so they cannot accidentally leak into release behavior later.
 
-Recommended fix:
-- Move the cleartext exception to a debug-only manifest/resource overlay, or gate it with build-variant-specific network security config.
+Implemented fix:
+- The main manifest no longer references a network security config.
+- A debug manifest overlay now opts into the localhost-only cleartext config.
 
 ### MASVS-003
 
@@ -160,10 +165,9 @@ Recommended fix:
 
 ## Recommended Fix Order
 
-1. Turn off unrestricted backup behavior or add explicit backup/data-extraction rules.
-2. Move cleartext localhost exceptions into debug-only Android config.
-3. Keep overlay capability, but document and test its trust boundaries more explicitly.
-4. Keep CI release signing fallback clearly separated from real release publishing.
+1. Keep overlay capability, but document and test its trust boundaries more explicitly.
+2. Keep CI release signing fallback clearly separated from real release publishing.
+3. Finish stabilizing Android CI release launch verification on the lighter emulator profile.
 
 ## Verification Checklist
 
