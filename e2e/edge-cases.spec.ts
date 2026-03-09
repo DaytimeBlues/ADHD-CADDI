@@ -1,5 +1,6 @@
 import { test, expect, Page } from '@playwright/test';
 import { enableE2ETestMode, enableCosmicTheme } from './helpers/seed';
+import { gotoAppRoot } from './helpers/navigation';
 
 /**
  * Edge Case and Error Handling Tests
@@ -19,7 +20,7 @@ test.describe('Edge Cases and Error Handling', () => {
   test.beforeEach(async ({ page }) => {
     await enableE2ETestMode(page);
     await enableCosmicTheme(page);
-    await page.goto('/');
+    await gotoAppRoot(page);
     await expect(page.getByTestId('home-title')).toBeVisible();
   });
 
@@ -280,7 +281,7 @@ test.describe('Edge Cases and Error Handling', () => {
         await route.continue();
       });
 
-      await page.goto('/');
+      await gotoAppRoot(page);
       await expect(page.getByTestId('home-title')).toBeVisible({
         timeout: 30000,
       });

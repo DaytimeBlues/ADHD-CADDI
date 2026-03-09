@@ -5,6 +5,7 @@ import {
   enableRecordingMock,
   seedAlexPersona,
 } from './helpers/seed';
+import { gotoAppRoot } from './helpers/navigation';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -30,7 +31,7 @@ const navigateToScreen = async (page: Page, modeId: string) => {
 test.describe('Cosmic Theme — Theme Toggle', () => {
   test.beforeEach(async ({ page }) => {
     await enableE2ETestMode(page);
-    await page.goto('/');
+    await gotoAppRoot(page);
     await expect(page.getByTestId('home-title')).toBeVisible();
   });
 
@@ -41,7 +42,7 @@ test.describe('Cosmic Theme — Theme Toggle', () => {
       timeout: 15000,
     });
     // Diagnostics is accessed through the app — verify APPEARANCE when navigated
-    await page.goto('/');
+    await gotoAppRoot(page);
     await expect(page.getByTestId('home-title')).toBeVisible();
     // Scroll to find diagnostics link or navigate directly
     const diagLink = page.getByText('DIAGNOSTICS');
@@ -97,7 +98,7 @@ test.describe('Cosmic Theme — Home Screen', () => {
     await enableE2ETestMode(page);
     await enableCosmicTheme(page);
     await seedAlexPersona(page);
-    await page.goto('/');
+    await gotoAppRoot(page);
     await expect(page.getByTestId('home-title')).toBeVisible();
   });
 
@@ -151,7 +152,7 @@ test.describe('Cosmic Theme — Screen Rendering Smoke Tests', () => {
     await enableCosmicTheme(page);
     await enableRecordingMock(page);
     await seedAlexPersona(page);
-    await page.goto('/');
+    await gotoAppRoot(page);
     await expect(page.getByTestId('home-title')).toBeVisible();
   });
 
@@ -185,7 +186,7 @@ test.describe('Cosmic Theme — Timer Interactions', () => {
     await enableCosmicTheme(page);
     await enableRecordingMock(page);
     await seedAlexPersona(page);
-    await page.goto('/');
+    await gotoAppRoot(page);
     await expect(page.getByTestId('home-title')).toBeVisible();
   });
 
@@ -280,7 +281,7 @@ test.describe('Cosmic Theme — Interactive Features', () => {
     await enableCosmicTheme(page);
     await enableRecordingMock(page);
     await seedAlexPersona(page);
-    await page.goto('/');
+    await gotoAppRoot(page);
     await expect(page.getByTestId('home-title')).toBeVisible();
   });
 
@@ -329,7 +330,7 @@ test.describe('Cosmic Theme — Interactive Features', () => {
     await expect(page.getByText('Persistent cosmic task')).toBeVisible();
     await page.waitForTimeout(300);
 
-    await page.goto('/');
+    await gotoAppRoot(page);
     await expect(page.getByTestId('home-title')).toBeVisible();
     await navigateToScreen(page, 'fogcutter');
     await expect(page.getByText('ACTIVE_OPERATIONS')).toBeVisible();

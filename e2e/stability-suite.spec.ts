@@ -5,6 +5,7 @@ import {
   enableRecordingMock,
   seedAlexPersona,
 } from './helpers/seed';
+import { gotoAppRoot } from './helpers/navigation';
 
 /**
  * Stability Suite — Comprehensive regression and edge-case E2E tests.
@@ -59,7 +60,7 @@ test.describe('Stability — Crash-Free Boot', () => {
 
     await enableE2ETestMode(page);
     await enableCosmicTheme(page);
-    await page.goto('/');
+    await gotoAppRoot(page);
     await expect(page.getByTestId('home-title')).toBeVisible({
       timeout: 20000,
     });
@@ -71,7 +72,7 @@ test.describe('Stability — Crash-Free Boot', () => {
     await enableE2ETestMode(page);
     await enableCosmicTheme(page);
     await seedAlexPersona(page);
-    await page.goto('/');
+    await gotoAppRoot(page);
     await expect(page.getByTestId('home-title')).toBeVisible();
     await expect(page.getByTestId('home-streak')).toHaveText(/STREAK\.\d{3}/);
   });
@@ -87,7 +88,7 @@ test.describe('Stability — All Tabs Render', () => {
     await enableCosmicTheme(page);
     await enableRecordingMock(page);
     await seedAlexPersona(page);
-    await page.goto('/');
+    await gotoAppRoot(page);
     await expect(page.getByTestId('home-title')).toBeVisible();
   });
 
@@ -134,7 +135,7 @@ test.describe('Stability — Mode Card Navigation', () => {
     await enableCosmicTheme(page);
     await enableRecordingMock(page);
     await seedAlexPersona(page);
-    await page.goto('/');
+    await gotoAppRoot(page);
     await expect(page.getByTestId('home-title')).toBeVisible();
   });
 
@@ -154,7 +155,7 @@ test.describe('Stability — Theme Persistence', () => {
   test('cosmic theme survives page reload', async ({ page }) => {
     await enableE2ETestMode(page);
     await enableCosmicTheme(page);
-    await page.goto('/');
+    await gotoAppRoot(page);
     await expect(page.getByTestId('home-title')).toBeVisible();
 
     // Reload
@@ -174,7 +175,7 @@ test.describe('Stability — Theme Persistence', () => {
     await page.addInitScript(() => {
       window.localStorage.setItem('theme', 'phantom');
     });
-    await page.goto('/');
+    await gotoAppRoot(page);
     await expect(page.getByTestId('home-title')).toBeVisible();
 
     // App should not crash - it should gracefully handle phantom
@@ -200,7 +201,7 @@ test.describe('Stability — Animation Safety', () => {
     await enableCosmicTheme(page);
     await enableRecordingMock(page);
     await seedAlexPersona(page);
-    await page.goto('/');
+    await gotoAppRoot(page);
     await expect(page.getByTestId('home-title')).toBeVisible();
 
     // Navigate through all tabs
@@ -220,12 +221,12 @@ test.describe('Stability — Animation Safety', () => {
     await enableCosmicTheme(page);
     await enableRecordingMock(page);
     await seedAlexPersona(page);
-    await page.goto('/');
+    await gotoAppRoot(page);
     await expect(page.getByTestId('home-title')).toBeVisible();
 
     // Navigate to each mode card
     for (const { id } of MODE_CARDS) {
-      await page.goto('/');
+      await gotoAppRoot(page);
       await expect(page.getByTestId('home-title')).toBeVisible();
       await page.getByTestId(`mode-${id}`).click({ force: true });
       await page.waitForTimeout(500);
@@ -246,7 +247,7 @@ test.describe('Stability — Deep Navigation', () => {
     await enableCosmicTheme(page);
     await enableRecordingMock(page);
     await seedAlexPersona(page);
-    await page.goto('/');
+    await gotoAppRoot(page);
     await expect(page.getByTestId('home-title')).toBeVisible();
   });
 
@@ -307,7 +308,7 @@ test.describe('Stability — DOM Node Leak Check', () => {
     await enableE2ETestMode(page);
     await enableCosmicTheme(page);
     await seedAlexPersona(page);
-    await page.goto('/');
+    await gotoAppRoot(page);
     await expect(page.getByTestId('home-title')).toBeVisible();
 
     const initialCount = await page.evaluate(
@@ -356,7 +357,7 @@ test.describe('Stability — Console Error Sweep', () => {
     await enableCosmicTheme(page);
     await enableRecordingMock(page);
     await seedAlexPersona(page);
-    await page.goto('/');
+    await gotoAppRoot(page);
     await expect(page.getByTestId('home-title')).toBeVisible();
 
     // Navigate all tabs
@@ -368,7 +369,7 @@ test.describe('Stability — Console Error Sweep', () => {
     // Navigate all mode cards from home
     await goToTab(page, 'home');
     for (const { id } of MODE_CARDS) {
-      await page.goto('/');
+      await gotoAppRoot(page);
       await expect(page.getByTestId('home-title')).toBeVisible();
       await page.getByTestId(`mode-${id}`).click({ force: true });
       await page.waitForTimeout(500);

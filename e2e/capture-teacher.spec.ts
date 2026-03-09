@@ -13,6 +13,7 @@
 
 import { test, expect, Page } from '@playwright/test';
 import { enableCosmicTheme } from './helpers/seed';
+import { gotoAppRoot } from './helpers/navigation';
 
 // ============================================================================
 // HELPERS
@@ -32,7 +33,7 @@ async function seedCaptureInbox(page: Page, items: object[]): Promise<void> {
 }
 
 async function openCaptureBubble(page: Page): Promise<void> {
-  await page.goto('/');
+  await gotoAppRoot(page);
   await page.waitForLoadState('networkidle');
   await expect(page.getByTestId('capture-bubble')).toBeVisible({
     timeout: 10_000,
@@ -54,7 +55,7 @@ test.describe('Capture Bubble — Teacher Persona (Ms. Torres)', () => {
 
   test('bubble is visible on the home screen', async ({ page }) => {
     await enableCosmicTheme(page);
-    await page.goto('/');
+    await gotoAppRoot(page);
     await page.waitForLoadState('networkidle');
 
     await expect(page.getByTestId('capture-bubble')).toBeVisible({
@@ -83,7 +84,7 @@ test.describe('Capture Bubble — Teacher Persona (Ms. Torres)', () => {
       },
     ]);
 
-    await page.goto('/');
+    await gotoAppRoot(page);
     await page.waitForLoadState('networkidle');
     await expect(page.getByTestId('capture-bubble-badge')).toBeVisible({
       timeout: 10_000,
@@ -114,7 +115,7 @@ test.describe('Capture Bubble — Teacher Persona (Ms. Torres)', () => {
 
   test('teacher captures a text note in ≤ 3 interactions', async ({ page }) => {
     await enableCosmicTheme(page);
-    await page.goto('/');
+    await gotoAppRoot(page);
     await page.waitForLoadState('networkidle');
 
     // Interaction 1: open bubble
@@ -206,7 +207,7 @@ test.describe('Capture Bubble — Teacher Persona (Ms. Torres)', () => {
       },
     ]);
 
-    await page.goto('/');
+    await gotoAppRoot(page);
     await page.waitForLoadState('networkidle');
 
     // Open inbox via bubble long-press or badge tap — or navigate directly
@@ -252,7 +253,7 @@ test.describe('Capture Bubble — Teacher Persona (Ms. Torres)', () => {
       },
     ]);
 
-    await page.goto('/');
+    await gotoAppRoot(page);
     await page.waitForLoadState('networkidle');
     await expect(page.getByTestId('capture-bubble')).toBeVisible({
       timeout: 10_000,
@@ -300,7 +301,7 @@ test.describe('Capture Bubble — Teacher Persona (Ms. Torres)', () => {
       },
     ]);
 
-    await page.goto('/');
+    await gotoAppRoot(page);
     await page.waitForLoadState('networkidle');
 
     const badge = page.getByTestId('capture-bubble-badge');
@@ -339,7 +340,7 @@ test.describe('Capture Bubble — Teacher Persona (Ms. Torres)', () => {
 
   test('bubble is not visible inside Pomodoro modal', async ({ page }) => {
     await enableCosmicTheme(page);
-    await page.goto('/');
+    await gotoAppRoot(page);
     await page.waitForLoadState('networkidle');
 
     // Navigate to Pomodoro via the Focus tab → Pomodoro card
