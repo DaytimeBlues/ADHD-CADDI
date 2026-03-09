@@ -66,4 +66,20 @@ describe('Android security config', () => {
       '<domain-config cleartextTrafficPermitted="true">',
     );
   });
+
+  test('main source set does not keep a stale cleartext network config', () => {
+    const mainConfigPath = path.join(
+      __dirname,
+      '..',
+      'android',
+      'app',
+      'src',
+      'main',
+      'res',
+      'xml',
+      'network_security_config.xml',
+    );
+
+    expect(fs.existsSync(mainConfigPath)).toBe(false);
+  });
 });
