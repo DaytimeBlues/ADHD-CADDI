@@ -184,11 +184,10 @@ jobs:
           arch: x86_64
           profile: pixel_6
           emulator-boot-timeout: 1200
-          emulator-args: -no-window -gpu swiftshader_indirect -no-snapshot-load -no-snapshot-save
-          no-boot-anim: true
+          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim
           disable-animations: true
           script: |
-            set -euo pipefail
+            set -eu
             APK=android/app/build/outputs/apk/release/app-release.apk
             echo "Waiting for emulator to be available..."
             adb wait-for-device
@@ -211,10 +210,12 @@ jobs:
             adb devices
 
             # Retry install up to 3 times to handle transient broken pipe
+            INSTALLED=0
             for attempt in 1 2 3; do
               echo "Installing APK (attempt $attempt)..."
               if adb install -r "$APK"; then
                 echo "APK installed."
+                INSTALLED=1
                 break
               fi
               echo "Install failed (attempt $attempt). Retrying..."
@@ -222,8 +223,15 @@ jobs:
               adb kill-server || true
               adb start-server || true
             done
+            if [ "$INSTALLED" -ne 1 ]; then
+              echo "APK installation failed after retries."
+              exit 1
+            fi
 
             # Launch the app and verify activity is visible
-            adb shell am start -n com.adhdcaddi/.MainActivity 2>&1 || echo "WARNING: am start failed (activity may be named differently)"
+            adb shell am start -n com.adhdcaddi/.MainActivity
             sleep 10
-            adb shell dumpsys window windows | grep -i "com.adhdcaddi" || echo "WARNING: com.adhdcaddi not found in window dump"
+            if ! adb shell dumpsys window windows | grep -i "com.adhdcaddi"; then
+              echo "com.adhdcaddi was not found in the active window dump."
+              exit 1
+            fi
