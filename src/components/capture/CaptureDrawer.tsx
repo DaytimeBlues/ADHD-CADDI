@@ -1,738 +1,40 @@
 /**
  * CaptureDrawer
  *
- * Bottom sheet drawer with 5 capture modes:
- * voice | text | photo | paste | meeting
- *
- * Opens via CaptureBubble FAB. Each mode saves a CaptureItem
- * to the inbox via CaptureService.
+ * Bottom sheet drawer with capture modes.
+ * Opens via CaptureBubble FAB.
  */
 
-import React, { memo, useState, useCallback } from 'react';
+import React, { memo, useState, useCallback, useEffect, useRef } from 'react';
 import {
   View,
   Text,
-  TextInput,
   Pressable,
-  StyleSheet,
-  ActivityIndicator,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { BottomSheet } from '../../ui/cosmic/BottomSheet';
 import CaptureService, { CaptureSource } from '../../services/CaptureService';
-import RecordingService from '../../services/RecordingService';
 import { LoggerService } from '../../services/LoggerService';
-import { RuneButton } from '../../ui/cosmic/RuneButton';
-import { useTaskStore } from '../../store/useTaskStore';
 import type { BubbleState } from './captureTypes';
-import { isWeb } from '../../utils/PlatformUtils';
-
-// ============================================================================
-// TYPES
-// ============================================================================
+import { DrawerMode, MODES, MODE_COPY, C } from './config';
+import { captureStyles as styles } from './styles';
+import {
+  CheckInCaptureMode,
+  MeetingCaptureMode,
+  PasteCaptureMode,
+  PhotoCaptureMode,
+  TaskCaptureMode,
+  TextCaptureMode,
+  VoiceCaptureMode,
+} from './modes';
 
 export interface CaptureDrawerProps {
   visible: boolean;
   onClose: () => void;
-  /** Notify CaptureBubble of state changes (recording, processing, etc.) */
   onStateChange: (state: BubbleState) => void;
   currentBubbleState: BubbleState;
 }
-
-type DrawerMode = CaptureSource | 'task';
-
-// ============================================================================
-// CONSTANTS
-// ============================================================================
-
-const MODES: Array<{ id: DrawerMode; icon: string; label: string }> = [
-  { id: 'task', icon: 'T', label: 'TASK' },
-  { id: 'voice', icon: 'V', label: 'VOICE' },
-  { id: 'text', icon: 'TXT', label: 'TEXT' },
-  { id: 'photo', icon: 'P', label: 'PHOTO' },
-  { id: 'paste', icon: 'PS', label: 'PASTE' },
-  { id: 'meeting', icon: 'M', label: 'MEETING' },
-  { id: 'checkin', icon: 'CI', label: 'CHECK-IN' },
-];
-
-const MODE_COPY: Record<
-  DrawerMode,
-  { title: string; description: string; outcome: string }
-> = {
-  task: {
-    title: 'Create a task now',
-    description:
-      'Use this when you already know the action and do not need triage.',
-    outcome: 'Saves directly to your active task list.',
-  },
-  voice: {
-    title: 'Talk it out',
-    description:
-      'Record first, review the captured note, then send it to the inbox.',
-    outcome: 'Best for fast capture when typing would slow you down.',
-  },
-  text: {
-    title: 'Type a quick note',
-    description:
-      'Good for thoughts, reminders, and rough tasks that need sorting later.',
-    outcome: 'Saves to the inbox for review.',
-  },
-  photo: {
-    title: 'Save a visual reference',
-    description:
-      'Useful for whiteboards, receipts, notes, or anything easier to snap than type.',
-    outcome: 'Stores the image with an optional caption in the inbox.',
-  },
-  paste: {
-    title: 'Drop copied text',
-    description:
-      'Ideal for messages, links, snippets, or notes you grabbed from somewhere else.',
-    outcome: 'Lets you trim the text before saving it to the inbox.',
-  },
-  meeting: {
-    title: 'Capture meeting notes',
-    description:
-      'Starts with a simple template so you can focus on listening, not formatting.',
-    outcome: 'Saves structured notes to the inbox.',
-  },
-  checkin: {
-    title: 'Reset your focus',
-    description:
-      'A quick prompt to notice what you are doing and what you meant to be doing.',
-    outcome: 'Logs a check-in note to the inbox.',
-  },
-};
-
-const MEETING_TEMPLATE = (now: Date): string => {
-  const date = now.toLocaleDateString('en-AU', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
-  const time = now.toLocaleTimeString('en-AU', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-  return `Meeting: ${date} at ${time}\n\nAttendees:\n\nNotes:\n\nAction items:\n`;
-};
-
-// Cosmic colors
-const C = {
-  violet: '#8B5CF6',
-  teal: '#2DD4BF',
-  rose: '#FB7185',
-  gold: '#F6C177',
-  starlight: '#EEF2FF',
-  mist: '#B9C2D9',
-  mutedText: 'rgba(238,242,255,0.56)',
-  surface: 'rgba(18, 26, 52, 0.96)',
-  border: 'rgba(185, 194, 217, 0.12)',
-  activeModeTab: 'rgba(139, 92, 246, 0.15)',
-} as const;
-
-// ============================================================================
-// VOICE MODE
-// ============================================================================
-
-interface VoiceModeProps {
-  onCapture: (raw: string, transcript?: string) => void;
-  onStateChange: (state: BubbleState) => void;
-}
-
-const VoiceMode = memo(function VoiceMode({
-  onCapture,
-  onStateChange,
-}: VoiceModeProps) {
-  const [phase, setPhase] = useState<
-    'idle' | 'recording' | 'processing' | 'done' | 'error'
-  >('idle');
-  const [elapsedMs, setElapsedMs] = useState(0);
-  const [transcript, setTranscript] = useState('');
-  const [errorMsg, setErrorMsg] = useState('');
-  const timerRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
-
-  const startTimer = useCallback(() => {
-    setElapsedMs(0);
-    timerRef.current = setInterval(() => {
-      setElapsedMs((prev) => prev + 100);
-    }, 100);
-  }, []);
-
-  const stopTimer = useCallback(() => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-  }, []);
-
-  // Cleanup interval on unmount
-  React.useEffect(() => {
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
-  }, []);
-
-  const handleStartRecording = useCallback(async () => {
-    setErrorMsg('');
-    const granted = await RecordingService.requestPermissions();
-    if (!granted) {
-      setPhase('error');
-      setErrorMsg('Microphone permission denied. Tap to grant access.');
-      return;
-    }
-    const started = await RecordingService.startRecording();
-    if (!started) {
-      setPhase('error');
-      setErrorMsg('Could not start recording. Please try again.');
-      return;
-    }
-    setPhase('recording');
-    onStateChange('recording');
-    startTimer();
-  }, [onStateChange, startTimer]);
-
-  const handleStopRecording = useCallback(async () => {
-    stopTimer();
-    setPhase('processing');
-    onStateChange('processing');
-    const result = await RecordingService.stopRecording();
-    if (!result) {
-      setPhase('error');
-      setErrorMsg('Recording failed. Please try again.');
-      onStateChange('idle');
-      return;
-    }
-    // In v1, use uri as raw - transcription is async/future
-    // For now, create a placeholder transcript
-    const rawText = `[Voice note - ${Math.round(result.duration / 1000)}s recording]`;
-    setTranscript(rawText);
-    setPhase('done');
-    onStateChange('idle');
-  }, [stopTimer, onStateChange]);
-
-  const handleConfirm = useCallback(() => {
-    onCapture(transcript, transcript);
-  }, [onCapture, transcript]);
-
-  const handleDiscard = useCallback(() => {
-    setPhase('idle');
-    setTranscript('');
-    setErrorMsg('');
-    onStateChange('idle');
-  }, [onStateChange]);
-
-  const elapsed = `${Math.floor(elapsedMs / 60000)}:${String(Math.floor((elapsedMs % 60000) / 1000)).padStart(2, '0')}`;
-
-  return (
-    <View style={styles.modeContent}>
-      {phase === 'idle' && (
-        <RuneButton
-          variant="primary"
-          onPress={handleStartRecording}
-          leftIcon={<Text style={styles.recordBtnIcon}>REC</Text>}
-          style={styles.recordBtn}
-        >
-          TAP TO RECORD
-        </RuneButton>
-      )}
-
-      {phase === 'recording' && (
-        <View style={styles.recordingActive}>
-          <View
-            style={[styles.recordingIndicator, { backgroundColor: C.teal }]}
-          />
-          <Text style={[styles.recordingTime, { color: C.teal }]}>
-            {elapsed}
-          </Text>
-          <Text style={[styles.recordingHint, { color: C.mutedText }]}>
-            Recording...
-          </Text>
-          <RuneButton
-            variant="secondary"
-            size="md"
-            onPress={handleStopRecording}
-            style={[styles.stopBtn, { borderColor: C.teal }]}
-          >
-            STOP
-          </RuneButton>
-        </View>
-      )}
-
-      {phase === 'processing' && (
-        <View style={styles.processingState}>
-          <ActivityIndicator size="large" color={C.violet} />
-          <Text style={[styles.processingText, { color: C.mutedText }]}>
-            Processing...
-          </Text>
-        </View>
-      )}
-
-      {phase === 'done' && (
-        <View style={styles.transcriptContainer}>
-          <Text style={[styles.transcriptLabel, { color: C.mutedText }]}>
-            CAPTURED
-          </Text>
-          <Text style={[styles.transcriptText, { color: C.starlight }]}>
-            {transcript}
-          </Text>
-          <View style={styles.confirmRow}>
-            <RuneButton
-              variant="primary"
-              onPress={handleConfirm}
-              style={styles.confirmBtn}
-            >
-              SAVE TO INBOX
-            </RuneButton>
-            <RuneButton
-              variant="danger"
-              onPress={handleDiscard}
-              style={styles.discardBtn}
-            >
-              DISCARD
-            </RuneButton>
-          </View>
-        </View>
-      )}
-
-      {phase === 'error' && (
-        <View style={styles.errorState}>
-          <Text style={[styles.errorText, { color: C.rose }]}>{errorMsg}</Text>
-          <Pressable
-            style={[styles.retryBtn, { borderColor: C.violet }]}
-            onPress={() => {
-              setPhase('idle');
-              setErrorMsg('');
-            }}
-            accessibilityLabel="Try again"
-            accessibilityRole="button"
-          >
-            <Text style={[styles.retryBtnText, { color: C.violet }]}>
-              TRY AGAIN
-            </Text>
-          </Pressable>
-        </View>
-      )}
-    </View>
-  );
-});
-
-// ============================================================================
-// TEXT MODE
-// ============================================================================
-
-interface TextModeProps {
-  onCapture: (raw: string) => void;
-}
-
-const TextMode = memo(function TextMode({ onCapture }: TextModeProps) {
-  const [text, setText] = useState('');
-
-  const handleConfirm = useCallback(() => {
-    const trimmed = text.trim();
-    if (!trimmed) {
-      return;
-    }
-    onCapture(trimmed);
-    setText('');
-  }, [text, onCapture]);
-
-  return (
-    <View style={styles.modeContent}>
-      <TextInput
-        testID="capture-text-input"
-        style={[
-          styles.textInput,
-          { color: C.starlight, borderColor: C.border },
-        ]}
-        value={text}
-        onChangeText={setText}
-        placeholder="Type anything - tasks, thoughts, ideas..."
-        placeholderTextColor={C.mutedText}
-        multiline
-        autoFocus
-        numberOfLines={4}
-        textAlignVertical="top"
-        returnKeyType="default"
-        accessibilityLabel="Capture text input"
-      />
-      <RuneButton
-        onPress={handleConfirm}
-        disabled={!text.trim()}
-        variant="primary"
-        style={styles.marginTop12}
-      >
-        SAVE TO INBOX
-      </RuneButton>
-    </View>
-  );
-});
-
-// ============================================================================
-// PASTE MODE
-// ============================================================================
-
-interface PasteModeProps {
-  onCapture: (raw: string) => void;
-}
-
-const PasteMode = memo(function PasteMode({ onCapture }: PasteModeProps) {
-  const [text, setText] = useState('');
-  const [isPasting, setIsPasting] = useState(false);
-
-  const handleAutoPaste = useCallback(async () => {
-    setIsPasting(true);
-    try {
-      if (isWeb) {
-        // navigator.clipboard is a web-only API; cast for type safety
-        const webNavigator = navigator as typeof navigator & {
-          clipboard?: { readText: () => Promise<string> };
-        };
-        if (webNavigator.clipboard) {
-          const pasted = await webNavigator.clipboard.readText();
-          setText(pasted);
-        }
-      } else {
-        // React Native Clipboard not available without @react-native-clipboard/clipboard
-        // Fall back to manual text entry
-        setText('');
-      }
-    } catch (err) {
-      LoggerService.error({
-        service: 'CaptureDrawer',
-        operation: 'handleAutoPaste',
-        message: 'Clipboard read error',
-        error: err,
-      });
-    } finally {
-      setIsPasting(false);
-    }
-  }, []);
-
-  React.useEffect(() => {
-    handleAutoPaste();
-  }, [handleAutoPaste]);
-
-  const handleConfirm = useCallback(() => {
-    const trimmed = text.trim();
-    if (!trimmed) {
-      return;
-    }
-    onCapture(trimmed);
-    setText('');
-  }, [text, onCapture]);
-
-  return (
-    <View style={styles.modeContent}>
-      {isPasting ? (
-        <ActivityIndicator color={C.violet} size="small" />
-      ) : (
-        <>
-          <Text style={[styles.pasteHint, { color: C.mutedText }]}>
-            {text ? 'Edit before saving:' : 'Paste or type content:'}
-          </Text>
-          <TextInput
-            testID="capture-text-input"
-            style={[
-              styles.textInput,
-              { color: C.starlight, borderColor: C.border },
-            ]}
-            value={text}
-            onChangeText={setText}
-            placeholder="Paste text here..."
-            placeholderTextColor={C.mutedText}
-            multiline
-            numberOfLines={4}
-            textAlignVertical="top"
-            accessibilityLabel="Paste capture input"
-          />
-          <RuneButton
-            onPress={handleConfirm}
-            disabled={!text.trim()}
-            variant="primary"
-            style={styles.marginTop12}
-          >
-            SAVE TO INBOX
-          </RuneButton>
-        </>
-      )}
-    </View>
-  );
-});
-
-// ============================================================================
-// MEETING MODE
-// ============================================================================
-
-interface MeetingModeProps {
-  onCapture: (raw: string) => void;
-}
-
-const MeetingMode = memo(function MeetingMode({ onCapture }: MeetingModeProps) {
-  const [notes, setNotes] = useState(() => MEETING_TEMPLATE(new Date()));
-
-  const handleConfirm = useCallback(() => {
-    const trimmed = notes.trim();
-    if (!trimmed) {
-      return;
-    }
-    onCapture(trimmed);
-    setNotes(MEETING_TEMPLATE(new Date()));
-  }, [notes, onCapture]);
-
-  return (
-    <View style={styles.modeContent}>
-      <Text style={[styles.meetingLabel, { color: C.mutedText }]}>
-        MEETING NOTES
-      </Text>
-      <TextInput
-        testID="capture-meeting-input"
-        style={[
-          styles.textInputMeeting,
-          { color: C.starlight, borderColor: C.border },
-        ]}
-        value={notes}
-        onChangeText={setNotes}
-        multiline
-        textAlignVertical="top"
-        accessibilityLabel="Meeting notes input"
-      />
-      <RuneButton
-        onPress={handleConfirm}
-        variant="primary"
-        style={styles.marginTop12}
-      >
-        SAVE MEETING NOTES
-      </RuneButton>
-    </View>
-  );
-});
-
-// ============================================================================
-// PHOTO MODE
-// ============================================================================
-
-interface PhotoModeProps {
-  onCapture: (raw: string, attachmentUri?: string) => void;
-}
-
-const PhotoMode = memo(function PhotoMode({ onCapture }: PhotoModeProps) {
-  const [selectedUri, setSelectedUri] = useState<string | null>(null);
-  const [caption, setCaption] = useState('');
-
-  const handlePickFile = useCallback(() => {
-    if (isWeb) {
-      // document and HTMLInputElement are web-only APIs; use globalThis cast
-      const doc = (
-        globalThis as typeof globalThis & {
-          document?: {
-            createElement: (tag: 'input') => {
-              type: string;
-              accept: string;
-              onchange:
-                | ((e: {
-                    target: { files?: { 0?: { name: string } } };
-                  }) => void)
-                | null;
-              click: () => void;
-            };
-          };
-        }
-      ).document;
-      if (!doc) {
-        return;
-      }
-      const input = doc.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
-      input.onchange = (e) => {
-        const files = (e.target as { files?: { 0?: unknown; length: number } })
-          .files;
-        const file = files?.[0];
-        if (file) {
-          const uri = URL.createObjectURL(file as unknown as Blob);
-          setSelectedUri(uri);
-        }
-      };
-      input.click();
-    }
-    // Native: would use react-native-image-picker (v2 scope)
-  }, []);
-
-  const handleConfirm = useCallback(() => {
-    const raw = caption.trim() || '[Photo capture]';
-    onCapture(raw, selectedUri ?? undefined);
-    setSelectedUri(null);
-    setCaption('');
-  }, [caption, selectedUri, onCapture]);
-
-  return (
-    <View style={styles.modeContent}>
-      {selectedUri ? (
-        <View style={styles.photoPreview}>
-          <Text style={[styles.photoPreviewLabel, { color: C.mutedText }]}>
-            Photo selected
-          </Text>
-          <TextInput
-            testID="capture-text-input"
-            style={[
-              styles.textInput,
-              { color: C.starlight, borderColor: C.border },
-            ]}
-            value={caption}
-            onChangeText={setCaption}
-            placeholder="Add a caption (optional)..."
-            placeholderTextColor={C.mutedText}
-            accessibilityLabel="Photo caption input"
-          />
-          <RuneButton
-            onPress={handleConfirm}
-            variant="primary"
-            style={styles.marginTop12}
-          >
-            SAVE TO INBOX
-          </RuneButton>
-        </View>
-      ) : (
-        <Pressable
-          style={[styles.photoPickBtn, { borderColor: C.violet }]}
-          onPress={handlePickFile}
-          accessibilityLabel="Select a photo"
-          accessibilityRole="button"
-        >
-          <Text style={styles.photoPickIcon}>IMG</Text>
-          <Text style={[styles.photoPickLabel, { color: C.violet }]}>
-            SELECT PHOTO
-          </Text>
-          {!isWeb && (
-            <Text style={[styles.photoPickHint, { color: C.mutedText }]}>
-              Camera/gallery coming in v2
-            </Text>
-          )}
-        </Pressable>
-      )}
-    </View>
-  );
-});
-
-// ============================================================================
-// CHECK-IN MODE
-// ============================================================================
-
-interface CheckInModeProps {
-  onCapture: (raw: string) => void;
-}
-
-const CheckInMode = memo(function CheckInMode({ onCapture }: CheckInModeProps) {
-  const [text, setText] = useState('');
-
-  const handleConfirm = useCallback(() => {
-    const trimmed = text.trim();
-    if (!trimmed) {
-      return;
-    }
-    onCapture(`[Check-In]\n${trimmed}`);
-    setText('');
-  }, [text, onCapture]);
-
-  return (
-    <View style={styles.modeContent}>
-      <Text style={[styles.meetingLabel, styles.checkInPrompt]}>
-        What are you doing?{'\n'}What should you be doing?
-      </Text>
-
-      <TextInput
-        testID="capture-checkin-input"
-        style={[
-          styles.textInput,
-          { color: C.starlight, borderColor: C.border },
-        ]}
-        value={text}
-        onChangeText={setText}
-        placeholder="Log your progress here..."
-        placeholderTextColor={C.mutedText}
-        multiline
-        autoFocus
-        numberOfLines={6}
-        textAlignVertical="top"
-        accessibilityLabel="Check-in input"
-      />
-      <RuneButton
-        onPress={handleConfirm}
-        disabled={!text.trim()}
-        variant={text.trim() ? 'primary' : 'secondary'}
-        style={styles.marginTop12}
-      >
-        LOG PROGRESS
-      </RuneButton>
-    </View>
-  );
-});
-
-// ============================================================================
-// TASK MODE
-// ============================================================================
-
-interface TaskModeProps {
-  onSuccess: () => void;
-}
-
-const TaskMode = memo(function TaskMode({ onSuccess }: TaskModeProps) {
-  const [title, setTitle] = useState('');
-  const addTaskStore = useTaskStore((state) => state.addTask);
-
-  const handleConfirm = useCallback(() => {
-    const trimmed = title.trim();
-    if (!trimmed) {
-      return;
-    }
-    addTaskStore({
-      title: trimmed,
-      priority: 'normal',
-      source: 'manual',
-    });
-    setTitle('');
-    onSuccess();
-  }, [title, addTaskStore, onSuccess]);
-
-  return (
-    <View style={styles.modeContent}>
-      <Text style={[styles.meetingLabel, { color: C.mutedText }]}>
-        NEW MISSION
-      </Text>
-      <TextInput
-        testID="capture-task-input"
-        style={[
-          styles.textInput,
-          { color: C.starlight, borderColor: C.border },
-        ]}
-        value={title}
-        onChangeText={setTitle}
-        placeholder="What needs to be done?"
-        placeholderTextColor={C.mutedText}
-        multiline
-        autoFocus
-        numberOfLines={2}
-        textAlignVertical="top"
-        accessibilityLabel="Task title input"
-      />
-      <RuneButton
-        variant="primary"
-        onPress={handleConfirm}
-        disabled={!title.trim()}
-        style={styles.marginTop12}
-      >
-        ADD TASK
-      </RuneButton>
-    </View>
-  );
-});
-
-// ============================================================================
-// MAIN DRAWER
-// ============================================================================
 
 export const CaptureDrawer = memo(function CaptureDrawer({
   visible,
@@ -744,18 +46,15 @@ export const CaptureDrawer = memo(function CaptureDrawer({
   const [successMsg, setSuccessMsg] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const successTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(
-    null,
-  );
+  const successTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (visible && currentBubbleState === 'needs-checkin') {
       setActiveMode('checkin');
     }
   }, [visible, currentBubbleState]);
 
-  // Cleanup success timeout on unmount
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
       if (successTimeoutRef.current) {
         clearTimeout(successTimeoutRef.current);
@@ -832,6 +131,7 @@ export const CaptureDrawer = memo(function CaptureDrawer({
       handleCapture('photo', raw, { attachmentUri }),
     [handleCapture],
   );
+
   const currentModeCopy = MODE_COPY[activeMode];
 
   return (
@@ -858,7 +158,6 @@ export const CaptureDrawer = memo(function CaptureDrawer({
         </Text>
       </View>
 
-      {/* Success flash */}
       {successMsg !== '' && (
         <View style={styles.successBanner}>
           <Text style={[styles.successText, { color: C.teal }]}>
@@ -867,7 +166,6 @@ export const CaptureDrawer = memo(function CaptureDrawer({
         </View>
       )}
 
-      {/* Error banner */}
       {saveError !== null && (
         <View style={[styles.successBanner, styles.errorBanner]}>
           <Text style={[styles.successText, { color: C.rose }]}>
@@ -876,7 +174,6 @@ export const CaptureDrawer = memo(function CaptureDrawer({
         </View>
       )}
 
-      {/* Loading overlay */}
       {isSaving && (
         <View style={styles.loadingOverlay}>
           <ActivityIndicator size="small" color={C.violet} />
@@ -886,7 +183,6 @@ export const CaptureDrawer = memo(function CaptureDrawer({
         </View>
       )}
 
-      {/* Mode tabs */}
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -922,29 +218,33 @@ export const CaptureDrawer = memo(function CaptureDrawer({
         ))}
       </ScrollView>
 
-      {/* Active mode content */}
       <View style={styles.modePanel}>
         {activeMode === 'task' && (
-          <TaskMode onSuccess={() => showSuccess('Task added')} />
+          <TaskCaptureMode onSuccess={() => showSuccess('Task added')} />
         )}
         {activeMode === 'voice' && (
-          <VoiceMode
+          <VoiceCaptureMode
             onCapture={handleVoiceCapture}
             onStateChange={onStateChange}
           />
         )}
-        {activeMode === 'text' && <TextMode onCapture={handleTextCapture} />}
-        {activeMode === 'paste' && <PasteMode onCapture={handlePasteCapture} />}
+        {activeMode === 'text' && (
+          <TextCaptureMode onCapture={handleTextCapture} />
+        )}
+        {activeMode === 'paste' && (
+          <PasteCaptureMode onCapture={handlePasteCapture} />
+        )}
         {activeMode === 'meeting' && (
-          <MeetingMode onCapture={handleMeetingCapture} />
+          <MeetingCaptureMode onCapture={handleMeetingCapture} />
         )}
         {activeMode === 'checkin' && (
-          <CheckInMode onCapture={handleCheckInCapture} />
+          <CheckInCaptureMode onCapture={handleCheckInCapture} />
         )}
-        {activeMode === 'photo' && <PhotoMode onCapture={handlePhotoCapture} />}
+        {activeMode === 'photo' && (
+          <PhotoCaptureMode onCapture={handlePhotoCapture} />
+        )}
       </View>
 
-      {/* Offline banner */}
       {currentBubbleState === 'offline' && (
         <View style={styles.offlineBanner}>
           <Text style={[styles.offlineText, { color: C.gold }]}>
@@ -954,353 +254,6 @@ export const CaptureDrawer = memo(function CaptureDrawer({
       )}
     </BottomSheet>
   );
-});
-
-// ============================================================================
-// STYLES
-// ============================================================================
-
-const styles = StyleSheet.create({
-  // Common spacers
-  marginTop12: {
-    marginTop: 12,
-  },
-  introCard: {
-    marginHorizontal: 16,
-    marginTop: 4,
-    marginBottom: 2,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderRadius: 16,
-    backgroundColor: 'rgba(17, 26, 51, 0.72)',
-    borderWidth: 1,
-    borderColor: 'rgba(185, 194, 217, 0.12)',
-    gap: 4,
-  },
-  introEyebrow: {
-    fontSize: 10,
-    fontWeight: '700',
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
-  },
-  introTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-  },
-  introDescription: {
-    fontSize: 13,
-    lineHeight: 18,
-  },
-  introOutcome: {
-    fontSize: 12,
-    lineHeight: 17,
-    fontWeight: '600',
-  },
-
-  // Mode tabs
-  modeTabsScroll: {
-    maxHeight: 64,
-  },
-  modeTabsContent: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    gap: 8,
-  },
-  modeTab: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(185, 194, 217, 0.15)',
-    gap: 5,
-  },
-  modeTabIcon: {
-    fontSize: 14,
-  },
-  modeTabLabel: {
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 0.8,
-  },
-
-  // Mode panel
-  modePanel: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 12,
-  },
-  modeContent: {
-    flex: 1,
-  },
-
-  // Voice mode
-  recordBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    paddingVertical: 20,
-    borderRadius: 14,
-    marginTop: 8,
-  },
-  recordBtnIcon: {
-    fontSize: 22,
-  },
-  recordBtnLabel: {
-    color: '#EEF2FF',
-    fontSize: 13,
-    fontWeight: '700',
-    letterSpacing: 1.2,
-  },
-  recordingActive: {
-    alignItems: 'center',
-    paddingVertical: 16,
-    gap: 8,
-  },
-  recordingIndicator: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-  },
-  recordingTime: {
-    fontSize: 32,
-    fontWeight: '300',
-    letterSpacing: 2,
-    fontVariant: ['tabular-nums'],
-  },
-  recordingHint: {
-    fontSize: 12,
-    letterSpacing: 1,
-  },
-  stopBtn: {
-    marginTop: 8,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-  },
-  stopBtnText: {
-    fontSize: 13,
-    fontWeight: '700',
-    letterSpacing: 1,
-  },
-  processingState: {
-    alignItems: 'center',
-    paddingVertical: 28,
-    gap: 12,
-  },
-  processingText: {
-    fontSize: 13,
-    letterSpacing: 1,
-  },
-  transcriptContainer: {
-    gap: 10,
-    paddingTop: 8,
-  },
-  transcriptLabel: {
-    fontSize: 10,
-    fontWeight: '700',
-    letterSpacing: 1.5,
-  },
-  transcriptText: {
-    fontSize: 15,
-    lineHeight: 22,
-  },
-  confirmRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginTop: 4,
-  },
-
-  // Shared confirm/discard
-  confirmBtn: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14,
-    borderRadius: 10,
-  },
-  confirmBtnText: {
-    color: '#EEF2FF',
-    fontSize: 13,
-    fontWeight: '700',
-    letterSpacing: 1,
-  },
-  discardBtn: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    borderRadius: 10,
-    borderWidth: 1,
-  },
-  discardBtnText: {
-    fontSize: 12,
-    fontWeight: '600',
-    letterSpacing: 0.8,
-  },
-
-  // Error / retry
-  errorState: {
-    alignItems: 'center',
-    paddingVertical: 20,
-    gap: 12,
-  },
-  errorText: {
-    fontSize: 14,
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  retryBtn: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-  },
-  retryBtnText: {
-    fontSize: 12,
-    fontWeight: '700',
-    letterSpacing: 0.8,
-  },
-
-  // Text input
-  textInput: {
-    borderWidth: 1,
-    borderRadius: 10,
-    padding: 12,
-    fontSize: 15,
-    minHeight: 100,
-    backgroundColor: 'rgba(7, 7, 18, 0.4)',
-  },
-  textInputMeeting: {
-    borderWidth: 1,
-    borderRadius: 10,
-    padding: 12,
-    fontSize: 14,
-    minHeight: 160,
-    backgroundColor: 'rgba(7, 7, 18, 0.4)',
-    lineHeight: 22,
-  },
-
-  // Paste mode
-  pasteHint: {
-    fontSize: 11,
-    letterSpacing: 0.8,
-    marginBottom: 8,
-  },
-
-  // Meeting mode
-  meetingLabel: {
-    fontSize: 10,
-    fontWeight: '700',
-    letterSpacing: 1.5,
-    marginBottom: 8,
-  },
-
-  // Photo mode
-  photoPickBtn: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 32,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderStyle: 'dashed',
-    gap: 8,
-    marginTop: 8,
-  },
-  photoPickIcon: {
-    fontSize: 32,
-  },
-  photoPickLabel: {
-    fontSize: 13,
-    fontWeight: '700',
-    letterSpacing: 1,
-  },
-  photoPickHint: {
-    fontSize: 11,
-    textAlign: 'center',
-  },
-  photoPreview: {
-    gap: 10,
-  },
-  photoPreviewLabel: {
-    fontSize: 12,
-    letterSpacing: 0.5,
-  },
-
-  // Check-in specific
-  checkInPrompt: {
-    color: C.starlight,
-    marginBottom: 8,
-    fontSize: 16,
-    lineHeight: 22,
-  },
-  checkInBtnTextActive: {
-    color: '#070712',
-  },
-  checkInBtnTextDisabled: {
-    color: '#888',
-  },
-
-  // Success banner
-  successBanner: {
-    marginHorizontal: 20,
-    marginTop: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    backgroundColor: 'rgba(45, 212, 191, 0.15)',
-  },
-
-  errorBanner: {
-    backgroundColor: 'rgba(251, 113, 133, 0.15)',
-  },
-
-  successText: {
-    fontSize: 13,
-    fontWeight: '600',
-    letterSpacing: 0.5,
-  },
-
-  // Offline banner
-  offlineBanner: {
-    marginHorizontal: 20,
-    marginBottom: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    backgroundColor: 'rgba(246, 193, 119, 0.12)',
-  },
-
-  offlineText: {
-    fontSize: 12,
-    letterSpacing: 0.5,
-  },
-
-  // Loading overlay
-  loadingOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(7, 7, 18, 0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 100,
-    gap: 8,
-  },
-
-  loadingText: {
-    fontSize: 13,
-    fontWeight: '500',
-    letterSpacing: 0.5,
-  },
 });
 
 export default CaptureDrawer;
