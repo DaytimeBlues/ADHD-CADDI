@@ -10,3 +10,55 @@ paths = [
   "^bundle\\..*\\.js$",
   "^gitleaks-.*\\.json$",
 ]
+
+
+# ---------------------------------------------------------------------------
+# Custom rules: Google / Firebase secrets
+# These are IN ADDITION to the default ruleset (useDefault = true above).
+# The Google OAuth Client Secret is the sensitive part - the Client ID is
+# public but we still flag it outside of .env.example and docs/ to prevent
+# accidental hardcoding in source files.
+# ---------------------------------------------------------------------------
+
+[[rules]]
+id = "google-oauth-client-secret"
+description = "Google OAuth Client Secret"
+regex = '''[Cc]lient.{0,20}[Ss]ecret.{0,20}['"]([a-zA-Z0-9_-]{24,})['"]'''
+tags = ["google", "oauth", "secret"]
+
+[[rules]]
+id = "google-api-key"
+description = "Google API Key (AIza...)"
+regex = '''AIza[0-9A-Za-z\-_]{35}'''
+tags = ["google", "api-key"]
+
+[[rules]]
+id = "firebase-api-key"
+description = "Firebase Web API Key in source code"
+regex = '''[Ff]irebase.{0,30}[Aa][Pp][Ii].{0,10}[Kk]ey.{0,10}['"]([A-Za-z0-9_-]{30,})['"]'''
+tags = ["firebase", "api-key"]
+
+[[rules]]
+id = "google-service-account-key"
+description = "Google Service Account private key"
+regex = '''-----BEGIN (RSA |EC )?PRIVATE KEY-----'''
+tags = ["google", "service-account", "private-key"]
+
+[[rules]]
+id = "google-oauth-client-id-hardcoded"
+description = "Google OAuth Client ID hardcoded in source (should be in .env only)"
+regex = '''[0-9]{12}-[a-z0-9]{32}\.apps\.googleusercontent\.com'''
+tags = ["google", "oauth", "client-id"]
+[rules.allowlist]
+  # Allow it in .env.example (template file) and docs (reference docs)
+  paths = [
+    '''\.env\.example''',
+    '''^docs/.*\.md$''',
+    '''google-services\.json\.example''',
+  ]
+  # Allow it in .env itself (runtime config - already git-ignored)
+  regexTarget = "line"
+  regexes = [
+    '''EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID''',
+    '''EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID''',
+  ]
