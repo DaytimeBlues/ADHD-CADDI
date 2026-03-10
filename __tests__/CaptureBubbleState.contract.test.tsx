@@ -66,7 +66,6 @@ jest.mock('../src/components/capture/CaptureBubbleFab', () => ({
     bubbleState: string;
     totalBadgeCount: number;
   }) => {
-    const React = require('react');
     const { Text, View } = require('react-native');
     return (
       <View>

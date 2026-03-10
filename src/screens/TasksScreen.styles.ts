@@ -60,6 +60,9 @@ export const getTasksScreenStyles = () =>
       fontSize: 28,
       fontWeight: '700',
     },
+    statValueCompleted: {
+      color: '#EEF2FF',
+    },
     statLabel: {
       fontSize: 9,
       fontWeight: '700',
@@ -113,6 +116,9 @@ export const getTasksScreenStyles = () =>
       justifyContent: 'center',
       alignItems: 'center',
       marginRight: 16,
+    },
+    checkboxDefault: {
+      borderColor: 'rgba(185, 194, 217, 0.3)',
     },
     checkmark: {
       color: '#FFFFFF',

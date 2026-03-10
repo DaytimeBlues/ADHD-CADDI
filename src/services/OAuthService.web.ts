@@ -1,6 +1,6 @@
 /// <reference lib="dom" />
-import { OAuthWebAdapter } from './oauth';
-import type { GoogleAuthData, TodoistAuthData } from './oauth';
+import type { GoogleAuthData, TodoistAuthData } from './oauth/OAuthShared';
+import { OAuthWebAdapter } from './oauth/OAuthWebAdapter';
 
 const OAuthService = new OAuthWebAdapter({
   getItem: async (key) => localStorage.getItem(key),

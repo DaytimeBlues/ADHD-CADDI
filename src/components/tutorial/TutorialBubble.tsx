@@ -7,8 +7,8 @@ import {
   Dimensions,
 } from 'react-native';
 import Animated, { FadeInUp, Layout } from 'react-native-reanimated';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
+import AppIcon from '../AppIcon';
 import { GlowCard } from '../../ui/cosmic/GlowCard';
 import { RuneButton } from '../../ui/cosmic/RuneButton';
 import { Tokens } from '../../theme/tokens';
@@ -122,7 +122,7 @@ export const TutorialBubble: React.FC<TutorialBubbleProps> = ({
         {/* Icon */}
         {step.iconName && (
           <View style={styles.iconContainer}>
-            <MaterialCommunityIcons
+            <AppIcon
               name={step.iconName}
               size={32}
               color={accentColor}

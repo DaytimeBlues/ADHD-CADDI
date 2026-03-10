@@ -6,13 +6,13 @@ import {
 } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Tokens } from '../theme/tokens';
 import { useTheme } from '../theme/useTheme';
 import { WebNavBar } from './WebNavBar';
 import { ROUTES } from './routes';
 import { CaptureBubble } from '../components/capture';
 import ErrorBoundary from '../components/ErrorBoundary';
+import AppIcon from '../components/AppIcon';
 
 import { isWeb } from '../utils/PlatformUtils';
 
@@ -88,23 +88,23 @@ type TabBarIconProps = {
 const renderWebTabBar = (props: BottomTabBarProps) => <WebNavBar {...props} />;
 
 const HomeTabIcon = ({ color }: TabBarIconProps) => (
-  <Icon name="home" size={24} color={color} />
+  <AppIcon name="home" size={24} color={color} />
 );
 
 const FocusTabIcon = ({ color }: TabBarIconProps) => (
-  <Icon name="fire" size={24} color={color} />
+  <AppIcon name="fire" size={24} color={color} />
 );
 
 const TasksTabIcon = ({ color }: TabBarIconProps) => (
-  <Icon name="text-box-outline" size={24} color={color} />
+  <AppIcon name="text-box-outline" size={24} color={color} />
 );
 
 const CalendarTabIcon = ({ color }: TabBarIconProps) => (
-  <Icon name="calendar" size={24} color={color} />
+  <AppIcon name="calendar" size={24} color={color} />
 );
 
 const ChatTabIcon = ({ color }: TabBarIconProps) => (
-  <Icon name="message-text-outline" size={24} color={color} />
+  <AppIcon name="message-text-outline" size={24} color={color} />
 );
 
 const SuspenseFallback = () => (

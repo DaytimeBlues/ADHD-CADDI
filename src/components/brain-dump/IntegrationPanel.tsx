@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import AppIcon from '../AppIcon';
 import { useTheme } from '../../theme/useTheme';
 import { Tokens } from '../../theme/tokens';
 import {
@@ -162,7 +162,7 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
       {/* Google Integration */}
       <View style={styles.integrationRow}>
         <View style={styles.iconContainer}>
-          <Icon name="google" size={20} color="#4285F4" />
+          <AppIcon name="google" size={20} color="#4285F4" />
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.integrationName}>Google Tasks</Text>
@@ -204,7 +204,7 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
       {/* Todoist Integration */}
       <View style={styles.integrationRow}>
         <View style={styles.iconContainer}>
-          <Icon name="check-circle-outline" size={20} color="#E44332" />
+          <AppIcon name="check-circle-outline" size={20} color="#E44332" />
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.integrationName}>Todoist</Text>
@@ -254,7 +254,7 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
           ]}
           testID="google-status-connected"
         >
-          <Icon
+          <AppIcon
             name={googleAuth?.connected ? 'check' : 'close'}
             size={12}
             color="#FFF"
@@ -273,7 +273,7 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
           ]}
           testID="todoist-status-connected"
         >
-          <Icon
+          <AppIcon
             name={todoistAuth?.connected ? 'check' : 'close'}
             size={12}
             color="#FFF"

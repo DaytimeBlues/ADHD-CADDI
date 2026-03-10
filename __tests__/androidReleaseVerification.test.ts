@@ -39,6 +39,15 @@ describe('Android release verification script', () => {
     expect(script).toContain('pidof com.adhdcaddi');
     expect(script).toMatch(/wait_for_app_ready[\s\S]*pidof com\.adhdcaddi/);
   });
+
+  test('accepts resumed activity as a valid foreground signal', () => {
+    const script = fs.readFileSync(scriptPath, 'utf8');
+
+    expect(script).toContain('is_app_foregrounded()');
+    expect(script).toContain('mResumedActivity');
+    expect(script).toContain('dumpsys activity top');
+    expect(script).toMatch(/is_app_foregrounded[\s\S]*mCurrentFocus/);
+  });
 });
 
 describe('Android release workflow', () => {

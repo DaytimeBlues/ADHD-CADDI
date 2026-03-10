@@ -13,6 +13,11 @@ import OverlayService from '../../services/OverlayService';
 import { useTaskStore } from '../../store/useTaskStore';
 import { isWeb } from '../../utils/PlatformUtils';
 import { PULSE_DURATION, SPIN_DURATION } from './captureBubbleConstants';
+import {
+  getNextStateForBadgeCount,
+  getNextStateForCheckIn,
+  getRecoveryStateAfterFailure,
+} from './captureStateMachine';
 import type { BubbleState } from './captureTypes';
 
 export interface UseCaptureBubbleStateReturn {
@@ -56,30 +61,22 @@ export function useCaptureBubbleState(): UseCaptureBubbleStateReturn {
   useEffect(() => {
     const unsub = CaptureService.subscribe((count) => {
       setBadgeCount(count);
-      if (count > 0 && bubbleState === 'idle') {
-        setBubbleState('needs-review');
-      } else if (count === 0 && bubbleState === 'needs-review') {
-        setBubbleState('idle');
-      }
+      setBubbleState((currentState) =>
+        getNextStateForBadgeCount(currentState, count),
+      );
     });
     return unsub;
-  }, [bubbleState]);
+  }, []);
 
   // Subscribe to check-in interval
   useEffect(() => {
     const unsub = CheckInService.subscribe((isPending) => {
-      if (
-        isPending &&
-        bubbleState !== 'recording' &&
-        bubbleState !== 'processing'
-      ) {
-        setBubbleState('needs-checkin');
-      } else if (!isPending && bubbleState === 'needs-checkin') {
-        setBubbleState(badgeCount > 0 ? 'needs-review' : 'idle');
-      }
+      setBubbleState((currentState) =>
+        getNextStateForCheckIn(currentState, isPending, badgeCount),
+      );
     });
     return unsub;
-  }, [bubbleState, badgeCount]);
+  }, [badgeCount]);
 
   // Pulse animation (recording state)
   useEffect(() => {
@@ -168,8 +165,8 @@ export function useCaptureBubbleState(): UseCaptureBubbleStateReturn {
     ]).start(() => {
       // Reset to idle after showing error for 3s
       setTimeout(() => {
-        setBubbleState((prev) =>
-          prev === 'failed' ? (badgeCount > 0 ? 'needs-review' : 'idle') : prev,
+        setBubbleState((currentState) =>
+          getRecoveryStateAfterFailure(currentState, badgeCount),
         );
       }, 3000);
     });
