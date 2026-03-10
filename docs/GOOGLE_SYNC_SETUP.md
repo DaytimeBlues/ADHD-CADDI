@@ -197,3 +197,217 @@ ADHD-CADDI/
 ---
 
 *Last updated: March 2026 — ADHD-CADDI project by DaytimeBlues*
+
+
+---
+
+## 10. Complete Setup Requirements (Elaborated)
+
+### APIs You MUST Enable
+
+Yes, you need to enable APIs. Go to **APIs & Services → Library** in Google Cloud Console and enable:
+
+1. **Google Sign-In** (OAuth 2.0 / OpenID Connect — usually always on)
+2. **Google Tasks API** — required for Tasks sync
+3. **Google Calendar API** — required for Calendar sync
+
+Without these enabled, your OAuth tokens won't have permission to access Tasks or Calendar data even if the scopes are requested.
+
+### OAuth Consent Screen
+
+Before creating OAuth credentials, configure the **OAuth consent screen**:
+
+1. Go to **APIs & Services → OAuth consent screen**
+2. Choose **External** (for personal use) or **Internal** (if you have a Google Workspace org)
+3. Fill in:
+   - App name: **ADHD-CADDI**
+   - User support email: your email
+   - Developer contact: your email
+4. Add scopes:
+   - `openid`
+   - `email`
+   - `profile`
+   - `https://www.googleapis.com/auth/tasks`
+   - `https://www.googleapis.com/auth/calendar.events`
+5. Add test users if your app is in testing mode (you can add yourself and family/friends)
+6. Save and continue
+
+### SHA Fingerprints for Android (Critical)
+
+For Android Google Sign-In to work, you **must** register your app's SHA-1 and SHA-256 fingerprints in Firebase/Google Cloud.
+
+#### Get Your SHA Fingerprints
+
+Run this in your project root:
+
+```bash
+cd android && ./gradlew signingReport
+```
+
+You'll see output like:
+
+```
+Variant: debug
+Config: debug
+Store: /Users/you/.android/debug.keystore
+Alias: AndroidDebugKey
+MD5: ...
+SHA1: AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD
+SHA-256: 11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF:00:11
+```
+
+Copy both the **SHA-1** and **SHA-256** values.
+
+#### Add SHA Fingerprints to Firebase
+
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Select your project (or create one: **ADHD-CADDI**)
+3. Click **Project settings** (gear icon)
+4. Scroll to **Your apps** → select your Android app (package: `com.adhdcaddi`)
+5. Click **Add fingerprint**
+6. Paste your **SHA-1** → Save
+7. Click **Add fingerprint** again
+8. Paste your **SHA-256** → Save
+
+For production builds, repeat this process with your **release keystore** SHA fingerprints.
+
+---
+
+## 11. Firebase App Distribution (Testing Without Play Store)
+
+If you want to distribute your app to family/friends for testing **without publishing to Play Store**, Firebase App Distribution is the best option.
+
+### What You Need for Firebase App Distribution
+
+1. A Firebase project (create at [console.firebase.google.com](https://console.firebase.google.com/))
+2. Your Android app registered in Firebase with package name `com.adhdcaddi`
+3. `google-services.json` (you'll get this when you add the Android app)
+4. A signed APK or AAB file to upload
+5. Tester email addresses (you can add them later)
+
+### How It Works
+
+1. **You build and upload** an APK/AAB to Firebase App Distribution
+2. **Testers get an email invite** with a download link
+3. **Testers install the Firebase App Distribution app** on their Android phones
+4. **Testers download and install your app** through the Firebase app
+5. **You push updates** and testers get notified
+
+### Setup Steps
+
+1. Go to Firebase Console → **App Distribution**
+2. Click **Get started**
+3. Upload your first build (APK or AAB)
+4. Add tester emails or create tester groups
+5. Send invite
+
+Testers will receive an email with instructions.
+
+### Direct APK Sharing (Simpler for Your Own Phone)
+
+For **just your own phone**, you don't need Firebase App Distribution:
+
+1. Build the APK:
+   ```bash
+   npm run build:android:preview
+   ```
+2. The APK is at `android/app/build/outputs/apk/preview/release/app-preview-release.apk`
+3. Transfer it to your phone (USB, Google Drive, etc.)
+4. Open the APK file on your phone → Android will prompt you to install it
+5. Enable "Install from unknown sources" if prompted
+
+This is the fastest way to test on your own device first.
+
+---
+
+## 12. Important: Google Workspace MCP Server Status
+
+**As of March 2026, there is NO official Google Workspace MCP server.**
+
+Google's own documentation says:
+> "Star and subscribe to the feature request for an MCP server to connect to Google Workspace APIs."
+
+What this means:
+- **Official Google stance:** Not ready yet for Workspace MCP integration
+- **Practical reality:** Third-party Google Workspace MCP servers exist on GitHub
+- **Recommendation for ADHD-CADDI:** Do NOT depend on a third-party MCP just to get sign-in/tasks/calendar working
+
+Instead, use **direct OAuth + REST API integration**:
+- Sign in with `@react-native-google-signin/google-signin`
+- Call Google Tasks API directly with the access token
+- Call Google Calendar API directly with the access token
+
+This is more reliable and does not require MCP.
+
+**Sources:**
+- [Google Workspace + LLM guide](https://developers.google.com/workspace/guides/build-with-llms)
+- [Google Calendar API auth scopes](https://developers.google.com/workspace/calendar/api/auth)
+- [Firebase Android setup](https://firebase.google.com/docs/android/setup)
+
+---
+
+## 13. Recommended OAuth Scopes
+
+For your use case (sign-in, Tasks, Calendar), request these scopes:
+
+| Scope | Purpose |
+|---|---|
+| `openid` | OpenID Connect authentication |
+| `email` | User's email address |
+| `profile` | User's basic profile info (name, photo) |
+| `https://www.googleapis.com/auth/tasks` | Full read/write access to Google Tasks |
+| `https://www.googleapis.com/auth/calendar.events` | Read/write access to Calendar events |
+
+Alternatively, for read-only Calendar:
+- `https://www.googleapis.com/auth/calendar.readonly`
+
+For the most flexible Calendar access:
+- `https://www.googleapis.com/auth/calendar`
+
+---
+
+## 14. Where to Find Your Web Client ID (Step-by-Step)
+
+If you already created OAuth credentials but can't find the Client ID:
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Select your project (top dropdown)
+3. Open **APIs & Services → Credentials**
+4. Look under **OAuth 2.0 Client IDs**
+5. Find the one with type **Web application**
+6. Click on it to open
+7. The **Client ID** is displayed at the top (ends in `.apps.googleusercontent.com`)
+8. Copy it and paste into your `.env` as `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`
+
+---
+
+## 15. Next Steps After Setup
+
+Once you have:
+- ✅ Web Client ID in `.env`
+- ✅ `google-services.json` at `android/app/google-services.json`
+- ✅ APIs enabled (Tasks, Calendar)
+- ✅ OAuth consent screen configured
+- ✅ SHA fingerprints registered in Firebase
+
+**Then:**
+
+1. **Test locally on web first:**
+   ```bash
+   npm run web
+   ```
+   Open `http://localhost:3000` → try Google Sign-In
+
+2. **Test on your Android phone:**
+   ```bash
+   npm run install:android:preview
+   ```
+   The app will install on your connected phone
+
+3. **If sign-in works, test Tasks and Calendar sync**
+
+4. **Once stable, set up Firebase App Distribution for friends/family**
+
+---
+
+*Last updated: March 2026 — ADHD-CADDI project by DaytimeBlues*
