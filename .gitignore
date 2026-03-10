@@ -69,3 +69,28 @@ android/build_error*.txt
 android/build_log*.txt
 android/local.properties
 android/app/release.keystore
+
+
+# Google / Firebase secrets - NEVER commit these
+google-services.json
+*.keystore
+*.jks
+android/app/*.keystore
+android/app/*.jks
+android/app/google-services.json
+ios/GoogleService-Info.plist
+GoogleService-Info.plist
+
+# Firebase / Google Cloud credential files
+firebase-adminsdk-*.json
+service-account*.json
+credentials.json
+token.json
+
+# OAuth / API key files
+.client_secret*.json
+client_secret*.json
+oauth2.keys.json
+
+# Sentry auth tokens
+.sentryclirc
