@@ -62,7 +62,7 @@ export const TaskItem = memo(function TaskItem({
             testID={`task-checkbox-${task.id}`}
             style={[
               styles.checkbox,
-              { borderColor: 'rgba(185, 194, 217, 0.3)' },
+              styles.checkboxDefault,
               task.completed && {
                 backgroundColor: TASK_PRIORITY_COLORS[task.priority],
                 borderColor: TASK_PRIORITY_COLORS[task.priority],

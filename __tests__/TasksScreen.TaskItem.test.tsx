@@ -41,7 +41,7 @@ jest.mock('react-native-reanimated', () => {
   const AnimatedView = ReactLocal.forwardRef(
     (
       props: React.ComponentProps<typeof View> & { children: React.ReactNode },
-      ref: React.Ref<any>,
+      ref: React.Ref<typeof View>,
     ) => <View ref={ref} {...props} />,
   );
 

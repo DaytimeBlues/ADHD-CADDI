@@ -158,7 +158,7 @@ export const TasksScreen = memo(function TasksScreen() {
               padding="sm"
               style={styles.statCard}
             >
-              <Text style={[styles.statValue, { color: '#EEF2FF' }]}>
+              <Text style={[styles.statValue, styles.statValueCompleted]}>
                 {stats.completed}
               </Text>
               <Text style={styles.statLabel}>DONE</Text>

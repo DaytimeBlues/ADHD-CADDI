@@ -6,6 +6,7 @@ import {
   FlatList,
   ActivityIndicator,
   Pressable,
+  StyleSheet,
 } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { useTheme } from '../theme/useTheme';
@@ -77,15 +78,7 @@ const BrainDumpScreen = () => {
     >
       {isCosmic && (
         <CosmicBackground variant="nebula">
-          <View
-            style={{
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              top: 0,
-              bottom: 0,
-            }}
-          />
+          <View style={StyleSheet.absoluteFillObject} />
         </CosmicBackground>
       )}
       <View style={styles.centerContainer}>

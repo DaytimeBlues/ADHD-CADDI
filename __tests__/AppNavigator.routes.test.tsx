@@ -10,11 +10,11 @@ import { Text, View } from 'react-native';
 import AppNavigator from '../src/navigation/AppNavigator';
 
 jest.mock('react-native-gesture-handler', () => {
-  const { View } = require('react-native');
+  const { View: MockView } = require('react-native');
   return {
-    GestureHandlerRootView: View,
-    PanGestureHandler: View,
-    TapGestureHandler: View,
+    GestureHandlerRootView: MockView,
+    PanGestureHandler: MockView,
+    TapGestureHandler: MockView,
     State: {},
     Directions: {},
   };
@@ -32,8 +32,7 @@ jest.mock('../src/components/capture', () => ({
 }));
 
 jest.mock('../src/screens/HomeScreen', () => {
-  const React = require('react');
-  const { Pressable, Text, View } = require('react-native');
+  const { Pressable, Text: MockText, View: MockView } = require('react-native');
   const { ROUTES } = require('../src/navigation/routes');
 
   return {
@@ -43,27 +42,27 @@ jest.mock('../src/screens/HomeScreen', () => {
     }: {
       navigation: { navigate: (route: string) => void };
     }) => (
-      <View>
-        <Text testID="home-title">SPARK_PRO</Text>
+      <MockView>
+        <MockText testID="home-title">SPARK_PRO</MockText>
         <Pressable
           testID="mode-checkin"
           onPress={() => navigation.navigate(ROUTES.CHECK_IN)}
         >
-          <Text>Check In</Text>
+          <MockText>Check In</MockText>
         </Pressable>
         <Pressable
           testID="mode-cbtguide"
           onPress={() => navigation.navigate(ROUTES.CBT_GUIDE)}
         >
-          <Text>CBT Guide</Text>
+          <MockText>CBT Guide</MockText>
         </Pressable>
         <Pressable
           accessibilityLabel="Settings and Diagnostics"
           onPress={() => navigation.navigate(ROUTES.DIAGNOSTICS)}
         >
-          <Text>Diagnostics</Text>
+          <MockText>Diagnostics</MockText>
         </Pressable>
-      </View>
+      </MockView>
     ),
   };
 });

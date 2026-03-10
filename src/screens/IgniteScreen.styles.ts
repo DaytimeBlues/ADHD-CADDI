@@ -5,9 +5,11 @@ import { isWeb } from '../utils/PlatformUtils';
 const hexToRgba = (hex: string, alpha: number) => {
   const normalizedHex = hex.replace('#', '');
   const numericValue = Number.parseInt(normalizedHex, 16);
+  /* eslint-disable no-bitwise */
   const red = (numericValue >> 16) & 255;
   const green = (numericValue >> 8) & 255;
   const blue = numericValue & 255;
+  /* eslint-enable no-bitwise */
 
   return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
 };

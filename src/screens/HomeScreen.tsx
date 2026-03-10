@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   AccessibilityInfo,
   TouchableOpacity,
+  StyleSheet,
 } from 'react-native';
 import { useOverlayEvents } from '../hooks/useOverlayEvents';
 import { useShareAction } from '../hooks/useShareAction';
@@ -218,10 +219,7 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
   const styles = useMemo(() => getStyles(isCosmic), [isCosmic]);
 
   return (
-    <CosmicBackground
-      variant="ridge"
-      style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }}
-    >
+    <CosmicBackground variant="ridge" style={StyleSheet.absoluteFillObject}>
       <SafeAreaView style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.maxWidthWrapper}>

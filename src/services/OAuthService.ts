@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { OAuthNativeAdapter } from './oauth';
-import type { GoogleAuthData, TodoistAuthData } from './oauth';
+import type { GoogleAuthData, TodoistAuthData } from './oauth/OAuthShared';
+import { OAuthNativeAdapter } from './oauth/OAuthNativeAdapter';
 
 const OAuthService = new OAuthNativeAdapter({
   getItem: (key) => AsyncStorage.getItem(key),

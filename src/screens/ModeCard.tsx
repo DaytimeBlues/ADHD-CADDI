@@ -9,7 +9,7 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import AppIcon from '../components/AppIcon';
 import { Tokens } from '../theme/tokens';
 import HapticsService from '../services/HapticsService';
 import { useTheme } from '../theme/useTheme';
@@ -115,7 +115,7 @@ function ModeCardComponent({
       >
         {isWeb && <View style={styles.webGradientOverlay} />}
         <View style={styles.cardHeader}>
-          <Icon
+          <AppIcon
             name={mode.icon}
             size={ICON_SIZE}
             color={isHovered ? mode.accent : Tokens.colors.text.primary}

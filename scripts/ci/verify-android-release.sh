@@ -85,6 +85,22 @@ verify_process_survives() {
   echo "App process is still running."
 }
 
+is_app_foregrounded() {
+  if adb_device shell dumpsys window windows | grep -i "com.adhdcaddi" | grep -q "mCurrentFocus"; then
+    return 0
+  fi
+
+  if adb_device shell dumpsys activity activities | grep -i "mResumedActivity" | grep -q "com.adhdcaddi"; then
+    return 0
+  fi
+
+  if adb_device shell dumpsys activity top | grep -i "ACTIVITY com.adhdcaddi/.MainActivity"; then
+    return 0
+  fi
+
+  return 1
+}
+
 echo "Waiting for emulator to be available..."
 adb wait-for-device
 
@@ -146,13 +162,18 @@ verify_process_survives
 
 echo "App launched. Waiting for focus..."
 for i in $(seq 1 10); do
-  if adb_device shell dumpsys window windows | grep -i "com.adhdcaddi" | grep -q "mCurrentFocus"; then
-    echo "com.adhdcaddi is in focus."
+  if is_app_foregrounded; then
+    echo "com.adhdcaddi is in the foreground."
     exit 0
   fi
   sleep 2
 done
 
-echo "ERROR: com.adhdcaddi never gained focus."
-adb_device shell dumpsys window windows | grep -i "com.adhdcaddi"
+echo "ERROR: com.adhdcaddi never appeared in the foreground."
+echo "--- dumpsys window windows ---"
+adb_device shell dumpsys window windows | grep -i "com.adhdcaddi" || true
+echo "--- dumpsys activity activities ---"
+adb_device shell dumpsys activity activities | grep -i "com.adhdcaddi" || true
+echo "--- dumpsys activity top ---"
+adb_device shell dumpsys activity top | grep -i "com.adhdcaddi" || true
 exit 1
