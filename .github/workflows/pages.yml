@@ -48,7 +48,7 @@ jobs:
           npm test -- --runInBand --coverage 2>&1 | tee jest.log
 
       - name: Upload quality logs
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: quality-logs
@@ -59,7 +59,7 @@ jobs:
           retention-days: 30
 
       - name: Upload coverage report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: coverage-report
@@ -108,7 +108,7 @@ jobs:
           CI: true
 
       - name: Upload Playwright report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: playwright-report-deploy
@@ -147,7 +147,7 @@ jobs:
         run: cp public/404.html dist/404.html
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: production-build
@@ -204,7 +204,7 @@ jobs:
           PLAYWRIGHT_BASE_URL: https://daytimeblues.github.io/ADHD-CADDI/
 
       - name: Upload post-deploy report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: post-deploy-report
