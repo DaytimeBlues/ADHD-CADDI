@@ -82,8 +82,13 @@ class HapticsService {
             ? Haptics.ImpactFeedbackStyle.Medium
             : Haptics.ImpactFeedbackStyle.Light;
 
-      Haptics.impactAsync(impactStyle).catch(() => {
-        // Fall back to vibration if haptics fail
+      Haptics.impactAsync(impactStyle).catch((error) => {
+        LoggerService.debug({
+          service: 'HapticsService',
+          operation: 'impactAsync',
+          message: 'Haptics impact failed, falling back to vibration',
+          error,
+        });
         this.fallbackVibrate(intensity);
       });
     } else {
@@ -155,7 +160,13 @@ class HapticsService {
 
     if (hasExpoHaptics && Haptics) {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(
-        () => {
+        (error) => {
+          LoggerService.debug({
+            service: 'HapticsService',
+            operation: 'notificationAsync',
+            message: 'Haptics notification failed, falling back to vibration',
+            error,
+          });
           Vibration.vibrate([0, 50, 50, 50]);
         },
       );
