@@ -1,0 +1,431 @@
+diff --git a/src/screens/CalendarScreen.tsx b/src/screens/CalendarScreen.tsx
+index 778d21f360e82cfe54988b73bef5ab50293c97c9..27f8ecd15cd0b7cfa0414ce88e411f6b42573479 100644
+--- a/src/screens/CalendarScreen.tsx
++++ b/src/screens/CalendarScreen.tsx
+@@ -170,12 +170,17 @@ const CalendarScreen = () => {
+               <View style={styles.header}>
+                 <Pressable
+                   onPress={prevMonth}
++                  accessibilityLabel="Go to previous month"
++                  accessibilityHint="Navigates to the previous month"
++                  accessibilityRole="button"
+                   style={({
+                     pressed,
+                     hovered,
++                    focused,
+                   }: {
+                     pressed: boolean;
+                     hovered?: boolean;
++                    focused?: boolean;
+                   }) => [
+                     styles.navButton,
+                     isCosmic && styles.navButtonCosmic,
+@@ -183,6 +188,8 @@ const CalendarScreen = () => {
+                     hovered && isCosmic && styles.navButtonHoveredCosmic,
+                     pressed && styles.navButtonPressed,
+                     pressed && isCosmic && styles.navButtonPressedCosmic,
++                    focused && styles.navButtonFocused,
++                    focused && isCosmic && styles.navButtonFocusedCosmic,
+                   ]}
+                 >
+                   <Text
+@@ -202,12 +209,17 @@ const CalendarScreen = () => {
+                 </Text>
+                 <Pressable
+                   onPress={nextMonth}
++                  accessibilityLabel="Go to next month"
++                  accessibilityHint="Navigates to the next month"
++                  accessibilityRole="button"
+                   style={({
+                     pressed,
+                     hovered,
++                    focused,
+                   }: {
+                     pressed: boolean;
+                     hovered?: boolean;
++                    focused?: boolean;
+                   }) => [
+                     styles.navButton,
+                     isCosmic && styles.navButtonCosmic,
+@@ -215,6 +227,8 @@ const CalendarScreen = () => {
+                     hovered && isCosmic && styles.navButtonHoveredCosmic,
+                     pressed && styles.navButtonPressed,
+                     pressed && isCosmic && styles.navButtonPressedCosmic,
++                    focused && styles.navButtonFocused,
++                    focused && isCosmic && styles.navButtonFocusedCosmic,
+                   ]}
+                 >
+                   <Text
+@@ -256,15 +270,27 @@ const CalendarScreen = () => {
+                     day === new Date().getDate() &&
+                     currentDate.getMonth() === new Date().getMonth() &&
+                     currentDate.getFullYear() === new Date().getFullYear();
++                  const monthName = months[currentDate.getMonth()];
++                  const dateLabel = `${monthName} ${day}, ${currentDate.getFullYear()}`;
+                   return (
+                     <Pressable
+                       key={day}
++                      accessibilityLabel={`${dateLabel}${isToday ? ', today' : ''}`}
++                      accessibilityRole="button"
++                      accessibilityState={{
++                        selected: false,
++                        disabled: false,
++                        checked: isToday,
++                      }}
++                      accessibilityHint="Tap to view or add tasks for this date"
+                       style={({
+                         pressed,
+                         hovered,
++                        focused,
+                       }: {
+                         pressed: boolean;
+                         hovered?: boolean;
++                        focused?: boolean;
+                       }) => [
+                         styles.dayCell,
+                         isCosmic && styles.dayCellCosmic,
+@@ -280,6 +306,8 @@ const CalendarScreen = () => {
+                           !isToday &&
+                           isCosmic &&
+                           styles.dayCellPressedCosmic,
++                        focused && styles.dayCellFocused,
++                        focused && isCosmic && styles.dayCellFocusedCosmic,
+                       ]}
+                     >
+                       <Text
+@@ -338,12 +366,18 @@ const CalendarScreen = () => {
+               <Pressable
+                 onPress={handleConnectGoogleCalendar}
+                 disabled={isConnectButtonDisabled}
++                accessibilityLabel={buttonTextByConnectionStatus[connectionStatus]}
++                accessibilityHint="Connect or disconnect your Google Calendar for syncing"
++                accessibilityRole="button"
++                accessibilityState={{ disabled: isConnectButtonDisabled }}
+                 style={({
+                   pressed,
+                   hovered,
++                  focused,
+                 }: {
+                   pressed: boolean;
+                   hovered?: boolean;
++                  focused?: boolean;
+                 }) => [
+                   styles.googleCalendarButton,
+                   isCosmic && styles.googleCalendarButtonCosmic,
+@@ -366,6 +400,13 @@ const CalendarScreen = () => {
+                   isConnectButtonDisabled &&
+                     isCosmic &&
+                     styles.googleCalendarButtonDisabledCosmic,
++                  focused &&
++                    !isConnectButtonDisabled &&
++                    styles.googleCalendarButtonFocused,
++                  focused &&
++                    !isConnectButtonDisabled &&
++                    isCosmic &&
++                    styles.googleCalendarButtonFocusedCosmic,
+                 ]}
+               >
+                 <Text
+@@ -476,6 +517,14 @@ const styles = StyleSheet.create({
+     transform: [{ scale: Tokens.motion.scales.press }],
+     backgroundColor: Tokens.colors.neutral.darkest,
+   },
++  // eslint-disable-next-line @typescript-eslint/no-explicit-any
++  navButtonFocused: Platform.select({
++    web: {
++      outlineWidth: 2,
++      outlineStyle: 'solid',
++      outlineColor: Tokens.colors.indigo.primary,
++    },
++  }) as any,
+   navButtonText: {
+     color: Tokens.colors.text.primary,
+     fontSize: Tokens.type.h2,
+@@ -534,6 +583,14 @@ const styles = StyleSheet.create({
+     backgroundColor: Tokens.colors.neutral.darkest,
+     transform: [{ scale: Tokens.motion.scales.press }],
+   },
++  // eslint-disable-next-line @typescript-eslint/no-explicit-any
++  dayCellFocused: Platform.select({
++    web: {
++      outlineWidth: 2,
++      outlineStyle: 'solid',
++      outlineColor: Tokens.colors.indigo.primary,
++    },
++  }) as any,
+   dayText: {
+     fontFamily: Tokens.type.fontFamily.sans,
+     color: Tokens.colors.text.secondary,
+@@ -627,6 +684,14 @@ const styles = StyleSheet.create({
+     transform: [{ scale: Tokens.motion.scales.press }],
+     backgroundColor: Tokens.colors.neutral.darkest,
+   },
++  // eslint-disable-next-line @typescript-eslint/no-explicit-any
++  googleCalendarButtonFocused: Platform.select({
++    web: {
++      outlineWidth: 2,
++      outlineStyle: 'solid',
++      outlineColor: Tokens.colors.indigo.primary,
++    },
++  }) as any,
+   googleCalendarButtonDisabled: {
+     backgroundColor: Tokens.colors.neutral.darkest,
+     borderColor: Tokens.colors.neutral.borderSubtle,
+@@ -697,6 +762,14 @@ const styles = StyleSheet.create({
+   navButtonPressedCosmic: {
+     backgroundColor: 'rgba(17, 26, 51, 0.9)',
+   },
++  // eslint-disable-next-line @typescript-eslint/no-explicit-any
++  navButtonFocusedCosmic: Platform.select({
++    web: {
++      outlineWidth: 2,
++      outlineStyle: 'solid',
++      outlineColor: '#8B5CF6',
++    },
++  }) as any,
+   navButtonTextCosmic: {
+     color: '#EEF2FF',
+   },
+@@ -736,6 +809,14 @@ const styles = StyleSheet.create({
+   dayCellPressedCosmic: {
+     backgroundColor: 'rgba(17, 26, 51, 0.8)',
+   },
++  // eslint-disable-next-line @typescript-eslint/no-explicit-any
++  dayCellFocusedCosmic: Platform.select({
++    web: {
++      outlineWidth: 2,
++      outlineStyle: 'solid',
++      outlineColor: '#8B5CF6',
++    },
++  }) as any,
+   dayTextCosmic: {
+     color: '#EEF2FF',
+   },
+@@ -792,6 +873,14 @@ const styles = StyleSheet.create({
+   googleCalendarButtonPressedCosmic: {
+     backgroundColor: 'rgba(17, 26, 51, 0.9)',
+   },
++  // eslint-disable-next-line @typescript-eslint/no-explicit-any
++  googleCalendarButtonFocusedCosmic: Platform.select({
++    web: {
++      outlineWidth: 2,
++      outlineStyle: 'solid',
++      outlineColor: '#8B5CF6',
++    },
++  }) as any,
+   googleCalendarButtonDisabledCosmic: {
+     backgroundColor: 'rgba(11, 16, 34, 0.4)',
+     borderColor: 'rgba(185, 194, 217, 0.08)',
+diff --git a/src/screens/DiagnosticsScreen.tsx b/src/screens/DiagnosticsScreen.tsx
+index c1bacd551926f2cd7ed62b5a0966d259cf3ed3f5..a704e8d4005cffe68d3a3ba10402e8a6c4e4b370 100644
+--- a/src/screens/DiagnosticsScreen.tsx
++++ b/src/screens/DiagnosticsScreen.tsx
+@@ -1,10 +1,11 @@
+-?import React from 'react';
++import React from 'react';
+ import {
++  Platform,
++  Pressable,
+   SafeAreaView,
+   ScrollView,
+   StyleSheet,
+   Text,
+-  TouchableOpacity,
+   View,
+ } from 'react-native';
+ import { Tokens } from '../theme/tokens';
+@@ -46,25 +47,36 @@ const DiagnosticsScreen = ({ navigation }: { navigation: NavigationNode }) => {
+       <SafeAreaView style={styles.safeArea}>
+         <View style={styles.container}>
+           <View style={styles.header}>
+-            <TouchableOpacity
++            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
++            <Pressable
+               onPress={() => navigation.goBack()}
+-              style={styles.backButton}
++              style={(state: any) => [
++                styles.backButton,
++                state.focused && styles.backButtonFocused,
++              ]}
+               accessibilityLabel="Go back"
++              accessibilityHint="Returns to previous screen"
+               accessibilityRole="button"
+             >
+               <Text style={styles.backButtonText}>{'< BACK'}</Text>
+-            </TouchableOpacity>
++            </Pressable>
+ 
+             <Text style={styles.title}>DIAGNOSTICS</Text>
+ 
+-            <TouchableOpacity
++            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
++            <Pressable
+               onPress={() => {
+                 refreshDiagnostics().catch(() => undefined);
+               }}
+-              style={styles.refreshButton}
++              style={(state: any) => [
++                styles.refreshButton,
++                state.focused && styles.refreshButtonFocused,
++              ]}
+               disabled={isRefreshing}
+               accessibilityLabel="Refresh diagnostics"
++              accessibilityHint="Reloads the system status information"
+               accessibilityRole="button"
++              accessibilityState={{ disabled: isRefreshing }}
+             >
+               <Text
+                 style={[
+@@ -74,7 +86,7 @@ const DiagnosticsScreen = ({ navigation }: { navigation: NavigationNode }) => {
+               >
+                 {isRefreshing ? '...' : 'REFRESH'}
+               </Text>
+-            </TouchableOpacity>
++            </Pressable>
+           </View>
+ 
+           <ScrollView
+@@ -130,6 +142,14 @@ const styles = StyleSheet.create({
+     paddingVertical: Tokens.spacing[1],
+     paddingHorizontal: Tokens.spacing[2],
+   },
++  // eslint-disable-next-line @typescript-eslint/no-explicit-any
++  backButtonFocused: Platform.select({
++    web: {
++      outlineWidth: 2,
++      outlineStyle: 'solid',
++      outlineColor: Tokens.colors.indigo.primary,
++    },
++  }) as any,
+   backButtonText: {
+     fontFamily: Tokens.type.fontFamily.mono,
+     fontSize: 12,
+@@ -145,9 +165,21 @@ const styles = StyleSheet.create({
+     letterSpacing: 1,
+   },
+   refreshButton: {
++    minHeight: Tokens.layout.minTapTarget,
++    minWidth: Tokens.layout.minTapTarget,
+     paddingVertical: Tokens.spacing[1],
+     paddingHorizontal: Tokens.spacing[2],
++    justifyContent: 'center',
++    alignItems: 'center',
+   },
++  // eslint-disable-next-line @typescript-eslint/no-explicit-any
++  refreshButtonFocused: Platform.select({
++    web: {
++      outlineWidth: 2,
++      outlineStyle: 'solid',
++      outlineColor: Tokens.colors.indigo.primary,
++    },
++  }) as any,
+   refreshButtonText: {
+     fontFamily: Tokens.type.fontFamily.mono,
+     fontSize: 16,
+diff --git a/src/screens/diagnostics/components/BackupSection.tsx b/src/screens/diagnostics/components/BackupSection.tsx
+index ec8ee4f79352e28c75c5da6d6114d8925e4fb571..4359c74217c1a8a270920f830b66c9d5c5b950e9 100644
+--- a/src/screens/diagnostics/components/BackupSection.tsx
++++ b/src/screens/diagnostics/components/BackupSection.tsx
+@@ -55,6 +55,7 @@ export const BackupSection = ({
+           ]}
+           accessibilityRole="button"
+           accessibilityLabel="Set import mode to overwrite"
++          accessibilityHint="Replaces all existing data with the backup"
+           testID="import-mode-overwrite"
+         >
+           <Text
+@@ -75,6 +76,7 @@ export const BackupSection = ({
+           ]}
+           accessibilityRole="button"
+           accessibilityLabel="Set import mode to merge"
++          accessibilityHint="Combines backup data with existing data"
+           testID="import-mode-merge"
+         >
+           <Text
+@@ -101,6 +103,7 @@ export const BackupSection = ({
+           ]}
+           accessibilityRole="button"
+           accessibilityLabel="Export backup JSON"
++          accessibilityHint="Downloads your app data as a JSON file"
+         >
+           <Text style={styles.backupButtonText}>EXPORT JSON</Text>
+         </TouchableOpacity>
+@@ -117,6 +120,7 @@ export const BackupSection = ({
+           ]}
+           accessibilityRole="button"
+           accessibilityLabel="Import backup JSON"
++          accessibilityHint="Restores your app data from a JSON file"
+         >
+           <Text style={styles.backupButtonText}>IMPORT JSON</Text>
+         </TouchableOpacity>
+@@ -176,6 +180,7 @@ const styles = StyleSheet.create({
+   },
+   modeButton: {
+     flex: 1,
++    minHeight: Tokens.layout.minTapTarget,
+     paddingVertical: Tokens.spacing[1],
+     alignItems: 'center',
+     justifyContent: 'center',
+diff --git a/src/screens/diagnostics/components/ThemeSection.tsx b/src/screens/diagnostics/components/ThemeSection.tsx
+index bdf5c91ea0722fdf5c9dacbeb64613f9e0e5a739..2bfcfd68d61f89c80c133eb7e2b84d55a0d33fa0 100644
+--- a/src/screens/diagnostics/components/ThemeSection.tsx
++++ b/src/screens/diagnostics/components/ThemeSection.tsx
+@@ -26,6 +26,7 @@ export const ThemeSection = ({
+             }}
+             style={styles.themeOption}
+             accessibilityLabel={`Select ${option.label} theme`}
++            accessibilityHint={`Switches to the ${option.label} theme`}
+             accessibilityRole="button"
+             accessibilityState={{ selected: option.selected }}
+           >
+diff --git a/src/ui/cosmic/GlowCard.tsx b/src/ui/cosmic/GlowCard.tsx
+index 33a1efda1c97a022d84ff710da4cd457123a6e5c..a14a03cb9ae6a9fc014e2c2b744b913fa504d139 100644
+--- a/src/ui/cosmic/GlowCard.tsx
++++ b/src/ui/cosmic/GlowCard.tsx
+@@ -215,6 +215,31 @@ export const GlowCard = memo(function GlowCard({
+ 
+   const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+ 
++  // eslint-disable-next-line @typescript-eslint/no-explicit-any
++  const getStyleWithFocus = (state: any) => {
++    const baseStyle = [
++      containerStyle,
++      glowStyle,
++      style as ViewStyle,
++      isPressedInternal && !isCosmic && { opacity: 0.8 },
++      { transform: [{ scale: scaleAnim }] },
++    ];
++
++    if (state?.focused && onPress) {
++      // eslint-disable-next-line @typescript-eslint/no-explicit-any
++      const focusStyle = Platform.select({
++        web: {
++          outlineWidth: 2,
++          outlineStyle: 'solid',
++          outlineColor: isCosmic ? '#8B5CF6' : '#7C3AED',
++        },
++      }) as ViewStyle;
++      baseStyle.push(focusStyle);
++    }
++
++    return baseStyle;
++  };
++
+   return (
+     <AnimatedPressable
+       testID={testID}
+@@ -222,13 +247,7 @@ export const GlowCard = memo(function GlowCard({
+       onPressIn={handlePressIn}
+       onPressOut={handlePressOut}
+       disabled={disabled}
+-      style={[
+-        containerStyle,
+-        glowStyle,
+-        style as ViewStyle,
+-        isPressedInternal && !isCosmic && { opacity: 0.8 },
+-        { transform: [{ scale: scaleAnim }] },
+-      ]}
++      style={getStyleWithFocus}
+       accessibilityState={{
+         ...accessibilityState,
+         disabled,

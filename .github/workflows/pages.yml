@@ -93,10 +93,17 @@ jobs:
           set -o pipefail
           npm run build:web 2>&1 | tee build-web.log
 
-      - name: Run Playwright E2E tests
+      - name: Run Playwright E2E smoke tests
         run: |
           set -o pipefail
           npm run e2e:smoke 2>&1 | tee e2e-smoke.log
+        env:
+          CI: true
+
+      - name: Run Playwright E2E core tests
+        run: |
+          set -o pipefail
+          npm run e2e:core 2>&1 | tee e2e-core.log
         env:
           CI: true
 
@@ -111,6 +118,7 @@ jobs:
             playwright-*.log
             build-web.log
             e2e-smoke.log
+            e2e-core.log
           retention-days: 30
 
   # Build and deploy (only after gates pass)
@@ -191,7 +199,6 @@ jobs:
       - name: Run smoke tests against production
         run: |
           npx playwright test e2e/smoke-basic.spec.ts --project=chromium
-          npm run e2e:core
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: https://daytimeblues.github.io/ADHD-CADDI/

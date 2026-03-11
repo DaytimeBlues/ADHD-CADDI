@@ -1,0 +1,878 @@
+diff --git a/src/hooks/useBrainDump.ts b/src/hooks/useBrainDump.ts
+index ca5a869df33e5d3db98a370372b98def05addc38..45fb3f14be861775d154f86fd187337930331526 100644
+--- a/src/hooks/useBrainDump.ts
++++ b/src/hooks/useBrainDump.ts
+@@ -1,5 +1,6 @@
+ import { useState, useEffect, useCallback, useRef } from 'react';
+ import { LayoutAnimation, UIManager } from 'react-native';
++import { LoggerService } from '../services/LoggerService';
+ import StorageService from '../services/StorageService';
+ import { useBrainDumpItems, DumpItem } from './useBrainDumpItems';
+ import {
+@@ -116,7 +117,13 @@ export const useBrainDump = (autoRecord?: boolean): UseBrainDumpReturn => {
+           try {
+             await handleAISortBase(sortItems);
+           } catch (error) {
+-            // Error is handled by the sorting hook
++            LoggerService.error({
++              service: 'useBrainDump',
++              operation: 'onTranscriptionSuccess.handleAISortBase',
++              message: 'AI sort failed after transcription',
++              error,
++              context: { sortItemCount: sortItems.length },
++            });
+           }
+         }
+       },
+diff --git a/src/hooks/useReducedMotion.ts b/src/hooks/useReducedMotion.ts
+index 654779b3b1d66a3a4087adee5d0bfcf38341505b..db5f052e8d50073048e7f80c5eb217300eea26a3 100644
+--- a/src/hooks/useReducedMotion.ts
++++ b/src/hooks/useReducedMotion.ts
+@@ -1,5 +1,6 @@
+ import { useEffect, useState } from 'react';
+ import { AccessibilityInfo } from 'react-native';
++import { LoggerService } from '../services/LoggerService';
+ 
+ const useReducedMotion = (): boolean => {
+   const [reduceMotionEnabled, setReduceMotionEnabled] = useState(false);
+@@ -13,7 +14,13 @@ const useReducedMotion = (): boolean => {
+         if (isMounted) {
+           setReduceMotionEnabled(isEnabled);
+         }
+-      } catch {
++      } catch (error) {
++        LoggerService.warn({
++          service: 'useReducedMotion',
++          operation: 'loadReduceMotionPreference',
++          message: 'Failed to read reduced motion preference',
++          error,
++        });
+         if (isMounted) {
+           setReduceMotionEnabled(false);
+         }
+diff --git a/src/screens/FogCutterScreen.tsx b/src/screens/FogCutterScreen.tsx
+index 58fe701a02592101cae7cb5d305d40d3f57131b3..8f312ba252614cee122eb1fa3640aa94cb2c1cff 100644
+--- a/src/screens/FogCutterScreen.tsx
++++ b/src/screens/FogCutterScreen.tsx
+@@ -2,12 +2,10 @@ import React, { useRef, useCallback } from 'react';
+ import {
+   View,
+   Text,
+-  StyleSheet,
+   TextInput,
+   Pressable,
+   SafeAreaView,
+   FlatList,
+-  Platform,
+   ActivityIndicator,
+ } from 'react-native';
+ import ActivationService from '../services/ActivationService';
+@@ -24,6 +22,7 @@ import { ROUTES } from '../navigation/routes';
+ import { CosmicBackground, GlowCard, RuneButton } from '../ui/cosmic';
+ import { useFogCutter, Task } from '../hooks/useFogCutter';
+ import { useFogCutterAI } from '../hooks/useFogCutterAI';
++import { getFogCutterScreenStyles } from './FogCutterScreen.styles';
+ 
+ type FogCutterNavigation = {
+   navigate: (route: string) => void;
+@@ -35,7 +34,7 @@ interface FogCutterScreenProps {
+ 
+ const FogCutterScreen = ({ navigation }: FogCutterScreenProps) => {
+   const { isCosmic } = useTheme();
+-  const styles = getStyles(isCosmic);
++  const styles = getFogCutterScreenStyles(isCosmic);
+   const taskInputRef = useRef<TextInput>(null);
+ 
+   const handleTaskSaved = useCallback(
+@@ -111,7 +110,7 @@ const FogCutterScreen = ({ navigation }: FogCutterScreenProps) => {
+     <AnimatedMicroStep
+       item={item}
+       index={index}
+-      testID={`microstep-number-${index + 1}`}
++      testID={\`microstep-number-\${index + 1}\`}
+     />
+   );
+ 
+@@ -255,485 +254,4 @@ const FogCutterScreen = ({ navigation }: FogCutterScreenProps) => {
+                   title="+"
+                   testID="add-micro-step-btn"
+                   onPress={addMicroStep}
+-                  variant="secondary"
+-                  style={styles.addButton}
+-                />
+-              </View>
+-
+-              {isAiLoading && (
+-                <View style={styles.previewContainer}>
+-                  <Text style={styles.previewTitle}>ANALYSING...</Text>
+-                  <Shimmer width="100%" height={60} style={styles.shimmer} />
+-                </View>
+-              )}
+-
+-              {microSteps.length > 0 && !isAiLoading && (
+-                <View style={styles.previewContainer}>
+-                  <Text style={styles.previewTitle}>SEQUENCE:</Text>
+-                  <FlatList
+-                    data={microSteps}
+-                    renderItem={renderMicroStep}
+-                    keyExtractor={(_, index) => index.toString()}
+-                    scrollEnabled={false}
+-                  />
+-                </View>
+-              )}
+-
+-              {isCosmic ? (
+-                <RuneButton
+-                  variant="primary"
+-                  size="lg"
+-                  glow="medium"
+-                  onPress={addTask}
+-                  disabled={microSteps.length === 0}
+-                  style={styles.saveButton}
+-                >
+-                  EXECUTE_SAVE
+-                </RuneButton>
+-              ) : (
+-                <LinearButton
+-                  title="EXECUTE_SAVE"
+-                  onPress={addTask}
+-                  disabled={microSteps.length === 0}
+-                  size="lg"
+-                  style={styles.saveButton}
+-                />
+-              )}
+-            </GlowCard>
+-
+-            <View style={styles.divider} />
+-
+-            {showGuide && (
+-              <View style={styles.guideBanner}>
+-                <View style={styles.guideContent}>
+-                  <Text style={styles.guideTitle}>CLARITY_ACHIEVED</Text>
+-                  <Text style={styles.guideText}>
+-                    READY. INITIATE_IGNITE_PROTOCOL.
+-                  </Text>
+-                </View>
+-                <Pressable
+-                  onPress={handleDismissGuide}
+-                  style={({ pressed }) => [
+-                    styles.guideButton,
+-                    pressed && styles.guideButtonPressed,
+-                  ]}
+-                  accessibilityRole="button"
+-                  accessibilityLabel="Dismiss guidance"
+-                >
+-                  <Text style={styles.guideButtonText}>ACK</Text>
+-                </Pressable>
+-              </View>
+-            )}
+-
+-            <Text style={styles.sectionHeader}>ACTIVE_OPERATIONS</Text>
+-
+-            {isLoading ? (
+-              <View style={styles.loadingContainer}>
+-                <ActivityIndicator
+-                  size="small"
+-                  color={Tokens.colors.text.primary}
+-                />
+-                <Text style={styles.loadingText}>LOADING...</Text>
+-              </View>
+-            ) : (
+-              <FlatList
+-                data={tasks}
+-                keyExtractor={(item) => item.id}
+-                contentContainerStyle={styles.listContent}
+-                renderItem={renderTask}
+-                style={styles.taskList}
+-                ListEmptyComponent={
+-                  <View>
+-                    <EmptyState
+-                      icon="?"
+-                      title="NO_ACTIVE_TASKS."
+-                      primaryActionLabel="CREATE FIRST TASK"
+-                      onPrimaryAction={() => taskInputRef.current?.focus()}
+-                      primaryVariant="secondary"
+-                      style={styles.emptyState}
+-                    />
+-                    <EmptyStateExamples
+-                      onExamplePress={(example) => {
+-                        setTask(example);
+-                        taskInputRef.current?.focus();
+-                      }}
+-                    />
+-                  </View>
+-                }
+-              />
+-            )}
+-          </View>
+-        </View>
+-      </SafeAreaView>
+-    </CosmicBackground>
+-  );
+-};
+-
+-const getStyles = (isCosmic: boolean) =>
+-  StyleSheet.create({
+-    container: {
+-      flex: 1,
+-      backgroundColor: isCosmic ? 'transparent' : Tokens.colors.neutral.darkest,
+-    },
+-    scrollContent: {
+-      flex: 1,
+-      alignItems: 'center',
+-    },
+-    content: {
+-      flex: 1,
+-      width: '100%',
+-      maxWidth: Tokens.layout.maxWidth.prose,
+-      padding: Tokens.spacing[4],
+-    },
+-    header: {
+-      marginBottom: Tokens.spacing[6],
+-      flexDirection: 'row',
+-      alignItems: 'center',
+-      width: '100%',
+-      paddingBottom: Tokens.spacing[2],
+-      justifyContent: 'space-between',
+-    },
+-    title: {
+-      fontFamily: Tokens.type.fontFamily.mono,
+-      fontSize: Tokens.type.lg,
+-      fontWeight: '700',
+-      color: isCosmic ? '#EEF2FF' : Tokens.colors.text.primary,
+-      letterSpacing: 1,
+-      textTransform: 'uppercase',
+-    },
+-    headerLine: {
+-      flex: 1,
+-      height: 1,
+-      backgroundColor: isCosmic ? '#0B1022' : Tokens.colors.neutral.dark,
+-      marginLeft: Tokens.spacing[4],
+-    },
+-    rationaleCard: {
+-      marginBottom: Tokens.spacing[4],
+-    },
+-    rationaleTitle: {
+-      fontFamily: Tokens.type.fontFamily.mono,
+-      fontSize: Tokens.type.xs,
+-      fontWeight: '700',
+-      color: isCosmic ? '#8B5CF6' : Tokens.colors.brand[500],
+-      letterSpacing: 1,
+-      marginBottom: Tokens.spacing[2],
+-      textTransform: 'uppercase',
+-    },
+-    rationaleText: {
+-      fontFamily: Tokens.type.fontFamily.body,
+-      fontSize: Tokens.type.sm,
+-      color: isCosmic ? '#B9C2D9' : Tokens.colors.text.secondary,
+-      lineHeight: 22,
+-      flexWrap: 'wrap',
+-    },
+-    creationCard: {
+-      marginBottom: Tokens.spacing[6],
+-    },
+-    creationHeader: {
+-      marginBottom: Tokens.spacing[4],
+-    },
+-    cardTitle: {
+-      fontFamily: Tokens.type.fontFamily.mono,
+-      fontSize: Tokens.type.xs,
+-      fontWeight: '700',
+-      color: isCosmic ? '#B9C2D9' : Tokens.colors.text.secondary,
+-      letterSpacing: 1,
+-      textTransform: 'uppercase',
+-    },
+-    inputGroup: {
+-      marginBottom: Tokens.spacing[4],
+-    },
+-    aiButtonContainer: {
+-      alignItems: 'flex-end',
+-    },
+-    input: {
+-      backgroundColor: isCosmic ? '#0B1022' : Tokens.colors.neutral.darker,
+-      borderRadius: isCosmic ? 8 : 0,
+-      paddingHorizontal: Tokens.spacing[3],
+-      color: isCosmic ? '#EEF2FF' : Tokens.colors.text.primary,
+-      fontFamily: Tokens.type.fontFamily.mono,
+-      fontSize: Tokens.type.sm,
+-      marginBottom: Tokens.spacing[3],
+-      height: 48,
+-      borderWidth: 1,
+-      borderColor: isCosmic
+-        ? 'rgba(42, 53, 82, 0.3)'
+-        : Tokens.colors.neutral.border,
+-      ...Platform.select({
+-        web: { outlineStyle: 'none', transition: 'border-color 0.2s ease' },
+-      }),
+-    },
+-    marginBottom8: {
+-      marginBottom: 8,
+-    },
+-    inputFocused: {
+-      borderColor: isCosmic ? '#8B5CF6' : Tokens.colors.brand[500],
+-      backgroundColor: isCosmic ? '#111A33' : Tokens.colors.neutral.darkest,
+-      ...Platform.select({
+-        web: isCosmic
+-          ? {
+-              boxShadow:
+-                '0 0 0 2px rgba(139,92,246,0.3), 0 0 30px rgba(139,92,246,0.25)',
+-            }
+-          : {},
+-      }),
+-    },
+-    addStepRow: {
+-      flexDirection: 'row',
+-      marginBottom: Tokens.spacing[3],
+-      gap: Tokens.spacing[2],
+-    },
+-    stepInput: {
+-      flex: 1,
+-      backgroundColor: isCosmic ? '#0B1022' : Tokens.colors.neutral.darker,
+-      borderRadius: isCosmic ? 8 : 0,
+-      paddingHorizontal: Tokens.spacing[3],
+-      color: isCosmic ? '#EEF2FF' : Tokens.colors.text.primary,
+-      fontFamily: Tokens.type.fontFamily.mono,
+-      fontSize: Tokens.type.sm,
+-      height: 48,
+-      borderWidth: 1,
+-      borderColor: isCosmic
+-        ? 'rgba(42, 53, 82, 0.3)'
+-        : Tokens.colors.neutral.border,
+-      ...Platform.select({
+-        web: { outlineStyle: 'none', transition: 'border-color 0.2s ease' },
+-      }),
+-    },
+-    addButton: {
+-      width: 48,
+-      height: 48,
+-      paddingHorizontal: 0,
+-      justifyContent: 'center',
+-      alignItems: 'center',
+-      borderRadius: isCosmic ? 8 : 0,
+-    },
+-    previewContainer: {
+-      backgroundColor: isCosmic ? '#111A33' : Tokens.colors.neutral.darkest,
+-      borderRadius: isCosmic ? 8 : 0,
+-      padding: Tokens.spacing[4],
+-      marginBottom: Tokens.spacing[3],
+-      borderWidth: 1,
+-      borderStyle: 'dashed',
+-      borderColor: isCosmic
+-        ? 'rgba(42, 53, 82, 0.3)'
+-        : Tokens.colors.neutral.border,
+-    },
+-    previewTitle: {
+-      fontFamily: Tokens.type.fontFamily.mono,
+-      color: Tokens.colors.text.tertiary,
+-      fontSize: Tokens.type.xxs,
+-      fontWeight: '700',
+-      marginBottom: Tokens.spacing[2],
+-      textTransform: 'uppercase',
+-      letterSpacing: 1,
+-    },
+-    microStep: {
+-      flexDirection: 'row',
+-      alignItems: 'center',
+-      paddingVertical: 2,
+-    },
+-    stepNumber: {
+-      color: Tokens.colors.text.tertiary,
+-      width: Tokens.spacing[6],
+-      fontSize: Tokens.type.xs,
+-      fontWeight: 'bold',
+-      marginRight: Tokens.spacing[2],
+-      fontFamily: Tokens.type.fontFamily.mono,
+-    },
+-    stepText: {
+-      fontFamily: Tokens.type.fontFamily.mono,
+-      fontSize: Tokens.type.sm,
+-    },
+-    shimmer: {
+-      marginTop: Tokens.spacing[2],
+-    },
+-    saveButton: {
+-      marginTop: Tokens.spacing[2],
+-    },
+-    divider: {
+-      height: 1,
+-      backgroundColor: isCosmic
+-        ? 'rgba(42, 53, 82, 0.3)'
+-        : Tokens.colors.neutral.border,
+-      width: '100%',
+-      marginBottom: Tokens.spacing[6],
+-    },
+-    sectionHeader: {
+-      fontFamily: Tokens.type.fontFamily.mono,
+-      fontSize: Tokens.type.xs,
+-      fontWeight: '700',
+-      color: Tokens.colors.text.tertiary,
+-      textTransform: 'uppercase',
+-      letterSpacing: 1,
+-      marginBottom: Tokens.spacing[3],
+-    },
+-    taskList: {
+-      flex: 1,
+-    },
+-    listContent: {
+-      paddingBottom: Tokens.spacing[20],
+-    },
+-    taskCard: {
+-      backgroundColor: isCosmic ? '#111A33' : Tokens.colors.neutral.darkest,
+-      borderRadius: isCosmic ? 12 : 0,
+-      padding: Tokens.spacing[4],
+-      marginBottom: Tokens.spacing[2],
+-      borderWidth: 1,
+-      borderColor: isCosmic
+-        ? 'rgba(42, 53, 82, 0.3)'
+-        : Tokens.colors.neutral.border,
+-      minHeight: 64,
+-      justifyContent: 'center',
+-      ...Platform.select({
+-        web: {
+-          transition: 'all 0.2s ease',
+-          cursor: 'pointer',
+-        },
+-      }),
+-    },
+-    taskCardHovered: {
+-      borderColor: isCosmic ? '#8B5CF6' : Tokens.colors.brand[500],
+-      zIndex: 1,
+-      ...Platform.select({
+-        web: isCosmic
+-          ? {
+-              boxShadow:
+-                '0 0 0 1px rgba(139,92,246,0.3), 0 0 20px rgba(139,92,246,0.2)',
+-            }
+-          : {},
+-      }),
+-    },
+-    taskCardPressed: {
+-      backgroundColor: isCosmic ? '#0B1022' : Tokens.colors.neutral.darker,
+-    },
+-    taskCardCompleted: {
+-      opacity: 0.5,
+-      backgroundColor: isCosmic ? '#111A33' : Tokens.colors.neutral.darker,
+-    },
+-    taskHeader: {
+-      flexDirection: 'row',
+-      justifyContent: 'space-between',
+-      alignItems: 'center',
+-      marginBottom: Tokens.spacing[1],
+-    },
+-    taskText: {
+-      fontFamily: Tokens.type.fontFamily.sans,
+-      color: isCosmic ? '#EEF2FF' : Tokens.colors.text.primary,
+-      fontSize: Tokens.type.base,
+-      fontWeight: '700',
+-      flex: 1,
+-      marginRight: Tokens.spacing[2],
+-    },
+-    completed: {
+-      textDecorationLine: 'line-through',
+-      color: isCosmic ? '#B9C2D9' : Tokens.colors.text.secondary,
+-    },
+-    doneBadge: {
+-      backgroundColor: isCosmic ? '#0B1022' : Tokens.colors.neutral.dark,
+-      color: isCosmic ? '#B9C2D9' : Tokens.colors.text.secondary,
+-      fontSize: Tokens.type.xxs,
+-      fontWeight: '700',
+-      paddingHorizontal: 6,
+-      paddingVertical: 2,
+-      borderRadius: isCosmic ? 8 : 0,
+-      overflow: 'hidden',
+-      fontFamily: Tokens.type.fontFamily.mono,
+-    },
+-    activeStepContainer: {
+-      marginTop: Tokens.spacing[2],
+-      paddingLeft: Tokens.spacing[2],
+-      borderLeftWidth: 1,
+-      borderLeftColor: isCosmic ? '#8B5CF6' : Tokens.colors.brand[500],
+-    },
+-    activeStepLabel: {
+-      fontFamily: Tokens.type.fontFamily.mono,
+-      fontSize: Tokens.type.xxs,
+-      color: Tokens.colors.text.tertiary,
+-      marginBottom: 1,
+-      letterSpacing: 0.5,
+-    },
+-    activeStepText: {
+-      fontFamily: Tokens.type.fontFamily.mono,
+-      fontSize: Tokens.type.xs,
+-      color: isCosmic ? '#B9C2D9' : Tokens.colors.text.secondary,
+-    },
+-    stepCountText: {
+-      fontFamily: Tokens.type.fontFamily.mono,
+-      color: Tokens.colors.text.tertiary,
+-      fontSize: Tokens.type.xs,
+-      letterSpacing: 1,
+-    },
+-    progressContainer: {
+-      marginTop: Tokens.spacing[2],
+-    },
+-    progressBar: {
+-      marginBottom: Tokens.spacing[2],
+-    },
+-    loadingContainer: {
+-      padding: Tokens.spacing[8],
+-      alignItems: 'center',
+-      gap: Tokens.spacing[4],
+-    },
+-    loadingText: {
+-      fontFamily: Tokens.type.fontFamily.mono,
+-      fontSize: Tokens.type.xs,
+-      color: isCosmic ? '#B9C2D9' : Tokens.colors.text.secondary,
+-      letterSpacing: 1,
+-      textTransform: 'uppercase',
+-    },
+-    emptyState: {
+-      marginTop: Tokens.spacing[8],
+-      opacity: 0.5,
+-    },
+-    guideBanner: {
+-      backgroundColor: isCosmic ? '#0B1022' : Tokens.colors.neutral.dark,
+-      borderWidth: 1,
+-      borderColor: isCosmic ? '#8B5CF6' : Tokens.colors.brand[500],
+-      padding: Tokens.spacing[3],
+-      marginBottom: Tokens.spacing[6],
+-      flexDirection: 'row',
+-      alignItems: 'center',
+-      justifyContent: 'space-between',
+-      gap: Tokens.spacing[4],
+-      borderRadius: isCosmic ? 12 : 0,
+-    },
+-    guideContent: {
+-      flex: 1,
+-    },
+-    guideTitle: {
+-      fontFamily: Tokens.type.fontFamily.mono,
+-      fontSize: Tokens.type.xs,
+-      fontWeight: '700',
+-      color: isCosmic ? '#8B5CF6' : Tokens.colors.brand[500],
+-      marginBottom: Tokens.spacing[1],
+-      letterSpacing: 1,
+-    },
+-    guideText: {
+-      fontFamily: Tokens.type.fontFamily.mono,
+-      fontSize: Tokens.type.xs,
+-      color: isCosmic ? '#EEF2FF' : Tokens.colors.text.primary,
+-    },
+-    guideButton: {
+-      paddingVertical: 4,
+-      paddingHorizontal: 8,
+-      borderWidth: 1,
+-      borderColor: isCosmic
+-        ? 'rgba(42, 53, 82, 0.3)'
+-        : Tokens.colors.neutral.border,
+-      backgroundColor: isCosmic ? '#111A33' : Tokens.colors.neutral.darkest,
+-      borderRadius: isCosmic ? 8 : 0,
+-    },
+-    guideButtonPressed: {
+-      backgroundColor: isCosmic ? '#0B1022' : Tokens.colors.neutral.darker,
+-    },
+-    guideButtonText: {
+-      fontFamily: Tokens.type.fontFamily.mono,
+-      fontSize: Tokens.type.xxs,
+-      fontWeight: '700',
+-      color: isCosmic ? '#EEF2FF' : Tokens.colors.text.primary,
+-      textTransform: 'uppercase',
+-    },
+-  });
+-
+-export default FogCutterScreen;
++              
+diff --git a/src/screens/TasksScreen.tsx b/src/screens/TasksScreen.tsx
+index 36fe1ecfd4a3f542d20162e39303827e694691ed..1ed8bb09a71170fa0a6e1a6b956a81343c03b0b5 100644
+--- a/src/screens/TasksScreen.tsx
++++ b/src/screens/TasksScreen.tsx
+@@ -20,21 +20,11 @@ import Animated, {
+ } from 'react-native-reanimated';
+ import { CosmicBackground, GlowCard, RuneButton } from '../ui/cosmic';
+ import { useTaskStore } from '../store/useTaskStore';
+-import type { Task, TaskPriority } from '../types/task';
+-import { CosmicTokens } from '../theme/cosmicTokens';
+-
+-// Cosmic priority colors - using semantic tokens
+-const PRIORITY_COLORS: Record<TaskPriority, string> = {
+-  urgent: CosmicTokens.colors.semantic.error,
+-  important: CosmicTokens.colors.semantic.warning,
+-  normal: CosmicTokens.colors.semantic.primary,
+-};
+-
+-const PRIORITY_LABELS: Record<TaskPriority, string> = {
+-  urgent: 'URGENT',
+-  important: 'IMPORTANT',
+-  normal: 'STABLE',
+-};
++import type { Task } from '../types/task';
++import {
++  TASK_PRIORITY_COLORS,
++  TASK_PRIORITY_LABELS,
++} from './TasksScreen.constants';
+ 
+ /**
+  * TasksScreen
+@@ -162,7 +152,7 @@ export const TasksScreen = memo(function TasksScreen() {
+               style={styles.statCard}
+             >
+               <Text
+-                style={[styles.statValue, { color: PRIORITY_COLORS.urgent }]}
++                style={[styles.statValue, { color: TASK_PRIORITY_COLORS.urgent }]}
+               >
+                 {stats.urgent}
+               </Text>
+@@ -176,7 +166,7 @@ export const TasksScreen = memo(function TasksScreen() {
+               style={styles.statCard}
+             >
+               <Text
+-                style={[styles.statValue, { color: PRIORITY_COLORS.normal }]}
++                style={[styles.statValue, { color: TASK_PRIORITY_COLORS.normal }]}
+               >
+                 {stats.total - stats.completed}
+               </Text>
+@@ -346,11 +336,11 @@ const TaskItem = memo(function TaskItem({
+           <Animated.View
+             style={[
+               styles.checkbox,
++              { borderColor: 'rgba(185, 194, 217, 0.3)' },
+               task.completed && {
+-                backgroundColor: PRIORITY_COLORS[task.priority],
+-                borderColor: PRIORITY_COLORS[task.priority],
++                backgroundColor: TASK_PRIORITY_COLORS[task.priority],
++                borderColor: TASK_PRIORITY_COLORS[task.priority],
+               },
+-              { borderColor: 'rgba(185, 194, 217, 0.3)' },
+               animatedCheckboxStyle,
+             ]}
+           >
+@@ -372,16 +362,16 @@ const TaskItem = memo(function TaskItem({
+             <View
+               style={[
+                 styles.priorityBadge,
+-                { backgroundColor: `${PRIORITY_COLORS[task.priority]}15` },
++                { backgroundColor: `${TASK_PRIORITY_COLORS[task.priority]}15` },
+               ]}
+             >
+               <Text
+                 style={[
+                   styles.priorityLabel,
+-                  { color: PRIORITY_COLORS[task.priority] },
++                  { color: TASK_PRIORITY_COLORS[task.priority] },
+                 ]}
+               >
+-                {PRIORITY_LABELS[task.priority]}
++                {TASK_PRIORITY_LABELS[task.priority]}
+               </Text>
+             </View>
+             {task.dueDate && (
+@@ -423,13 +413,13 @@ const styles = StyleSheet.create({
+     color: '#EEF2FF', // starlight
+     letterSpacing: 2,
+   },
+-  headerSubtitle: {
+-    fontSize: 10,
+-    fontWeight: '600',
+-    color: CosmicTokens.colors.semantic.primary,
+-    letterSpacing: 3,
+-    marginTop: -2,
+-  },
++    headerSubtitle: {
++      fontSize: 10,
++      fontWeight: '600',
++      color: TASK_PRIORITY_COLORS.normal,
++      letterSpacing: 3,
++      marginTop: -2,
++    },
+   backButton: {
+     marginRight: 16,
+     width: 44,
+diff --git a/src/screens/diagnostics/components/BackupSection.tsx b/src/screens/diagnostics/components/BackupSection.tsx
+index ec8ee4f79352e28c75c5da6d6114d8925e4fb571..9cfef6f9e3b7b10664983c1a14838d27c09db2d5 100644
+--- a/src/screens/diagnostics/components/BackupSection.tsx
++++ b/src/screens/diagnostics/components/BackupSection.tsx
+@@ -6,6 +6,7 @@ import {
+   TouchableOpacity,
+   View,
+ } from 'react-native';
++import { LoggerService } from '../../../services/LoggerService';
+ import { Tokens } from '../../../theme/tokens';
+ import type { BackupImportMode } from '../types';
+ 
+@@ -92,7 +93,14 @@ export const BackupSection = ({
+         <TouchableOpacity
+           testID="diagnostics-export-backup"
+           onPress={() => {
+-            onExport().catch(() => undefined);
++            onExport().catch((error) => {
++              LoggerService.error({
++                service: 'BackupSection',
++                operation: 'onExport',
++                message: 'Backup export action failed',
++                error,
++              });
++            });
+           }}
+           disabled={isBackupBusy}
+           style={[
+@@ -108,7 +116,15 @@ export const BackupSection = ({
+         <TouchableOpacity
+           testID="diagnostics-import-backup"
+           onPress={() => {
+-            onImport().catch(() => undefined);
++            onImport().catch((error) => {
++              LoggerService.error({
++                service: 'BackupSection',
++                operation: 'onImport',
++                message: 'Backup import action failed',
++                error,
++                context: { importMode },
++              });
++            });
+           }}
+           disabled={isBackupBusy || !backupJson.trim()}
+           style={[
+diff --git a/src/screens/diagnostics/components/ThemeSection.tsx b/src/screens/diagnostics/components/ThemeSection.tsx
+index bdf5c91ea0722fdf5c9dacbeb64613f9e0e5a739..24831133bbe21cec3942def8747a412ede5f7754 100644
+--- a/src/screens/diagnostics/components/ThemeSection.tsx
++++ b/src/screens/diagnostics/components/ThemeSection.tsx
+@@ -1,5 +1,6 @@
+ import React from 'react';
+ import { StyleSheet, Text, View } from 'react-native';
++import { LoggerService } from '../../../services/LoggerService';
+ import { Tokens } from '../../../theme/tokens';
+ import { GlowCard } from '../../../ui/cosmic';
+ import type { ThemeOption } from '../types';
+@@ -22,7 +23,15 @@ export const ThemeSection = ({
+           <GlowCard
+             glow={option.selected ? 'soft' : 'none'}
+             onPress={() => {
+-              onSelectTheme(option.variant).catch(() => undefined);
++              onSelectTheme(option.variant).catch((error) => {
++                LoggerService.error({
++                  service: 'ThemeSection',
++                  operation: 'onSelectTheme',
++                  message: 'Theme selection failed',
++                  error,
++                  context: { variant: option.variant },
++                });
++              });
+             }}
+             style={styles.themeOption}
+             accessibilityLabel={`Select ${option.label} theme`}
+diff --git a/src/screens/diagnostics/hooks/useBackupManager.ts b/src/screens/diagnostics/hooks/useBackupManager.ts
+index 66e53146ce600eb7e17e2392c4dc2f4e67fd16f5..d2141263c9b812044dc9d5f2cc8302e0f0f7c051 100644
+--- a/src/screens/diagnostics/hooks/useBackupManager.ts
++++ b/src/screens/diagnostics/hooks/useBackupManager.ts
+@@ -1,5 +1,6 @@
+ import { useCallback, useEffect, useMemo, useState } from 'react';
+ import { AccessibilityInfo, Alert, NativeModules, Share } from 'react-native';
++import { LoggerService } from '../../../services/LoggerService';
+ import StorageService from '../../../services/StorageService';
+ import { isWeb } from '../../../utils/PlatformUtils';
+ import type { BackupImportMode, BackupPayload } from '../types';
+@@ -211,7 +212,13 @@ export const useBackupManager = (
+       let parsed: unknown;
+       try {
+         parsed = JSON.parse(backupJson);
+-      } catch {
++      } catch (error) {
++        LoggerService.warn({
++          service: 'useBackupManager',
++          operation: 'importBackup.parseBackupJson',
++          message: 'Failed to parse backup JSON',
++          error,
++        });
+         announceBackupStatus('Invalid JSON. Import canceled.');
+         return;
+       }
+@@ -266,7 +273,13 @@ export const useBackupManager = (
+   ]);
+ 
+   useEffect(() => {
+-    refreshLastBackupExportAt().catch(() => {
++    refreshLastBackupExportAt().catch((error) => {
++      LoggerService.error({
++        service: 'useBackupManager',
++        operation: 'refreshLastBackupExportAt',
++        message: 'Unable to read last backup export time',
++        error,
++      });
+       announceBackupStatus('Unable to read last backup export time.');
+     });
+   }, [announceBackupStatus, refreshLastBackupExportAt]);
+diff --git a/src/screens/diagnostics/hooks/useDiagnosticsData.ts b/src/screens/diagnostics/hooks/useDiagnosticsData.ts
+index eebd340b01f3d473fc15d1dbeec81546b7bdb40b..764a594ad4ddd28bace22c98039b75566ad47cd6 100644
+--- a/src/screens/diagnostics/hooks/useDiagnosticsData.ts
++++ b/src/screens/diagnostics/hooks/useDiagnosticsData.ts
+@@ -1,6 +1,7 @@
+ import { useCallback, useEffect, useState } from 'react';
+ import { config } from '../../../config';
+ import { GoogleTasksSyncService } from '../../../services/GoogleTasksSyncService';
++import { LoggerService } from '../../../services/LoggerService';
+ import StorageService from '../../../services/StorageService';
+ import { isAndroid, isIOS, isWeb } from '../../../utils/PlatformUtils';
+ import type { DiagnosticEntry } from '../types';
+@@ -126,7 +127,13 @@ export const useDiagnosticsData = (): UseDiagnosticsDataResult => {
+             status: 'info',
+           });
+         }
+-      } catch {
++      } catch (error) {
++        LoggerService.error({
++          service: 'useDiagnosticsData',
++          operation: 'readGoogleTasksLastSyncAt',
++          message: 'Failed to read last sync timestamp',
++          error,
++        });
+         entries.push({
+           label: 'Last Sync',
+           value: 'Error reading timestamp',
+@@ -144,7 +151,13 @@ export const useDiagnosticsData = (): UseDiagnosticsDataResult => {
+           value: `${count}`,
+           status: 'info',
+         });
+-      } catch {
++      } catch (error) {
++        LoggerService.error({
++          service: 'useDiagnosticsData',
++          operation: 'readExportedFingerprints',
++          message: 'Failed to read exported fingerprint cache',
++          error,
++        });
+         entries.push({
+           label: 'Exported Items',
+           value: 'Error reading cache',
+@@ -159,7 +172,13 @@ export const useDiagnosticsData = (): UseDiagnosticsDataResult => {
+   }, []);
+ 
+   useEffect(() => {
+-    refreshDiagnostics().catch(() => {
++    refreshDiagnostics().catch((error) => {
++      LoggerService.error({
++        service: 'useDiagnosticsData',
++        operation: 'refreshDiagnostics',
++        message: 'Failed to refresh diagnostics data',
++        error,
++      });
+       setIsRefreshing(false);
+     });
+   }, [refreshDiagnostics]);
+diff --git a/src/services/HapticsService.ts b/src/services/HapticsService.ts
+index 1c678d33540a3ab495a55e356299551f4da9f7d3..87db0526778b788bb1d1ea7d4a4c8a24f1dd4a47 100644
+--- a/src/services/HapticsService.ts
++++ b/src/services/HapticsService.ts
+@@ -15,10 +15,13 @@ try {
+       message: 'expo-haptics not available, using Vibration fallback',
+       error: err,
+     });
+-  } catch {
++  } catch (loggerError) {
+     // Fallback to console if LoggerService not initialized
+     // eslint-disable-next-line no-console
+-    console.debug('[HapticsService] expo-haptics not available');
++    console.debug(
++      '[HapticsService] expo-haptics not available; logger unavailable',
++      loggerError,
++    );
+   }
+ }
+ 
