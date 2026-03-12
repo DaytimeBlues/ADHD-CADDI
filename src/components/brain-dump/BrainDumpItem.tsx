@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, Pressable, StyleSheet, Platform } from 'react-native';
 import { Tokens } from '../../theme/tokens';
 import { useTheme } from '../../theme/useTheme';
+import type { ThemeTokens } from '../../theme/types';
+import type { ThemeVariant } from '../../theme/themeVariant';
 
-// Extended pressable state for web hover support
 type PressableState = {
   pressed: boolean;
   hovered?: boolean;
@@ -33,8 +34,8 @@ export const BrainDumpItem: React.FC<BrainDumpItemProps> = ({
   item,
   onDelete,
 }) => {
-  const { isCosmic } = useTheme();
-  const styles = getStyles(isCosmic);
+  const { t, variant } = useTheme();
+  const styles = useMemo(() => getStyles(variant, t), [t, variant]);
 
   return (
     <View style={styles.item} testID="brain-dump-item">
@@ -52,51 +53,55 @@ export const BrainDumpItem: React.FC<BrainDumpItemProps> = ({
         ]}
         hitSlop={HIT_SLOP}
       >
-        <Text style={styles.deleteText}>×</Text>
+        <Text style={styles.deleteText}>x</Text>
       </Pressable>
     </View>
   );
 };
 
-const getStyles = (isCosmic: boolean) =>
-  StyleSheet.create({
+const getStyles = (variant: ThemeVariant, t: ThemeTokens) => {
+  const isCosmic = variant === 'cosmic';
+  const isNightAwe = variant === 'nightAwe';
+  const borderColor = isNightAwe
+    ? t.colors.nightAwe?.surface?.border || 'rgba(217, 228, 242, 0.14)'
+    : isCosmic
+      ? 'rgba(139, 92, 246, 0.2)'
+      : Tokens.colors.neutral.border;
+  const surface = isNightAwe
+    ? t.colors.nightAwe?.surface?.raised || 'rgba(13, 24, 40, 0.76)'
+    : isCosmic
+      ? 'rgba(17, 26, 51, 0.4)'
+      : Tokens.colors.neutral.darkest;
+  const hoverSurface = isNightAwe
+    ? 'rgba(19, 34, 56, 0.84)'
+    : Tokens.colors.neutral.dark;
+
+  return StyleSheet.create({
     item: {
-      backgroundColor: isCosmic
-        ? 'rgba(17, 26, 51, 0.4)'
-        : Tokens.colors.neutral.darkest,
-      borderRadius: isCosmic ? 8 : Tokens.radii.none,
+      backgroundColor: surface,
+      borderRadius: isCosmic ? 8 : isNightAwe ? 14 : Tokens.radii.none,
       paddingHorizontal: isCosmic ? 12 : Tokens.spacing[3],
-      paddingVertical: isCosmic ? 8 : Tokens.spacing[2],
-      marginBottom: isCosmic ? 6 : -1,
+      paddingVertical: isCosmic ? 8 : isNightAwe ? 10 : Tokens.spacing[2],
+      marginBottom: isCosmic ? 6 : isNightAwe ? 8 : -1,
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
       borderWidth: 1,
-      borderColor: isCosmic
-        ? 'rgba(139, 92, 246, 0.2)'
-        : Tokens.colors.neutral.border,
-      minHeight: isCosmic ? 40 : 48,
-      ...(isCosmic
-        ? Platform.select({
-            web: {
-              backdropFilter: 'blur(12px) saturate(150%)',
-              boxShadow: `
-              0 0 0 1px rgba(139, 92, 246, 0.1),
-              0 4px 20px rgba(7, 7, 18, 0.35),
-              inset 0 1px 0 rgba(255, 255, 255, 0.04)
-            `,
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            },
-          })
-        : Platform.select({
-            web: {
-              transition: 'all 0.2s ease',
-            },
-          })),
+      borderColor,
+      minHeight: isCosmic ? 40 : isNightAwe ? 44 : 48,
+      ...Platform.select({
+        web: {
+          transition: 'all 0.2s ease',
+        },
+      }),
     },
     itemText: {
       flex: 1,
-      color: isCosmic ? '#EEF2FF' : Tokens.colors.text.primary,
+      color: isNightAwe
+        ? t.colors.text?.primary || Tokens.colors.text.primary
+        : isCosmic
+          ? '#EEF2FF'
+          : Tokens.colors.text.primary,
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: Tokens.type.xs,
       lineHeight: 16,
@@ -104,7 +109,7 @@ const getStyles = (isCosmic: boolean) =>
     },
     deleteButton: {
       padding: 0,
-      borderRadius: isCosmic ? 6 : Tokens.radii.none,
+      borderRadius: isCosmic ? 6 : isNightAwe ? 8 : Tokens.radii.none,
       width: 32,
       height: 32,
       alignItems: 'center',
@@ -114,15 +119,20 @@ const getStyles = (isCosmic: boolean) =>
       }),
     },
     deleteButtonHovered: {
-      backgroundColor: Tokens.colors.neutral.dark,
+      backgroundColor: hoverSurface,
     },
     deleteButtonPressed: {
-      backgroundColor: Tokens.colors.neutral.border,
+      backgroundColor: borderColor,
     },
     deleteText: {
-      color: isCosmic ? '#B9C2D9' : Tokens.colors.text.secondary,
-      fontSize: Tokens.type.lg,
-      fontWeight: '300',
-      marginTop: -2,
+      color: isNightAwe
+        ? t.colors.text?.muted || Tokens.colors.text.secondary
+        : isCosmic
+          ? '#B9C2D9'
+          : Tokens.colors.text.secondary,
+      fontSize: Tokens.type.base,
+      fontWeight: '500',
+      marginTop: -1,
     },
   });
+};
