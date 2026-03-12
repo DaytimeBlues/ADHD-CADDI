@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -9,8 +9,9 @@ import {
 } from 'react-native';
 import { Tokens } from '../../theme/tokens';
 import { useTheme } from '../../theme/useTheme';
+import type { ThemeTokens } from '../../theme/types';
+import type { ThemeVariant } from '../../theme/themeVariant';
 
-// Extended pressable state for web hover support
 type PressableState = {
   pressed: boolean;
   hovered?: boolean;
@@ -29,8 +30,8 @@ export const BrainDumpVoiceRecord: React.FC<BrainDumpVoiceRecordProps> = ({
   recordingError,
   onRecordPress,
 }) => {
-  const { isCosmic } = useTheme();
-  const styles = getStyles(isCosmic);
+  const { t, variant } = useTheme();
+  const styles = useMemo(() => getStyles(variant, t), [t, variant]);
 
   return (
     <View style={styles.recordSection}>
@@ -52,10 +53,10 @@ export const BrainDumpVoiceRecord: React.FC<BrainDumpVoiceRecordProps> = ({
         ]}
       >
         {recordingState === 'processing' ? (
-          <ActivityIndicator size="small" color={Tokens.colors.text.primary} />
+          <ActivityIndicator size="small" color={styles.recordActivity.color} />
         ) : (
           <Text style={styles.recordIcon}>
-            {recordingState === 'recording' ? '■' : '●'}
+            {recordingState === 'recording' ? '[]' : 'O'}
           </Text>
         )}
         <Text style={styles.recordText}>
@@ -69,8 +70,19 @@ export const BrainDumpVoiceRecord: React.FC<BrainDumpVoiceRecordProps> = ({
   );
 };
 
-const getStyles = (isCosmic: boolean) =>
-  StyleSheet.create({
+const getStyles = (variant: ThemeVariant, t: ThemeTokens) => {
+  const isCosmic = variant === 'cosmic';
+  const isNightAwe = variant === 'nightAwe';
+  const accent = isNightAwe
+    ? t.colors.nightAwe?.feature?.brainDump || t.colors.semantic.primary
+    : Tokens.colors.brand[500];
+  const borderColor = isNightAwe
+    ? t.colors.nightAwe?.surface?.border || 'rgba(217, 228, 242, 0.14)'
+    : isCosmic
+      ? 'rgba(139, 92, 246, 0.3)'
+      : Tokens.colors.neutral.border;
+
+  return StyleSheet.create({
     recordSection: {
       alignItems: 'center',
       marginBottom: isCosmic ? 16 : Tokens.spacing[5],
@@ -78,61 +90,37 @@ const getStyles = (isCosmic: boolean) =>
     recordButton: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: isCosmic
-        ? 'rgba(17, 26, 51, 0.5)'
-        : Tokens.colors.neutral.darkest,
+      backgroundColor: isNightAwe
+        ? t.colors.nightAwe?.surface?.base || 'rgba(8, 17, 30, 0.7)'
+        : isCosmic
+          ? 'rgba(17, 26, 51, 0.5)'
+          : Tokens.colors.neutral.darkest,
       paddingHorizontal: isCosmic ? 12 : Tokens.spacing[3],
-      paddingVertical: isCosmic ? 6 : Tokens.spacing[1],
-      borderRadius: isCosmic ? 8 : Tokens.radii.none,
+      paddingVertical: isCosmic ? 6 : Tokens.spacing[2],
+      borderRadius: isCosmic ? 8 : isNightAwe ? 14 : Tokens.radii.none,
       borderWidth: 1,
-      borderColor: isCosmic
-        ? 'rgba(139, 92, 246, 0.3)'
-        : Tokens.colors.neutral.border,
-      minWidth: isCosmic ? 120 : 140,
+      borderColor,
+      minWidth: isCosmic ? 120 : 148,
       minHeight: isCosmic ? 36 : 48,
       justifyContent: 'center',
-      ...(isCosmic
-        ? Platform.select({
-            web: {
-              backdropFilter: 'blur(16px) saturate(180%)',
-              boxShadow: `
-              0 0 0 1px rgba(139, 92, 246, 0.2),
-              0 4px 24px rgba(7, 7, 18, 0.4),
-              inset 0 1px 0 rgba(255, 255, 255, 0.08)
-            `,
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              cursor: 'pointer',
-            },
-          })
-        : Platform.select({
-            web: {
-              transition: 'all 0.2s ease',
-              cursor: 'pointer',
-            },
-          })),
+      ...Platform.select({
+        web: {
+          transition: 'all 0.2s ease',
+          cursor: 'pointer',
+        },
+      }),
     },
     recordButtonHovered: {
-      borderColor: isCosmic
-        ? 'rgba(139, 92, 246, 0.6)'
-        : Tokens.colors.text.primary,
-      backgroundColor: isCosmic ? 'rgba(17, 26, 51, 0.7)' : undefined,
-      ...(isCosmic
-        ? Platform.select({
-            web: {
-              boxShadow: `
-              0 0 0 2px rgba(139, 92, 246, 0.3),
-              0 0 30px rgba(139, 92, 246, 0.25),
-              0 8px 32px rgba(7, 7, 18, 0.5),
-              inset 0 1px 0 rgba(255, 255, 255, 0.1)
-            `,
-              transform: 'translateY(-1px)',
-            },
-          })
-        : {}),
+      borderColor: accent,
+      backgroundColor: isNightAwe
+        ? 'rgba(19, 34, 56, 0.84)'
+        : isCosmic
+          ? 'rgba(17, 26, 51, 0.7)'
+          : undefined,
     },
     recordButtonActive: {
-      backgroundColor: isCosmic ? '#8B5CF6' : Tokens.colors.brand[500],
-      borderColor: isCosmic ? '#8B5CF6' : Tokens.colors.brand[500],
+      backgroundColor: accent,
+      borderColor: accent,
     },
     recordButtonProcessing: {
       opacity: 0.5,
@@ -141,23 +129,35 @@ const getStyles = (isCosmic: boolean) =>
     recordButtonPressed: {
       opacity: 0.8,
     },
+    recordActivity: {
+      color: isNightAwe
+        ? t.colors.text?.primary || Tokens.colors.text.primary
+        : Tokens.colors.text.primary,
+    },
     recordIcon: {
       fontSize: Tokens.type.base,
       marginRight: Tokens.spacing[2],
-      color: Tokens.colors.text.primary,
+      color:
+        variant === 'nightAwe'
+          ? t.colors.text?.primary || Tokens.colors.text.primary
+          : Tokens.colors.text.primary,
     },
     recordText: {
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: Tokens.type.xs,
       fontWeight: '700',
-      color: Tokens.colors.text.primary,
+      color:
+        variant === 'nightAwe'
+          ? t.colors.text?.primary || Tokens.colors.text.primary
+          : Tokens.colors.text.primary,
       letterSpacing: 1,
     },
     errorText: {
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: Tokens.type.xs,
-      color: Tokens.colors.brand[500],
+      color: accent,
       textAlign: 'center',
       marginTop: Tokens.spacing[2],
     },
   });
+};

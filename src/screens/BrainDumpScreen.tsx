@@ -12,6 +12,7 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import { ROUTES } from '../navigation/routes';
 import { useTheme } from '../theme/useTheme';
 import { CosmicBackground } from '../ui/cosmic';
+import { NightAweBackground } from '../ui/nightAwe';
 import { isWeb } from '../utils/PlatformUtils';
 import {
   BrainDumpItem,
@@ -39,8 +40,12 @@ type BrainDumpRoute = RouteProp<
 >;
 
 const BrainDumpScreen = () => {
-  const { isCosmic, t } = useTheme();
-  const styles = getBrainDumpStyles(isCosmic, t);
+  const { isCosmic, isNightAwe, t, variant } = useTheme();
+  const styles = useMemo(() => getBrainDumpStyles(variant, t), [t, variant]);
+  const loadingSpinnerColor =
+    isNightAwe
+      ? t.colors.nightAwe?.feature?.brainDump || t.colors.semantic.primary
+      : t.colors.brand[500];
   const route = useRoute<BrainDumpRoute>();
   const storeTasks = useTaskStore((state) => state.tasks);
   const activeTasks = useMemo(
@@ -80,17 +85,12 @@ const BrainDumpScreen = () => {
     getPriorityStyle,
   } = useBrainDump(route.params?.autoRecord);
 
-  return (
+  const content = (
     <SafeAreaView
       style={styles.container}
       accessibilityLabel="Brain dump screen"
       accessibilityRole="summary"
     >
-      {isCosmic && (
-        <CosmicBackground variant="nebula">
-          <View style={StyleSheet.absoluteFillObject} />
-        </CosmicBackground>
-      )}
       <View style={styles.centerContainer}>
         <View style={styles.contentWrapper}>
           <View style={styles.header}>
@@ -139,7 +139,7 @@ const BrainDumpScreen = () => {
 
           {isLoading ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="small" color={t.colors.brand[500]} />
+              <ActivityIndicator size="small" color={loadingSpinnerColor} />
               <Text style={styles.loadingText}>LOADING...</Text>
             </View>
           ) : (
@@ -172,7 +172,6 @@ const BrainDumpScreen = () => {
             </View>
           )}
 
-          {/* Integration Panel */}
           <IntegrationPanel />
 
           {activeTasks.length > 0 && (
@@ -224,6 +223,32 @@ const BrainDumpScreen = () => {
       </View>
     </SafeAreaView>
   );
+
+  if (isNightAwe) {
+    return (
+      <NightAweBackground
+        variant="focus"
+        activeFeature="brainDump"
+        motionMode="idle"
+        dimmer={false}
+      >
+        {content}
+      </NightAweBackground>
+    );
+  }
+
+  if (isCosmic) {
+    return (
+      <View style={styles.container}>
+        <CosmicBackground variant="nebula">
+          <View style={StyleSheet.absoluteFillObject} />
+        </CosmicBackground>
+        <View style={StyleSheet.absoluteFillObject}>{content}</View>
+      </View>
+    );
+  }
+
+  return content;
 };
 
 export default BrainDumpScreen;

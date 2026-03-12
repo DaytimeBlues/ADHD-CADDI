@@ -5,10 +5,12 @@ import { Tokens } from '../../theme/tokens';
 import { ChronoDigits, HaloRing, RuneButton } from '../../ui/cosmic';
 import { getIgniteScreenStyles } from '../IgniteScreen.styles';
 import { IGNITE_DURATION_SECONDS } from './useIgniteController';
+import { useTheme } from '../../theme/useTheme';
 
 interface Props {
   formattedTime: string;
   isCosmic: boolean;
+  isNightAwe: boolean;
   isPlaying: boolean;
   isRestoring: boolean;
   isRunning: boolean;
@@ -22,6 +24,7 @@ interface Props {
 export const IgniteTimerDisplay = ({
   formattedTime,
   isCosmic,
+  isNightAwe,
   isPlaying,
   isRestoring,
   isRunning,
@@ -31,14 +34,21 @@ export const IgniteTimerDisplay = ({
   onStart,
   onToggleSound,
 }: Props) => {
-  const styles = getIgniteScreenStyles(isCosmic);
+  const { t, variant } = useTheme();
+  const styles = getIgniteScreenStyles(variant, t);
 
   if (isRestoring) {
     return (
       <View style={styles.timerCard}>
         <ActivityIndicator
           size="small"
-          color={isCosmic ? '#8B5CF6' : Tokens.colors.brand[500]}
+          color={
+            isNightAwe
+              ? t.colors.semantic.secondary
+              : isCosmic
+                ? '#8B5CF6'
+                : Tokens.colors.brand[500]
+          }
         />
         <Text style={styles.restoringText}>RESTORING...</Text>
       </View>
@@ -48,7 +58,21 @@ export const IgniteTimerDisplay = ({
   return (
     <>
       <View style={styles.timerSection}>
-        {isCosmic ? (
+        {isNightAwe ? (
+          <View
+            style={[
+              styles.nightAweTimerFrame,
+              isRunning && styles.nightAweTimerFrameActive,
+            ]}
+          >
+            <View style={styles.nightAweTimerInner}>
+              <Text style={styles.nightAweTimerDigits}>{formattedTime}</Text>
+              <Text style={styles.nightAweTimerCaption}>
+                {isRunning ? 'FOCUS IN MOTION' : 'QUIETLY READY'}
+              </Text>
+            </View>
+          </View>
+        ) : isCosmic ? (
           <>
             <HaloRing
               mode="progress"
@@ -75,7 +99,19 @@ export const IgniteTimerDisplay = ({
 
       <View style={styles.controls}>
         {!isRunning ? (
-          isCosmic ? (
+          isNightAwe ? (
+            <Pressable
+              style={({ pressed }) => [
+                styles.nightAwePrimaryButton,
+                pressed && styles.buttonPressed,
+              ]}
+              onPress={onStart}
+            >
+              <Text style={styles.nightAwePrimaryButtonText}>
+                INITIATE_FOCUS
+              </Text>
+            </Pressable>
+          ) : isCosmic ? (
             <RuneButton
               variant="primary"
               size="lg"
@@ -93,6 +129,16 @@ export const IgniteTimerDisplay = ({
               style={styles.mainButton}
             />
           )
+        ) : isNightAwe ? (
+          <Pressable
+            style={({ pressed }) => [
+              styles.nightAweSecondaryButton,
+              pressed && styles.buttonPressed,
+            ]}
+            onPress={onPause}
+          >
+            <Text style={styles.nightAweSecondaryButtonText}>PAUSE</Text>
+          </Pressable>
         ) : isCosmic ? (
           <RuneButton
             variant="secondary"

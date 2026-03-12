@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -16,13 +16,8 @@ import {
   TodoistAuthData,
 } from '../../services/OAuthService';
 import { LoggerService } from '../../services/LoggerService';
-
-/**
- * IntegrationPanel
- *
- * Displays OAuth connection status for Google and Todoist
- * in the BrainDump/Tasks screen.
- */
+import type { ThemeTokens } from '../../theme/types';
+import type { ThemeVariant } from '../../theme/themeVariant';
 
 interface IntegrationPanelProps {
   onGoogleConnect?: () => void;
@@ -33,7 +28,8 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
   onGoogleConnect,
   onTodoistConnect,
 }) => {
-  const { isCosmic } = useTheme();
+  const { isCosmic, t, variant } = useTheme();
+  const styles = useMemo(() => getStyles(variant, t), [t, variant]);
   const [googleAuth, setGoogleAuth] = useState<GoogleAuthData | null>(null);
   const [todoistAuth, setTodoistAuth] = useState<TodoistAuthData | null>(null);
   const [isLoadingGoogle, setIsLoadingGoogle] = useState(false);
@@ -57,14 +53,12 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
     }
   }, []);
 
-  // Load auth status on mount
   useEffect(() => {
     loadAuthStatus();
   }, [loadAuthStatus]);
 
   const handleGoogleConnect = async () => {
     if (googleAuth?.connected) {
-      // Show disconnect confirmation
       Alert.alert(
         'Disconnect Google',
         'Are you sure you want to disconnect your Google account?',
@@ -153,13 +147,10 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
     }
   };
 
-  const styles = getStyles(isCosmic);
-
   return (
     <View style={styles.container} testID="integrations-panel">
       <Text style={styles.title}>INTEGRATIONS</Text>
 
-      {/* Google Integration */}
       <View style={styles.integrationRow}>
         <View style={styles.iconContainer}>
           <AppIcon name="google" size={20} color="#4285F4" />
@@ -201,7 +192,6 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
         </TouchableOpacity>
       </View>
 
-      {/* Todoist Integration */}
       <View style={styles.integrationRow}>
         <View style={styles.iconContainer}>
           <AppIcon name="check-circle-outline" size={20} color="#E44332" />
@@ -243,7 +233,6 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
         </TouchableOpacity>
       </View>
 
-      {/* Status Indicators */}
       <View style={styles.statusRow}>
         <View
           style={[
@@ -285,26 +274,38 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
   );
 };
 
-const getStyles = (isCosmic: boolean) =>
-  StyleSheet.create({
+const getStyles = (variant: ThemeVariant, t: ThemeTokens) => {
+  const isCosmic = variant === 'cosmic';
+  const isNightAwe = variant === 'nightAwe';
+  const accent = isNightAwe
+    ? t.colors.nightAwe?.feature?.brainDump || t.colors.semantic.primary
+    : Tokens.colors.brand[500];
+  const surface = isNightAwe
+    ? t.colors.nightAwe?.surface?.raised || 'rgba(13, 24, 40, 0.76)'
+    : isCosmic
+      ? 'rgba(139, 92, 246, 0.1)'
+      : Tokens.colors.neutral.dark;
+  const borderColor = isNightAwe
+    ? t.colors.nightAwe?.surface?.border || 'rgba(217, 228, 242, 0.14)'
+    : isCosmic
+      ? 'rgba(139, 92, 246, 0.3)'
+      : Tokens.colors.neutral.border;
+
+  return StyleSheet.create({
     container: {
       marginTop: 16,
       marginBottom: 8,
       padding: 16,
-      backgroundColor: isCosmic
-        ? 'rgba(139, 92, 246, 0.1)'
-        : Tokens.colors.neutral.dark,
-      borderRadius: 12,
+      backgroundColor: surface,
+      borderRadius: isNightAwe ? 16 : 12,
       borderWidth: 1,
-      borderColor: isCosmic
-        ? 'rgba(139, 92, 246, 0.3)'
-        : Tokens.colors.neutral.border,
+      borderColor,
     },
     title: {
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: Tokens.type.xs,
       fontWeight: '700',
-      color: isCosmic ? '#8B5CF6' : Tokens.colors.brand[500],
+      color: accent,
       letterSpacing: 1,
       marginBottom: 12,
     },
@@ -317,9 +318,11 @@ const getStyles = (isCosmic: boolean) =>
       width: 36,
       height: 36,
       borderRadius: 18,
-      backgroundColor: isCosmic
-        ? 'rgba(139, 92, 246, 0.2)'
-        : Tokens.colors.neutral.darker,
+      backgroundColor: isNightAwe
+        ? t.colors.nightAwe?.surface?.base || 'rgba(8, 17, 30, 0.7)'
+        : isCosmic
+          ? 'rgba(139, 92, 246, 0.2)'
+          : Tokens.colors.neutral.darker,
       justifyContent: 'center',
       alignItems: 'center',
       marginRight: 12,
@@ -331,7 +334,11 @@ const getStyles = (isCosmic: boolean) =>
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: Tokens.type.sm,
       fontWeight: '600',
-      color: isCosmic ? '#EEF2FF' : Tokens.colors.text.primary,
+      color: isNightAwe
+        ? t.colors.text?.primary || Tokens.colors.text.primary
+        : isCosmic
+          ? '#EEF2FF'
+          : Tokens.colors.text.primary,
     },
     connectedText: {
       fontFamily: Tokens.type.fontFamily.mono,
@@ -342,16 +349,24 @@ const getStyles = (isCosmic: boolean) =>
     disconnectedText: {
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: Tokens.type.xs,
-      color: isCosmic ? '#B9C2D9' : Tokens.colors.text.tertiary,
+      color: isNightAwe
+        ? t.colors.text?.muted || Tokens.colors.text.tertiary
+        : isCosmic
+          ? '#B9C2D9'
+          : Tokens.colors.text.tertiary,
       marginTop: 2,
     },
     button: {
-      backgroundColor: Tokens.colors.indigo.primary,
+      backgroundColor: isNightAwe
+        ? accent
+        : Tokens.colors.indigo.primary,
       paddingHorizontal: 12,
       paddingVertical: 6,
-      borderRadius: 6,
+      borderRadius: isNightAwe ? 10 : 6,
       minWidth: 80,
       alignItems: 'center',
+      borderWidth: isNightAwe ? 1 : 0,
+      borderColor: accent,
     },
     disconnectButton: {
       backgroundColor: isCosmic
@@ -364,7 +379,7 @@ const getStyles = (isCosmic: boolean) =>
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: Tokens.type.xs,
       fontWeight: '700',
-      color: '#FFF',
+      color: isNightAwe ? t.colors.text?.onAccent || '#08111E' : '#FFF',
     },
     statusRow: {
       flexDirection: 'row',
@@ -372,9 +387,7 @@ const getStyles = (isCosmic: boolean) =>
       marginTop: 8,
       paddingTop: 12,
       borderTopWidth: 1,
-      borderTopColor: isCosmic
-        ? 'rgba(139, 92, 246, 0.2)'
-        : Tokens.colors.neutral.border,
+      borderTopColor: borderColor,
     },
     statusIndicator: {
       width: 16,
@@ -387,12 +400,20 @@ const getStyles = (isCosmic: boolean) =>
       backgroundColor: '#10B981',
     },
     statusDisconnected: {
-      backgroundColor: isCosmic ? '#B9C2D9' : Tokens.colors.text.tertiary,
+      backgroundColor: isNightAwe
+        ? t.colors.text?.muted || Tokens.colors.text.tertiary
+        : isCosmic
+          ? '#B9C2D9'
+          : Tokens.colors.text.tertiary,
     },
     statusText: {
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: Tokens.type.xxs,
-      color: isCosmic ? '#B9C2D9' : Tokens.colors.text.secondary,
+      color: isNightAwe
+        ? t.colors.text?.secondary || Tokens.colors.text.secondary
+        : isCosmic
+          ? '#B9C2D9'
+          : Tokens.colors.text.secondary,
       marginLeft: 4,
       marginRight: 12,
     },
@@ -400,3 +421,4 @@ const getStyles = (isCosmic: boolean) =>
       width: 16,
     },
   });
+};

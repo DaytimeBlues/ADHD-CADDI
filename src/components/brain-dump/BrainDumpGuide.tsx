@@ -1,7 +1,9 @@
-import React from 'react';
-import { View, Text, Pressable, StyleSheet, Platform } from 'react-native';
+import React, { useMemo } from 'react';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { Tokens } from '../../theme/tokens';
 import { useTheme } from '../../theme/useTheme';
+import type { ThemeTokens } from '../../theme/types';
+import type { ThemeVariant } from '../../theme/themeVariant';
 
 export interface BrainDumpGuideProps {
   showGuide: boolean;
@@ -12,8 +14,8 @@ export const BrainDumpGuide: React.FC<BrainDumpGuideProps> = ({
   showGuide,
   onDismiss,
 }) => {
-  const { isCosmic } = useTheme();
-  const styles = getStyles(isCosmic);
+  const { t, variant } = useTheme();
+  const styles = useMemo(() => getStyles(variant, t), [t, variant]);
 
   if (!showGuide) {
     return null;
@@ -40,36 +42,34 @@ export const BrainDumpGuide: React.FC<BrainDumpGuideProps> = ({
   );
 };
 
-const getStyles = (isCosmic: boolean) =>
-  StyleSheet.create({
+const getStyles = (variant: ThemeVariant, t: ThemeTokens) => {
+  const isCosmic = variant === 'cosmic';
+  const isNightAwe = variant === 'nightAwe';
+  const accent = isNightAwe
+    ? t.colors.nightAwe?.feature?.brainDump || t.colors.semantic.primary
+    : Tokens.colors.brand[500];
+  const borderColor = isNightAwe
+    ? t.colors.nightAwe?.surface?.border || 'rgba(217, 228, 242, 0.14)'
+    : isCosmic
+      ? 'rgba(139, 92, 246, 0.35)'
+      : Tokens.colors.brand[500];
+
+  return StyleSheet.create({
     guideBanner: {
-      backgroundColor: isCosmic
-        ? 'rgba(17, 26, 51, 0.45)'
-        : Tokens.colors.neutral.dark,
+      backgroundColor: isNightAwe
+        ? t.colors.nightAwe?.surface?.base || 'rgba(8, 17, 30, 0.7)'
+        : isCosmic
+          ? 'rgba(17, 26, 51, 0.45)'
+          : Tokens.colors.neutral.dark,
       borderWidth: 1,
-      borderColor: isCosmic
-        ? 'rgba(139, 92, 246, 0.35)'
-        : Tokens.colors.brand[500],
-      borderRadius: isCosmic ? 10 : Tokens.radii.none,
+      borderColor,
+      borderRadius: isCosmic ? 10 : isNightAwe ? 14 : Tokens.radii.none,
       padding: isCosmic ? 10 : Tokens.spacing[3],
       marginBottom: isCosmic ? 16 : Tokens.spacing[5],
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
       gap: isCosmic ? 8 : Tokens.spacing[3],
-      ...(isCosmic
-        ? Platform.select({
-            web: {
-              backdropFilter: 'blur(20px) saturate(160%)',
-              boxShadow: `
-              0 0 0 1px rgba(139, 92, 246, 0.2),
-              0 6px 28px rgba(7, 7, 18, 0.45),
-              inset 0 1px 0 rgba(255, 255, 255, 0.06)
-            `,
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-            },
-          })
-        : {}),
     },
     guideContent: {
       flex: 1,
@@ -78,7 +78,7 @@ const getStyles = (isCosmic: boolean) =>
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: Tokens.type.xxs,
       fontWeight: '700',
-      color: isCosmic ? '#8B5CF6' : Tokens.colors.brand[500],
+      color: accent,
       marginBottom: isCosmic ? 2 : Tokens.spacing[1],
       letterSpacing: 1,
     },
@@ -86,26 +86,23 @@ const getStyles = (isCosmic: boolean) =>
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: Tokens.type.xxs,
       lineHeight: 14,
-      color: isCosmic ? '#B9C2D9' : Tokens.colors.text.primary,
+      color: isNightAwe
+        ? t.colors.text?.secondary || Tokens.colors.text.secondary
+        : isCosmic
+          ? '#B9C2D9'
+          : Tokens.colors.text.primary,
     },
     guideButton: {
       paddingVertical: 4,
       paddingHorizontal: 8,
       borderWidth: 1,
-      borderColor: isCosmic
-        ? 'rgba(185, 194, 217, 0.12)'
-        : Tokens.colors.neutral.border,
-      backgroundColor: isCosmic
-        ? 'rgba(17, 26, 51, 0.6)'
-        : Tokens.colors.neutral.darkest,
-      borderRadius: isCosmic ? 8 : Tokens.radii.none,
-      ...(isCosmic
-        ? Platform.select({
-            web: {
-              backdropFilter: 'blur(8px)',
-            },
-          })
-        : {}),
+      borderColor,
+      backgroundColor: isNightAwe
+        ? t.colors.nightAwe?.surface?.raised || 'rgba(13, 24, 40, 0.76)'
+        : isCosmic
+          ? 'rgba(17, 26, 51, 0.6)'
+          : Tokens.colors.neutral.darkest,
+      borderRadius: isCosmic ? 8 : isNightAwe ? 10 : Tokens.radii.none,
     },
     guideButtonPressed: {
       backgroundColor: Tokens.colors.neutral.darker,
@@ -114,7 +111,12 @@ const getStyles = (isCosmic: boolean) =>
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: Tokens.type.xxs,
       fontWeight: '700',
-      color: isCosmic ? '#EEF2FF' : Tokens.colors.text.primary,
+      color: isNightAwe
+        ? t.colors.text?.primary || Tokens.colors.text.primary
+        : isCosmic
+          ? '#EEF2FF'
+          : Tokens.colors.text.primary,
       textTransform: 'uppercase',
     },
   });
+};

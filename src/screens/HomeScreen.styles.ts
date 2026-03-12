@@ -1,9 +1,50 @@
 import { StyleSheet } from 'react-native';
 import { Tokens } from '../theme/tokens';
+import type { ThemeTokens } from '../theme/types';
+import type { ThemeVariant } from '../theme/themeVariant';
 import { isWeb } from '../utils/PlatformUtils';
 
-export const getStyles = (isCosmic: boolean) =>
-  StyleSheet.create({
+export const getStyles = (variant: ThemeVariant, t: ThemeTokens) => {
+  const isCosmic = variant === 'cosmic';
+  const isNightAwe = variant === 'nightAwe';
+
+  const textPrimary = isNightAwe
+    ? t.colors.text?.primary || Tokens.colors.text.primary
+    : isCosmic
+      ? '#EEF2FF'
+      : Tokens.colors.text.primary;
+  const textSecondary = isNightAwe
+    ? t.colors.text?.secondary || Tokens.colors.text.secondary
+    : isCosmic
+      ? 'rgba(185, 194, 217, 0.8)'
+      : Tokens.colors.text.secondary;
+  const textMuted = isNightAwe
+    ? t.colors.text?.muted || Tokens.colors.text.tertiary
+    : isCosmic
+      ? 'rgba(185, 194, 217, 0.6)'
+      : Tokens.colors.text.tertiary;
+  const borderSubtle = isNightAwe
+    ? t.colors.utility?.border || Tokens.colors.neutral.borderSubtle
+    : isCosmic
+      ? 'rgba(185, 194, 217, 0.08)'
+      : Tokens.colors.neutral.dark;
+  const surfaceBase = isNightAwe
+    ? t.colors.nightAwe?.surface?.raised || Tokens.colors.neutral.darker
+    : isCosmic
+      ? 'rgba(14, 20, 40, 0.8)'
+      : Tokens.colors.neutral.darker;
+  const surfaceBorder = isNightAwe
+    ? t.colors.nightAwe?.surface?.border || Tokens.colors.neutral.border
+    : isCosmic
+      ? 'rgba(185, 194, 217, 0.12)'
+      : Tokens.colors.neutral.border;
+  const brandAccent = isNightAwe
+    ? t.colors.nightAwe?.feature?.home || Tokens.colors.brand[500]
+    : isCosmic
+      ? '#8B5CF6'
+      : Tokens.colors.brand[500];
+
+  return StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: 'transparent',
@@ -24,20 +65,20 @@ export const getStyles = (isCosmic: boolean) =>
       alignItems: 'flex-start',
       paddingTop: Tokens.spacing[4],
       borderBottomWidth: 1,
-      borderBottomColor: isCosmic
-        ? 'rgba(185, 194, 217, 0.08)'
-        : Tokens.colors.neutral.dark,
+      borderBottomColor: borderSubtle,
       paddingBottom: Tokens.spacing[6],
     },
     title: {
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: Tokens.type.xl,
       fontWeight: '700',
-      color: isCosmic ? '#EEF2FF' : Tokens.colors.text.primary,
+      color: textPrimary,
       letterSpacing: -1,
-      ...(isCosmic && isWeb
+      ...((isCosmic || isNightAwe) && isWeb
         ? {
-            textShadow: '0 0 20px rgba(139, 92, 246, 0.3)',
+            textShadow: isNightAwe
+              ? '0 0 18px rgba(217, 228, 242, 0.12)'
+              : '0 0 20px rgba(139, 92, 246, 0.3)',
           }
         : {}),
     },
@@ -49,9 +90,7 @@ export const getStyles = (isCosmic: boolean) =>
     systemStatusText: {
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: 10,
-      color: isCosmic
-        ? 'rgba(185, 194, 217, 0.6)'
-        : Tokens.colors.text.tertiary,
+      color: textMuted,
       marginRight: 6,
       letterSpacing: 1.5,
     },
@@ -59,27 +98,27 @@ export const getStyles = (isCosmic: boolean) =>
       width: 6,
       height: 6,
       borderRadius: 3,
-      backgroundColor: isCosmic ? '#2DD4BF' : Tokens.colors.success.main,
+      backgroundColor: isNightAwe
+        ? t.colors.semantic.success
+        : isCosmic
+          ? '#2DD4BF'
+          : Tokens.colors.success.main,
     },
     streakBadge: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: isCosmic
-        ? 'rgba(14, 20, 40, 0.8)'
-        : Tokens.colors.neutral.darker,
+      backgroundColor: surfaceBase,
       paddingHorizontal: Tokens.spacing[3],
       paddingVertical: 4,
-      borderRadius: isCosmic ? 12 : Tokens.radii.none,
+      borderRadius: isCosmic || isNightAwe ? 12 : Tokens.radii.none,
       borderWidth: 1,
-      borderColor: isCosmic
-        ? 'rgba(185, 194, 217, 0.12)'
-        : Tokens.colors.neutral.border,
+      borderColor: surfaceBorder,
     },
     streakText: {
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: Tokens.type.xs,
       fontWeight: '700',
-      color: isCosmic ? '#8B5CF6' : Tokens.colors.brand[500],
+      color: brandAccent,
       letterSpacing: 1,
     },
     activationCard: {
@@ -91,24 +130,20 @@ export const getStyles = (isCosmic: boolean) =>
       alignItems: 'center',
       marginBottom: Tokens.spacing[4],
       borderBottomWidth: 1,
-      borderBottomColor: isCosmic
-        ? 'rgba(185, 194, 217, 0.08)'
-        : Tokens.colors.neutral.dark,
+      borderBottomColor: borderSubtle,
       paddingBottom: Tokens.spacing[2],
     },
     activationTitle: {
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: Tokens.type.xs,
-      color: isCosmic
-        ? 'rgba(185, 194, 217, 0.8)'
-        : Tokens.colors.text.secondary,
+      color: textSecondary,
       letterSpacing: 1,
     },
     activationRate: {
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: Tokens.type.lg,
       fontWeight: '700',
-      color: isCosmic ? '#EEF2FF' : Tokens.colors.text.primary,
+      color: textPrimary,
     },
     activationGrid: {
       flexDirection: 'row',
@@ -120,21 +155,37 @@ export const getStyles = (isCosmic: boolean) =>
     statLabel: {
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: 10,
-      color: isCosmic
-        ? 'rgba(185, 194, 217, 0.6)'
-        : Tokens.colors.text.tertiary,
+      color: textMuted,
       marginBottom: 2,
       letterSpacing: 0.5,
     },
     statValue: {
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: Tokens.type.base,
-      color: isCosmic ? '#EEF2FF' : Tokens.colors.text.primary,
+      color: textPrimary,
       fontWeight: '700',
     },
-    textSuccess: { color: isCosmic ? '#2DD4BF' : Tokens.colors.success.main },
-    textError: { color: isCosmic ? '#FB7185' : Tokens.colors.error.main },
-    textNeutral: { color: isCosmic ? '#B9C2D9' : Tokens.colors.text.secondary },
+    textSuccess: {
+      color: isNightAwe
+        ? t.colors.semantic.success
+        : isCosmic
+          ? '#2DD4BF'
+          : Tokens.colors.success.main,
+    },
+    textError: {
+      color: isNightAwe
+        ? t.colors.semantic.error
+        : isCosmic
+          ? '#FB7185'
+          : Tokens.colors.error.main,
+    },
+    textNeutral: {
+      color: isNightAwe
+        ? t.colors.text?.secondary || Tokens.colors.text.secondary
+        : isCosmic
+          ? '#B9C2D9'
+          : Tokens.colors.text.secondary,
+    },
     overlayCard: {
       marginBottom: Tokens.spacing[6],
       flexDirection: 'row',
@@ -150,22 +201,16 @@ export const getStyles = (isCosmic: boolean) =>
     settingsButton: {
       width: 32,
       height: 32,
-      borderRadius: isCosmic ? 8 : 0,
-      backgroundColor: isCosmic
-        ? 'rgba(14, 20, 40, 0.8)'
-        : Tokens.colors.neutral.darker,
+      borderRadius: isCosmic || isNightAwe ? 8 : 0,
+      backgroundColor: surfaceBase,
       borderWidth: 1,
-      borderColor: isCosmic
-        ? 'rgba(185, 194, 217, 0.12)'
-        : Tokens.colors.neutral.border,
+      borderColor: surfaceBorder,
       alignItems: 'center',
       justifyContent: 'center',
     },
     settingsButtonText: {
       fontSize: 18,
-      color: isCosmic
-        ? 'rgba(185, 194, 217, 0.8)'
-        : Tokens.colors.text.secondary,
+      color: textSecondary,
       marginTop: isWeb ? -2 : 0,
     },
     overlayTextGroup: {
@@ -175,20 +220,22 @@ export const getStyles = (isCosmic: boolean) =>
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: Tokens.type.xs,
       fontWeight: '700',
-      color: isCosmic ? '#EEF2FF' : Tokens.colors.text.primary,
+      color: textPrimary,
       letterSpacing: 1,
     },
     overlayStatus: {
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: 10,
-      color: isCosmic
-        ? 'rgba(185, 194, 217, 0.6)'
-        : Tokens.colors.text.secondary,
+      color: textMuted,
       marginTop: 2,
       letterSpacing: 0.5,
     },
     overlayStatusActive: {
-      color: isCosmic ? '#2DD4BF' : Tokens.colors.success.main,
+      color: isNightAwe
+        ? t.colors.semantic.success
+        : isCosmic
+          ? '#2DD4BF'
+          : Tokens.colors.success.main,
     },
     modesGrid: {
       flexDirection: 'row',
@@ -199,27 +246,23 @@ export const getStyles = (isCosmic: boolean) =>
     debugPanel: {
       marginBottom: Tokens.spacing[6],
       padding: Tokens.spacing[3],
-      backgroundColor: isCosmic
-        ? 'rgba(14, 20, 40, 0.8)'
-        : Tokens.colors.neutral.darker,
+      backgroundColor: surfaceBase,
       borderWidth: 1,
-      borderColor: 'rgba(185, 194, 217, 0.12)',
+      borderColor: surfaceBorder,
       borderStyle: 'dashed',
-      borderRadius: isCosmic ? 12 : 0,
+      borderRadius: isCosmic || isNightAwe ? 12 : 0,
     },
     debugTitle: {
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: 10,
-      color: isCosmic ? '#6B7A9C' : Tokens.colors.text.tertiary,
+      color: textMuted,
       marginBottom: Tokens.spacing[2],
       textTransform: 'uppercase',
     },
     debugText: {
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: 10,
-      color: isCosmic
-        ? 'rgba(185, 194, 217, 0.6)'
-        : Tokens.colors.text.secondary,
+      color: textMuted,
       marginBottom: 2,
     },
     debugButtonRow: {
@@ -230,18 +273,16 @@ export const getStyles = (isCosmic: boolean) =>
     debugButton: {
       paddingVertical: 4,
       paddingHorizontal: 8,
-      backgroundColor: isCosmic
-        ? 'rgba(14, 20, 40, 0.8)'
-        : Tokens.colors.neutral.dark,
+      backgroundColor: surfaceBase,
       borderWidth: 1,
-      borderColor: 'rgba(185, 194, 217, 0.12)',
-      borderRadius: isCosmic ? 6 : 0,
+      borderColor: surfaceBorder,
+      borderRadius: isCosmic || isNightAwe ? 6 : 0,
     },
     debugButtonText: {
       fontFamily: Tokens.type.fontFamily.mono,
       fontSize: 10,
       fontWeight: '700',
-      color: isCosmic ? '#EEF2FF' : Tokens.colors.text.primary,
+      color: textPrimary,
     },
     negativeMarginTop24: {
       marginTop: -24,
@@ -250,3 +291,4 @@ export const getStyles = (isCosmic: boolean) =>
       zIndex: 10,
     },
   });
+};
