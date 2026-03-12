@@ -61,15 +61,34 @@ function ModeCardComponent({
 }: ModeCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
-  const { isCosmic } = useTheme();
+  const { isCosmic, isNightAwe, t } = useTheme();
+
+  const surfaceColor = isNightAwe
+    ? t.colors.nightAwe?.surface?.raised || '#132238'
+    : isCosmic
+      ? '#1E2336'
+      : Tokens.colors.neutral.dark;
+  const borderColor = isNightAwe
+    ? t.colors.nightAwe?.surface?.border || 'rgba(217, 228, 242, 0.14)'
+    : isCosmic
+      ? 'rgba(255, 255, 255, 0.08)'
+      : Tokens.colors.neutral.border;
+  const textPrimary = isNightAwe
+    ? t.colors.text?.primary || '#F6F1E7'
+    : '#EEF2FF';
+  const textSecondary = isNightAwe
+    ? t.colors.text?.secondary || 'rgba(246, 241, 231, 0.78)'
+    : 'rgba(238, 242, 255, 0.80)';
 
   const hoverStyle: WebInteractiveStyle | undefined =
     isWeb && (isHovered || isFocused)
       ? ({
-          borderColor: 'rgba(255, 255, 255, 0.25)',
-          backgroundColor: '#232A42',
+          borderColor: isNightAwe ? mode.accent : 'rgba(255, 255, 255, 0.25)',
+          backgroundColor: isNightAwe ? '#16283F' : '#232A42',
           transform: 'translateY(-2px)',
-          boxShadow: `0 12px 40px rgba(0,0,0,0.3), 0 0 24px ${mode.accent}25`,
+          boxShadow: isNightAwe
+            ? `0 14px 32px rgba(8, 17, 30, 0.26), 0 0 0 1px ${mode.accent}22`
+            : `0 12px 40px rgba(0,0,0,0.3), 0 0 24px ${mode.accent}25`,
         } as WebInteractiveStyle)
       : undefined;
 
@@ -102,7 +121,17 @@ function ModeCardComponent({
         onBlur={() => setIsFocused(false)}
         style={({ pressed }) => [
           styles.card,
-          isCosmic ? styles.cardCosmic : styles.cardStandard,
+          isNightAwe
+            ? [
+                styles.cardNightAwe,
+                {
+                  backgroundColor: surfaceColor,
+                  borderColor,
+                },
+              ]
+            : isCosmic
+              ? styles.cardCosmic
+              : styles.cardStandard,
           isWeb &&
             ({
               cursor: 'pointer',
@@ -118,24 +147,32 @@ function ModeCardComponent({
           <AppIcon
             name={mode.icon}
             size={ICON_SIZE}
-            color={isHovered ? mode.accent : Tokens.colors.text.primary}
+            color={isHovered ? mode.accent : textPrimary}
           />
           <View
             style={[
               styles.accentDot,
-              isHovered && { backgroundColor: mode.accent },
+              (isHovered || isNightAwe) && { backgroundColor: mode.accent },
             ]}
           />
         </View>
 
         <View style={styles.cardContent}>
           <Text
-            style={[styles.cardTitle, isHovered && styles.cardTitleHovered]}
+            style={[
+              styles.cardTitle,
+              { color: textPrimary },
+              isHovered && styles.cardTitleHovered,
+            ]}
           >
             {mode.name.toUpperCase()}
           </Text>
           <Text
-            style={[styles.cardDesc, isHovered && styles.cardDescHovered]}
+            style={[
+              styles.cardDesc,
+              { color: textSecondary },
+              isHovered && styles.cardDescHovered,
+            ]}
             numberOfLines={2}
           >
             {mode.desc}
@@ -180,6 +217,24 @@ const styles = StyleSheet.create({
     borderColor: Tokens.colors.neutral.border,
     backgroundColor: Tokens.colors.neutral.dark,
   },
+  cardNightAwe: {
+    borderTopColor: 'rgba(246, 241, 231, 0.1)',
+    ...Platform.select({
+      web: {
+        backdropFilter: 'blur(14px)',
+        WebkitBackdropFilter: 'blur(14px)',
+        boxShadow:
+          '0 10px 26px rgba(8, 17, 30, 0.22), inset 0 1px 0 rgba(246, 241, 231, 0.03)',
+      } as WebCardSurfaceStyle,
+      default: {
+        elevation: 2,
+        shadowColor: '#08111E',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.18,
+        shadowRadius: 8,
+      },
+    }),
+  },
   webGradientOverlay: {
     ...StyleSheet.absoluteFillObject,
     opacity: 1,
@@ -213,7 +268,6 @@ const styles = StyleSheet.create({
     fontFamily: Tokens.type.fontFamily.mono,
     fontSize: Tokens.type.sm,
     fontWeight: '700',
-    color: '#EEF2FF', // Soft starlight white
     marginBottom: Tokens.spacing[1],
     letterSpacing: 1.2,
   },
@@ -223,7 +277,6 @@ const styles = StyleSheet.create({
   cardDesc: {
     fontFamily: Tokens.type.fontFamily.sans,
     fontSize: Tokens.type.xs,
-    color: 'rgba(238, 242, 255, 0.80)',
     lineHeight: 18,
     letterSpacing: 0.3, // Reduced spacing for easier reading
   },

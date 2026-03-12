@@ -25,6 +25,8 @@ import { useTheme } from '../theme/useTheme';
 import { ModeCardMode } from './ModeCard';
 import { ROUTES } from '../navigation/routes';
 import { CosmicBackground } from '../ui/cosmic';
+import { NightAweBackground } from '../ui/nightAwe';
+import AppIcon from '../components/AppIcon';
 import { getStyles } from './HomeScreen.styles';
 import { isAndroid } from '../utils/PlatformUtils';
 import { useHomeMetrics } from './home/useHomeMetrics';
@@ -46,7 +48,7 @@ type NavigationNode = {
 };
 
 const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
-  const { isCosmic } = useTheme();
+  const { isNightAwe, t, variant } = useTheme();
   const [streak, setStreak] = useState(0);
 
   const {
@@ -88,52 +90,60 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
         name: 'Resume',
         icon: 'play-circle',
         desc: 'CONTINUE',
-        accent: '#8B5CF6',
+        accent: isNightAwe
+          ? t.colors.nightAwe?.feature?.home || t.colors.semantic.primary
+          : '#8B5CF6',
       },
       {
         id: 'ignite',
         name: 'Ignite',
         icon: 'fire',
         desc: 'START TASKS',
-        accent: '#8B5CF6',
+        accent: isNightAwe
+          ? t.colors.nightAwe?.feature?.ignite || t.colors.semantic.secondary
+          : '#8B5CF6',
       },
       {
         id: 'fogcutter',
         name: 'Fog Cutter',
         icon: 'weather-windy',
         desc: 'BREAK IT DOWN',
-        accent: '#8B5CF6',
+        accent: isNightAwe
+          ? t.colors.nightAwe?.feature?.fogCutter || t.colors.semantic.primary
+          : '#8B5CF6',
       },
       {
         id: 'pomodoro',
         name: 'Pomodoro',
         icon: 'timer-sand',
         desc: 'STAY ON TRACK',
-        accent: '#2DD4BF',
+        accent: isNightAwe ? t.colors.semantic.info : '#2DD4BF',
       },
       {
         id: 'anchor',
         name: 'Anchor',
         icon: 'anchor',
         desc: 'REGULATE',
-        accent: '#243BFF',
+        accent: isNightAwe ? t.colors.semantic.secondary : '#243BFF',
       },
       {
         id: 'checkin',
         name: 'Check In',
         icon: 'chart-bar',
         desc: 'TRACK MOOD',
-        accent: '#2DD4BF',
+        accent: isNightAwe
+          ? t.colors.nightAwe?.feature?.checkIn || t.colors.semantic.info
+          : '#2DD4BF',
       },
       {
         id: 'cbtguide',
         name: 'CBT Guide',
         icon: 'brain',
         desc: 'LEARN',
-        accent: '#8B5CF6',
+        accent: isNightAwe ? t.colors.semantic.primary : '#8B5CF6',
       },
     ],
-    [],
+    [isNightAwe, t.colors.nightAwe, t.colors.semantic],
   );
 
   const { fadeAnims, slideAnims } = useEntranceAnimation(
@@ -216,128 +226,149 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
     [navigateByRouteName],
   );
 
-  const styles = useMemo(() => getStyles(isCosmic), [isCosmic]);
+  const styles = useMemo(() => getStyles(variant, t), [t, variant]);
+
+  const content = (
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.maxWidthWrapper}>
+          <View style={styles.header}>
+            <View>
+              <Text
+                style={styles.title}
+                testID="home-title"
+                accessibilityLabel="home-title"
+              >
+                SPARK_PRO
+              </Text>
+              <View style={styles.systemStatusRow}>
+                <Text style={styles.systemStatusText}>SYS.ONLINE</Text>
+                <View style={styles.statusDot} />
+              </View>
+            </View>
+            <View style={styles.headerRight}>
+              <TouchableOpacity
+                onPress={() => navigateByRouteName(ROUTES.DIAGNOSTICS)}
+                style={styles.settingsButton}
+                accessibilityLabel="Settings and Diagnostics"
+              >
+                <AppIcon
+                  name="cog-outline"
+                  size={18}
+                  color={styles.settingsButtonText.color}
+                />
+              </TouchableOpacity>
+              <View
+                style={styles.streakBadge}
+                testID="home-streak-badge"
+                accessibilityRole="text"
+                accessibilityLabel={`Streak: ${streak} ${streak !== 1 ? 'days' : 'day'}`}
+              >
+                <Text
+                  style={styles.streakText}
+                  testID="home-streak"
+                  accessibilityLabel="home-streak"
+                >
+                  STREAK.{streak.toString().padStart(3, '0')}
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {hasActivationData && activationSummary && (
+            <HomeActivationCard
+              activationSummary={activationSummary}
+              trendMetrics={trendMetrics}
+              reentryPromptLevel={reentryPromptLevel}
+              showReentryPrompt={showReentryPrompt}
+              styles={{
+                activationCard: styles.activationCard,
+                activationHeader: styles.activationHeader,
+                activationTitle: styles.activationTitle,
+                activationRate: styles.activationRate,
+                activationGrid: styles.activationGrid,
+                statBox: styles.statBox,
+                statLabel: styles.statLabel,
+                statValue: styles.statValue,
+                textSuccess: styles.textSuccess,
+                textError: styles.textError,
+                textNeutral: styles.textNeutral,
+              }}
+              onPrimaryAction={() => navigateByRouteName(ROUTES.FOCUS)}
+            />
+          )}
+
+          {isAndroid && (
+            <HomeOverlayCard
+              isOverlayEnabled={isOverlayEnabled}
+              isOverlayPermissionRequesting={isOverlayPermissionRequesting}
+              styles={{
+                overlayCard: styles.overlayCard,
+                overlayCardActive: styles.overlayCardActive,
+                overlayTextGroup: styles.overlayTextGroup,
+                overlayTitle: styles.overlayTitle,
+                overlayStatus: styles.overlayStatus,
+                overlayStatusActive: styles.overlayStatusActive,
+              }}
+              onToggle={toggleOverlay}
+            />
+          )}
+
+          {isAndroid && __DEV__ && (
+            <HomeDebugPanel
+              overlayEvents={overlayEvents.map((e) => ({
+                id: e.id,
+                timestamp: e.timestamp,
+                label: e.label,
+              }))}
+              styles={{
+                debugPanel: styles.debugPanel,
+                debugTitle: styles.debugTitle,
+                debugText: styles.debugText,
+                debugButtonRow: styles.debugButtonRow,
+                debugButton: styles.debugButton,
+                debugButtonText: styles.debugButtonText,
+              }}
+              onCopyDiagnostics={handleCopyDiagnostics}
+              onNavigateDiagnostics={() =>
+                navigateByRouteName(ROUTES.DIAGNOSTICS)
+              }
+            />
+          )}
+
+          <HomeModesGrid
+            modes={modes}
+            fadeAnims={fadeAnims}
+            slideAnims={slideAnims}
+            cardWidth={cardWidth}
+            styles={{
+              modesGrid: styles.modesGrid,
+              negativeMarginTop24: styles.negativeMarginTop24,
+              zIndex10: styles.zIndex10,
+            }}
+            onModePress={handlePress}
+          />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
+  );
+
+  if (isNightAwe) {
+    return (
+      <NightAweBackground
+        variant="home"
+        activeFeature="home"
+        motionMode="idle"
+        style={StyleSheet.absoluteFillObject}
+      >
+        {content}
+      </NightAweBackground>
+    );
+  }
 
   return (
     <CosmicBackground variant="ridge" style={StyleSheet.absoluteFillObject}>
-      <SafeAreaView style={styles.container}>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          <View style={styles.maxWidthWrapper}>
-            <View style={styles.header}>
-              <View>
-                <Text
-                  style={styles.title}
-                  testID="home-title"
-                  accessibilityLabel="home-title"
-                >
-                  SPARK_PRO
-                </Text>
-                <View style={styles.systemStatusRow}>
-                  <Text style={styles.systemStatusText}>SYS.ONLINE</Text>
-                  <View style={styles.statusDot} />
-                </View>
-              </View>
-              <View style={styles.headerRight}>
-                <TouchableOpacity
-                  onPress={() => navigateByRouteName(ROUTES.DIAGNOSTICS)}
-                  style={styles.settingsButton}
-                  accessibilityLabel="Settings and Diagnostics"
-                >
-                  <Text style={styles.settingsButtonText}>⚙</Text>
-                </TouchableOpacity>
-                <View
-                  style={styles.streakBadge}
-                  testID="home-streak-badge"
-                  accessibilityRole="text"
-                  accessibilityLabel={`Streak: ${streak} ${streak !== 1 ? 'days' : 'day'}`}
-                >
-                  <Text
-                    style={styles.streakText}
-                    testID="home-streak"
-                    accessibilityLabel="home-streak"
-                  >
-                    STREAK.{streak.toString().padStart(3, '0')}
-                  </Text>
-                </View>
-              </View>
-            </View>
-
-            {hasActivationData && activationSummary && (
-              <HomeActivationCard
-                activationSummary={activationSummary}
-                trendMetrics={trendMetrics}
-                reentryPromptLevel={reentryPromptLevel}
-                showReentryPrompt={showReentryPrompt}
-                styles={{
-                  activationCard: styles.activationCard,
-                  activationHeader: styles.activationHeader,
-                  activationTitle: styles.activationTitle,
-                  activationRate: styles.activationRate,
-                  activationGrid: styles.activationGrid,
-                  statBox: styles.statBox,
-                  statLabel: styles.statLabel,
-                  statValue: styles.statValue,
-                  textSuccess: styles.textSuccess,
-                  textError: styles.textError,
-                  textNeutral: styles.textNeutral,
-                }}
-                onPrimaryAction={() => navigateByRouteName(ROUTES.FOCUS)}
-              />
-            )}
-
-            {isAndroid && (
-              <HomeOverlayCard
-                isOverlayEnabled={isOverlayEnabled}
-                isOverlayPermissionRequesting={isOverlayPermissionRequesting}
-                styles={{
-                  overlayCard: styles.overlayCard,
-                  overlayCardActive: styles.overlayCardActive,
-                  overlayTextGroup: styles.overlayTextGroup,
-                  overlayTitle: styles.overlayTitle,
-                  overlayStatus: styles.overlayStatus,
-                  overlayStatusActive: styles.overlayStatusActive,
-                }}
-                onToggle={toggleOverlay}
-              />
-            )}
-
-            {isAndroid && __DEV__ && (
-              <HomeDebugPanel
-                overlayEvents={overlayEvents.map((e) => ({
-                  id: e.id,
-                  timestamp: e.timestamp,
-                  label: e.label,
-                }))}
-                styles={{
-                  debugPanel: styles.debugPanel,
-                  debugTitle: styles.debugTitle,
-                  debugText: styles.debugText,
-                  debugButtonRow: styles.debugButtonRow,
-                  debugButton: styles.debugButton,
-                  debugButtonText: styles.debugButtonText,
-                }}
-                onCopyDiagnostics={handleCopyDiagnostics}
-                onNavigateDiagnostics={() =>
-                  navigateByRouteName(ROUTES.DIAGNOSTICS)
-                }
-              />
-            )}
-
-            <HomeModesGrid
-              modes={modes}
-              fadeAnims={fadeAnims}
-              slideAnims={slideAnims}
-              cardWidth={cardWidth}
-              styles={{
-                modesGrid: styles.modesGrid,
-                negativeMarginTop24: styles.negativeMarginTop24,
-                zIndex10: styles.zIndex10,
-              }}
-              onModePress={handlePress}
-            />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
+      {content}
     </CosmicBackground>
   );
 };
