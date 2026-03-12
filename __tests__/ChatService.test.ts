@@ -51,6 +51,9 @@ describe('ChatService', () => {
         headers: expect.anything(),
       }),
     );
+    const request = (global.fetch as jest.Mock).mock.calls[0][1];
+    const body = JSON.parse(request.body as string);
+    expect(body.messages).toEqual([{ role: 'user', content: 'Hi' }]);
   });
 
   it('sends a message through the Kimi provider', async () => {

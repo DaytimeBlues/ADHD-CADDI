@@ -100,6 +100,30 @@ class ChatService {
     return [...this.messages];
   }
 
+  private getMessagesForRequest(): Array<
+    Pick<ChatMessage, 'role' | 'content'>
+  > {
+    return this.messages
+      .filter((message) => {
+        if (message.role === 'system') {
+          return false;
+        }
+
+        if (
+          message.role === 'assistant' &&
+          message.content.trim().length === 0
+        ) {
+          return false;
+        }
+
+        return true;
+      })
+      .map((message) => ({
+        role: message.role,
+        content: message.content,
+      }));
+  }
+
   /**
    * Cancel any in-flight AI request
    */
@@ -330,10 +354,7 @@ class ChatService {
           },
           body: JSON.stringify({
             model: config.kimiModel,
-            messages: this.messages.map((m) => ({
-              role: m.role,
-              content: m.content,
-            })),
+            messages: this.getMessagesForRequest(),
             temperature: 0.7,
           }),
         },
@@ -386,12 +407,7 @@ class ChatService {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            messages: this.messages
-              .filter((m) => m.role !== 'system')
-              .map((m) => ({
-                role: m.role,
-                content: m.content,
-              })),
+            messages: this.getMessagesForRequest(),
           }),
         },
         {

@@ -4,7 +4,7 @@ import { LoggerService } from './LoggerService';
 
 export interface CheckInEntry {
   timestamp: number;
-  mood?: string;
+  mood?: number;
   energy?: number;
   symptoms?: string[];
 }
@@ -14,37 +14,91 @@ export interface CheckInInsight {
   generatedAt: number;
 }
 
-const INSIGHT_CACHE_KEY = 'checkInInsightCache';
-const INSIGHT_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours — regen once per day
+type CheckInSummaryPayload = {
+  totalCheckIns: number;
+  averageMood: number | null;
+  averageEnergy: number | null;
+  lowestEnergy: number | null;
+  highestEnergy: number | null;
+  moodTrend: 'improving' | 'declining' | 'stable' | 'insufficient-data';
+  energyTrend: 'improving' | 'declining' | 'stable' | 'insufficient-data';
+  daysCovered: number;
+};
 
-/**
- * Summarises recent check-in data into a brief context string for the AI prompt.
- * Only local data is used — nothing sensitive is sent to the server.
- */
-function buildContext(entries: CheckInEntry[]): string {
-  if (entries.length === 0) {
-    return 'No recent check-ins.';
+const INSIGHT_CACHE_KEY = 'checkInInsightCache';
+const INSIGHT_TTL_MS = 24 * 60 * 60 * 1000;
+const CHECK_IN_HISTORY_KEY = StorageService.STORAGE_KEYS.checkInHistory;
+
+const roundToSingleDecimal = (value: number): number =>
+  Math.round(value * 10) / 10;
+
+const getAverage = (values: number[]): number | null => {
+  if (values.length === 0) {
+    return null;
   }
 
-  const lines = entries.slice(0, 7).map((e) => {
-    const date = new Date(e.timestamp).toLocaleDateString();
-    const mood = e.mood ? `mood: ${e.mood}` : '';
-    const energy = e.energy != null ? `energy: ${e.energy}/5` : '';
-    return [date, mood, energy].filter(Boolean).join(', ');
-  });
+  const total = values.reduce((sum, value) => sum + value, 0);
+  return roundToSingleDecimal(total / values.length);
+};
 
-  return lines.join('\n');
-}
+const getTrend = (values: number[]): CheckInSummaryPayload['energyTrend'] => {
+  if (values.length < 2) {
+    return 'insufficient-data';
+  }
 
-/**
- * CheckInInsightService
- *
- * Generates a short personalised insight from the last 7 check-ins.
- * Uses ONLY local AsyncStorage data — no raw mood/energy values are sent;
- * only an anonymised statistical summary reaches the API.
- *
- * Results are cached for 24 hours to avoid re-calling AI unnecessarily.
- */
+  const delta = values[values.length - 1] - values[0];
+  if (delta >= 1) {
+    return 'improving';
+  }
+  if (delta <= -1) {
+    return 'declining';
+  }
+  return 'stable';
+};
+
+const buildContext = (entries: CheckInEntry[]): CheckInSummaryPayload => {
+  if (entries.length === 0) {
+    return {
+      totalCheckIns: 0,
+      averageMood: null,
+      averageEnergy: null,
+      lowestEnergy: null,
+      highestEnergy: null,
+      moodTrend: 'insufficient-data',
+      energyTrend: 'insufficient-data',
+      daysCovered: 0,
+    };
+  }
+
+  const recentEntries = [...entries]
+    .sort((a, b) => a.timestamp - b.timestamp)
+    .slice(-7);
+  const moodValues = recentEntries
+    .map((entry) => entry.mood)
+    .filter((value): value is number => typeof value === 'number');
+  const energyValues = recentEntries
+    .map((entry) => entry.energy)
+    .filter((value): value is number => typeof value === 'number');
+  const oldestTimestamp = recentEntries[0]?.timestamp ?? Date.now();
+  const newestTimestamp =
+    recentEntries[recentEntries.length - 1]?.timestamp ?? oldestTimestamp;
+  const daysCovered = Math.max(
+    1,
+    Math.ceil((newestTimestamp - oldestTimestamp) / (24 * 60 * 60 * 1000)) + 1,
+  );
+
+  return {
+    totalCheckIns: recentEntries.length,
+    averageMood: getAverage(moodValues),
+    averageEnergy: getAverage(energyValues),
+    lowestEnergy: energyValues.length > 0 ? Math.min(...energyValues) : null,
+    highestEnergy: energyValues.length > 0 ? Math.max(...energyValues) : null,
+    moodTrend: getTrend(moodValues),
+    energyTrend: getTrend(energyValues),
+    daysCovered,
+  };
+};
+
 const CheckInInsightService = {
   async generateInsight(
     entries: CheckInEntry[],
@@ -53,14 +107,13 @@ const CheckInInsightService = {
       return null;
     }
 
-    // Return cached insight if still fresh
     const cached =
       await StorageService.getJSON<CheckInInsight>(INSIGHT_CACHE_KEY);
     if (cached && Date.now() - cached.generatedAt < INSIGHT_TTL_MS) {
       return cached;
     }
 
-    const context = buildContext(entries);
+    const summary = buildContext(entries);
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), config.aiTimeout);
 
@@ -68,7 +121,7 @@ const CheckInInsightService = {
       const response = await fetch(`${config.apiBaseUrl}/api/insight`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ context }),
+        body: JSON.stringify({ summary }),
         signal: controller.signal,
       });
 
@@ -98,7 +151,6 @@ const CheckInInsightService = {
         generatedAt: Date.now(),
       };
 
-      // Cache to AsyncStorage
       await StorageService.setJSON(INSIGHT_CACHE_KEY, insight);
       return insight;
     } catch (err) {
@@ -109,20 +161,14 @@ const CheckInInsightService = {
         message: 'CheckInInsight unavailable',
         error: err,
       });
-      return null; // Graceful — insight is additive, not critical
+      return null;
     }
   },
 
-  /**
-   * High-level helper for UI: fetches history, generates (or returns cached) insight.
-   */
   async getPersonalizedInsight(): Promise<string | null> {
-    // In a real app, we'd fetch actual history.
-    // For the Vibe Coding demo, we'll fetch what's in storage or use a mock if empty.
     const entries =
-      (await StorageService.getJSON<CheckInEntry[]>('checkInHistory')) || [];
-
-    // If no history yet, we'll provide a placeholder or skip AI to avoid empty context
+      (await StorageService.getJSON<CheckInEntry[]>(CHECK_IN_HISTORY_KEY)) ||
+      [];
     if (entries.length === 0) {
       return null;
     }
@@ -131,9 +177,17 @@ const CheckInInsightService = {
     return result?.text || null;
   },
 
-  /** Force-expire the cached insight (call after the user submits a new check-in). */
   async invalidateCache(): Promise<void> {
     await StorageService.setJSON(INSIGHT_CACHE_KEY, null);
+  },
+
+  async recordCheckIn(entry: CheckInEntry): Promise<void> {
+    const existingEntries =
+      (await StorageService.getJSON<CheckInEntry[]>(CHECK_IN_HISTORY_KEY)) ||
+      [];
+    const nextEntries = [entry, ...existingEntries].slice(0, 30);
+    await StorageService.setJSON(CHECK_IN_HISTORY_KEY, nextEntries);
+    await this.invalidateCache();
   },
 };
 

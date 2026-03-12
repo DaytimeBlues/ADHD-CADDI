@@ -38,6 +38,7 @@ const STORAGE_KEYS = {
   activationSessions: 'activationSessions',
   activationPendingStart: 'activationPendingStart',
   lastActiveSession: 'lastActiveSession',
+  checkInHistory: 'checkInHistory',
   retentionGraceWindowStart: 'retentionGraceWindowStart',
   retentionGraceDaysUsed: 'retentionGraceDaysUsed',
   googleTasksSyncState: 'googleTasksSyncState',

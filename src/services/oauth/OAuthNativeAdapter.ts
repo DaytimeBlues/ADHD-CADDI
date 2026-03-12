@@ -1,10 +1,6 @@
 import { config } from '../../config';
 import { LoggerService } from '../LoggerService';
-import {
-  STORAGE_KEYS,
-  type GoogleAuthData,
-  type OAuthProvider,
-} from './OAuthShared';
+import { type OAuthProvider } from './OAuthShared';
 import { OAuthBase } from './OAuthBase';
 
 interface GoogleSigninUser {
@@ -18,6 +14,10 @@ interface GoogleSigninUser {
 }
 
 export class OAuthNativeAdapter extends OAuthBase {
+  protected getStorageMode() {
+    return 'metadata-only' as const;
+  }
+
   protected getRedirectUri(_provider: OAuthProvider): string {
     return 'com.adhdcaddi:/oauth2callback';
   }
@@ -49,18 +49,12 @@ export class OAuthNativeAdapter extends OAuthBase {
       const userInfo = (await GoogleSignin.signIn()) as GoogleSigninUser;
       const tokens = await GoogleSignin.getTokens();
 
-      const authData: GoogleAuthData = {
-        connected: true,
+      await this.storeAuthData('google', {
         accessToken: tokens.accessToken,
         email: userInfo.data?.user?.email,
         name: userInfo.data?.user?.name ?? undefined,
         picture: userInfo.data?.user?.photo ?? undefined,
-      };
-
-      await this.storage.setItem(
-        STORAGE_KEYS.googleAuth,
-        JSON.stringify(authData),
-      );
+      });
       return { success: true };
     } catch (error) {
       LoggerService.error({

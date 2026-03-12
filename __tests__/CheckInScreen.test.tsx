@@ -11,6 +11,8 @@ import CheckInScreen, {
 
 const mockRequestPendingStart = jest.fn();
 const mockLoggerWarn = jest.fn();
+const mockGetPersonalizedInsight = jest.fn();
+const mockRecordCheckIn = jest.fn();
 
 jest.mock('../src/services/ActivationService', () => ({
   __esModule: true,
@@ -24,7 +26,9 @@ jest.mock('../src/services/ActivationService', () => ({
 jest.mock('../src/services/CheckInInsightService', () => ({
   __esModule: true,
   default: {
-    getPersonalizedInsight: jest.fn().mockResolvedValue(null),
+    getPersonalizedInsight: (...args: unknown[]) =>
+      mockGetPersonalizedInsight(...args),
+    recordCheckIn: (...args: unknown[]) => mockRecordCheckIn(...args),
   },
 }));
 
@@ -55,6 +59,8 @@ describe('CheckInScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockRequestPendingStart.mockResolvedValue(undefined);
+    mockGetPersonalizedInsight.mockResolvedValue(null);
+    mockRecordCheckIn.mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -114,5 +120,23 @@ describe('CheckInScreen', () => {
         error: expect.any(Error),
       }),
     );
+  });
+
+  it('records completed check-ins before requesting personalized insight', async () => {
+    render(<CheckInScreen navigation={{ navigate: jest.fn() }} />);
+
+    fireEvent.press(screen.getByTestId('mood-option-4'));
+    fireEvent.press(screen.getByTestId('energy-option-3'));
+
+    await waitFor(() => {
+      expect(mockRecordCheckIn).toHaveBeenCalledWith(
+        expect.objectContaining({
+          mood: 4,
+          energy: 3,
+          timestamp: expect.any(Number),
+        }),
+      );
+    });
+    expect(mockGetPersonalizedInsight).toHaveBeenCalled();
   });
 });

@@ -104,7 +104,8 @@ export const createConfig = (env: RuntimeEnv = getRuntimeEnv()): Config => {
   const startupWarnings: StartupDiagnostic[] = [];
   const allowInsecureDirectAi =
     env.EXPO_PUBLIC_ENABLE_INSECURE_DIRECT_AI === 'true';
-  const canUseDirectClientAi = environment !== 'production';
+  const canUseDirectClientAi =
+    environment === 'development' && allowInsecureDirectAi;
 
   let apiBaseUrl = env.EXPO_PUBLIC_API_BASE_URL || DEFAULT_API_BASE_URL;
   if (!isValidUrl(apiBaseUrl)) {
@@ -232,7 +233,7 @@ export const createConfig = (env: RuntimeEnv = getRuntimeEnv()): Config => {
         envVar: 'EXPO_PUBLIC_ENABLE_INSECURE_DIRECT_AI',
         feature: provider,
         message:
-          'Direct client-side AI providers are blocked in production. Route requests through the Vercel backend instead.',
+          'Direct client-side AI providers require EXPO_PUBLIC_ENABLE_INSECURE_DIRECT_AI=true in development only. Route requests through the Vercel backend otherwise.',
       });
       return;
     }

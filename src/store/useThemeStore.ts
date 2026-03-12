@@ -1,7 +1,11 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { zustandStorage } from '../services/StorageService';
-import { ThemeVariant, DEFAULT_THEME_VARIANT } from '../theme/themeVariant';
+import {
+  ThemeVariant,
+  DEFAULT_THEME_VARIANT,
+  migrateThemeVariant,
+} from '../theme/themeVariant';
 
 interface ThemeStoreState {
   variant: ThemeVariant;
@@ -9,6 +13,19 @@ interface ThemeStoreState {
   _hasHydrated: boolean;
   setHasHydrated: (state: boolean) => void;
 }
+
+export const normalizeThemeStoreState = (
+  persistedState: Partial<ThemeStoreState> | undefined,
+): Partial<ThemeStoreState> => {
+  if (!persistedState) {
+    return {};
+  }
+
+  return {
+    ...persistedState,
+    variant: migrateThemeVariant(persistedState.variant ?? null),
+  };
+};
 
 export const useThemeStore = create<ThemeStoreState>()(
   persist(
@@ -21,6 +38,12 @@ export const useThemeStore = create<ThemeStoreState>()(
     {
       name: 'spark-theme-storage',
       storage: createJSONStorage(() => zustandStorage),
+      merge: (persistedState, currentState) => ({
+        ...currentState,
+        ...normalizeThemeStoreState(
+          persistedState as Partial<ThemeStoreState> | undefined,
+        ),
+      }),
       onRehydrateStorage: () => (state) => {
         if (state) {
           state.setHasHydrated(true);

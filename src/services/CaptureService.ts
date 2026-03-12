@@ -7,6 +7,7 @@
  */
 
 import { useCaptureStore } from '../store/useCaptureStore';
+import { generateId } from '../utils/helpers';
 import type {
   CaptureItem,
   CaptureSource,
@@ -15,12 +16,6 @@ import type {
 } from '../types/capture';
 
 export type { CaptureSource, CaptureStatus, CaptureItem, NewCaptureInput };
-
-function generateId(): string {
-  const ts = Date.now().toString(36);
-  const rand = Math.random().toString(36).slice(2, 8);
-  return `cap_${ts}_${rand}`;
-}
 
 type UnreviewedCountSubscriber = (count: number) => void;
 
@@ -48,7 +43,7 @@ class CaptureServiceClass {
   save(input: NewCaptureInput): CaptureItem {
     const item: CaptureItem = {
       ...input,
-      id: generateId(),
+      id: `cap_${generateId()}`,
       createdAt: Date.now(),
       status: 'unreviewed',
     };

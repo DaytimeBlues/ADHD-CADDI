@@ -261,7 +261,9 @@ class WebMCPService {
           );
           try {
             const entries =
-              (await StorageService.getJSON<CheckInEntry[]>('checkIns')) || [];
+              (await StorageService.getJSON<CheckInEntry[]>(
+                StorageService.STORAGE_KEYS.checkInHistory,
+              )) || [];
             return {
               success: true,
               entries: entries.slice(0, safeLimit),
@@ -291,7 +293,9 @@ class WebMCPService {
 
           try {
             const checkIns =
-              (await StorageService.getJSON<CheckInEntry[]>('checkIns')) || [];
+              (await StorageService.getJSON<CheckInEntry[]>(
+                StorageService.STORAGE_KEYS.checkInHistory,
+              )) || [];
             const lastCheckIn = checkIns[0] ?? null;
             return { success: true, timeOfDay, lastCheckIn };
           } catch (error) {

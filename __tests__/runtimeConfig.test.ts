@@ -41,6 +41,23 @@ describe('runtime config', () => {
     );
   });
 
+  it('keeps direct AI disabled unless the explicit development override is enabled', () => {
+    const config = createConfig({
+      EXPO_PUBLIC_ENV: 'development',
+      EXPO_PUBLIC_AI_PROVIDER: 'kimi-direct',
+      EXPO_PUBLIC_MOONSHOT_API_KEY: 'public-key',
+    });
+
+    expect(config.aiProvider).toBe('vercel');
+    expect(config.moonshotApiKey).toBeUndefined();
+    expect(config.startupWarnings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ code: 'PUBLIC_DIRECT_AI_KEY' }),
+        expect.objectContaining({ code: 'UNSAFE_DIRECT_AI_ENABLED' }),
+      ]),
+    );
+  });
+
   it('blocks direct AI in production even when insecure override is set', () => {
     const config = createConfig({
       EXPO_PUBLIC_ENV: 'production',

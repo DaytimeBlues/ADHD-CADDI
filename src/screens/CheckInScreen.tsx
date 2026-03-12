@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { SafeAreaView, ScrollView, Text, View } from 'react-native';
 import { CosmicBackground, GlowCard, RuneButton } from '../ui/cosmic';
 import { EvidenceBadge } from '../components/ui/EvidenceBadge';
@@ -24,6 +24,7 @@ const CheckInScreen = ({ navigation }: { navigation?: CheckInNavigation }) => {
   const [energy, setEnergy] = useState<number | null>(null);
   const [insight, setInsight] = useState<string | null>(null);
   const [isRecommendationPending, setIsRecommendationPending] = useState(false);
+  const lastRecordedSelectionRef = useRef<string | null>(null);
   const { isCosmic } = useTheme();
   const styles = getCheckInScreenStyles(isCosmic);
   const recommendation = getRecommendationCopy(mood, energy);
@@ -33,11 +34,29 @@ const CheckInScreen = ({ navigation }: { navigation?: CheckInNavigation }) => {
       return;
     }
 
-    CheckInInsightService.getPersonalizedInsight().then((result) => {
-      if (result) {
+    const selectionSignature = `${mood}:${energy}`;
+    if (lastRecordedSelectionRef.current === selectionSignature) {
+      return;
+    }
+
+    lastRecordedSelectionRef.current = selectionSignature;
+    CheckInInsightService.recordCheckIn({
+      timestamp: Date.now(),
+      mood,
+      energy,
+    })
+      .then(() => CheckInInsightService.getPersonalizedInsight())
+      .then((result) => {
         setInsight(result);
-      }
-    });
+      })
+      .catch((error) => {
+        LoggerService.warn({
+          service: 'CheckInScreen',
+          operation: 'loadPersonalizedInsight',
+          message: 'Failed to refresh personalized insight',
+          error,
+        });
+      });
   }, [energy, mood]);
 
   const handleRecommendationAction = async () => {
