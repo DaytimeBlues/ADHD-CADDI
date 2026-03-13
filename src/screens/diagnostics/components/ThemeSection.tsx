@@ -18,6 +18,10 @@ export const ThemeSection = ({
   const { isNightAwe, t } = useTheme();
   const styles = getStyles(
     isNightAwe,
+    t.colors.nightAwe?.feature?.home,
+    t.colors.nightAwe?.surface?.raised,
+    t.colors.nightAwe?.surface?.border,
+    t.colors.text?.onAccent,
     t.colors.text?.primary,
     t.colors.text?.secondary,
   );
@@ -41,9 +45,16 @@ export const ThemeSection = ({
                 });
               });
             }}
-            style={styles.themeOption}
+            style={[
+              styles.themeOption,
+              option.selected && styles.themeOptionSelected,
+            ]}
             accessibilityLabel={`Select ${option.label} theme`}
-            accessibilityHint={`Switches to the ${option.label} theme`}
+            accessibilityHint={
+              option.selected
+                ? `${option.label} is the current theme`
+                : `Switches to the ${option.label} theme`
+            }
             accessibilityRole="button"
             accessibilityState={{ selected: option.selected }}
           >
@@ -72,7 +83,9 @@ export const ThemeSection = ({
               </View>
 
               {option.selected ? (
-                <Text style={styles.checkmark}>OK</Text>
+                <View style={styles.selectedBadge}>
+                  <Text style={styles.selectedBadgeText}>CURRENT</Text>
+                </View>
               ) : null}
             </View>
           </GlowCard>
@@ -88,6 +101,10 @@ export const ThemeSection = ({
 
 const getStyles = (
   isNightAwe: boolean,
+  accent: string | undefined = Tokens.colors.brand[500],
+  surfaceRaised: string | undefined = Tokens.colors.neutral.dark,
+  surfaceBorder: string | undefined = Tokens.colors.neutral.border,
+  onAccent: string | undefined = Tokens.colors.text.primary,
   primaryText: string | undefined = Tokens.colors.text.primary,
   secondaryText: string | undefined = Tokens.colors.text.secondary,
 ) =>
@@ -108,6 +125,12 @@ const getStyles = (
     themeOption: {
       marginBottom: 0,
     },
+    themeOptionSelected: isNightAwe
+      ? {
+          backgroundColor: surfaceRaised || 'rgba(19, 34, 56, 0.92)',
+          borderColor: accent || '#AFC7FF',
+        }
+      : {},
     themeOptionContent: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -149,11 +172,18 @@ const getStyles = (
     spacer8: {
       height: 8,
     },
-    checkmark: {
-      fontFamily: Tokens.type.fontFamily.mono,
-      fontSize: 12,
-      fontWeight: '700',
-      color: Tokens.colors.success.main,
+    selectedBadge: {
       marginLeft: Tokens.spacing[2],
+      paddingHorizontal: Tokens.spacing[2],
+      paddingVertical: 4,
+      borderRadius: 999,
+      backgroundColor: accent || Tokens.colors.brand[500],
+    },
+    selectedBadgeText: {
+      fontFamily: Tokens.type.fontFamily.mono,
+      fontSize: 10,
+      fontWeight: '700',
+      color: onAccent || '#08111E',
+      letterSpacing: 0.8,
     },
   });

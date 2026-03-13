@@ -132,11 +132,21 @@ export const WebNavBar = ({ state, navigation }: BottomTabBarProps) => {
               testID={`nav-${route.name.toLowerCase()}`}
               accessibilityRole="button"
               accessibilityLabel={`${route.name} tab`}
+              accessibilityState={{ selected: isFocused }}
               onPress={onPress}
               style={({ pressed }) => [
                 styles.navLink,
+                isNightAwe && isFocused ? styles.navLinkNightAweActive : null,
                 {
                   borderBottomColor: isFocused ? accentColor : 'transparent',
+                  borderColor:
+                    isNightAwe && isFocused
+                      ? `${accentColor}55`
+                      : 'transparent',
+                  backgroundColor:
+                    isNightAwe && isFocused
+                      ? 'rgba(175, 199, 255, 0.1)'
+                      : 'transparent',
                   opacity: pressed ? 0.7 : 1,
                   ...Platform.select({
                     web: {
@@ -215,6 +225,12 @@ const styles = StyleSheet.create({
     paddingVertical: Tokens.spacing[3],
     paddingHorizontal: Tokens.spacing[2],
     backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: 'transparent',
+    borderBottomWidth: 2,
+    borderRadius: 10,
+  },
+  navLinkNightAweActive: {
     borderBottomWidth: 2,
   },
   navText: {
