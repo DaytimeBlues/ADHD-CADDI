@@ -43,10 +43,9 @@ Go to **APIs & Services → Credentials → Create Credentials → OAuth client 
 - Name: `ADHD-CADDI Web`
 - Authorised JavaScript origins:
   - `http://localhost:3000` (local dev)
-  - `https://daytimeblues.github.io` (production)
 - Authorised redirect URIs:
   - `http://localhost:3000`
-  - `https://daytimeblues.github.io/ADHD-CADDI`
+- If you later host a web build somewhere other than localhost, add that host explicitly as an additional origin/redirect URI.
 - Click **Create** → copy the **Client ID** (ends in `.apps.googleusercontent.com`)
 
 #### iOS Client ID (for future iPhone / web parity)
