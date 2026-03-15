@@ -94,3 +94,4 @@ oauth2.keys.json
 
 # Sentry auth tokens
 .sentryclirc
+.omx/
