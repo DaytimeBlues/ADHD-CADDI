@@ -1,5 +1,5 @@
 import { Platform } from 'react-native';
-import { CosmicTokens, NightAweTokens, Tokens } from '../src/theme/tokens';
+import { CosmicTokens, Tokens } from '../src/theme/tokens';
 import { LinearTokens } from '../src/theme/linearTokens';
 import { getCheckInScreenStyles } from '../src/screens/CheckInScreen.styles';
 import { getFogCutterScreenStyles } from '../src/screens/FogCutterScreen.styles';

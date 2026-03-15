@@ -33,9 +33,6 @@ export const getBrainDumpStyles = (variant: ThemeVariant, t: ThemeTokens) => {
     : isCosmic
       ? t.colors.cosmic?.mist || '#B9C2D9'
       : t.colors.text?.secondary || Tokens.colors.text.secondary;
-  const textMuted = isNightAwe
-    ? t.colors.text?.muted || Tokens.colors.text.tertiary
-    : t.colors.text?.secondary || Tokens.colors.text.secondary;
   const accent = isNightAwe
     ? t.colors.nightAwe?.feature?.brainDump || t.colors.semantic.primary
     : isCosmic

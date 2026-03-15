@@ -1,7 +1,6 @@
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
-  Platform,
   StyleProp,
   StyleSheet,
   View,
