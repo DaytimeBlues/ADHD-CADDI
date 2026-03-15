@@ -1,5 +1,7 @@
 # Product Requirements Document (PRD): ADHD-CADDI
 
+> **Platform Strategy**: Android-First. This PRD prioritizes Android as the primary release platform. Web is supported for development and limited testing only.
+
 ## 1. Problem Statement
 
 Individuals with ADHD frequently experience executive dysfunction, manifesting as difficulty with task initiation ("ADHD paralysis"), task switching, emotional regulation, and overwhelming cognitive load. Traditional productivity tools often fail because they lack the necessary "friction-reducing" mechanisms or sensory support required for neurodivergent brains.
@@ -32,23 +34,36 @@ Individuals with ADHD frequently experience executive dysfunction, manifesting a
 
 ## 4. Technical Architecture
 
-### 4.1 Frontend Stack
+### 4.1 Platform Strategy
 
-- **Framework**: React Native (v0.74.3)
+**Android-First Approach**:
+
+- Android is the primary release target with full feature support
+- Web is maintained for development convenience and limited testing
+- Features are designed for Android first, then adapted to web where feasible
+
+### 4.2 Frontend Stack
+
+- **Framework**: React Native (v0.74.3) with Android as primary target
 - **Primary Language**: TypeScript
 - **Navigation**: React Navigation (Stack + Bottom Tabs)
 - **Icons**: Material Community Icons
+- **Native Modules**: Custom Android modules for overlay, notifications, biometrics
 
-### 4.2 State & Persistence
+### 4.3 State & Persistence
 
-- **Storage**: `@react-native-async-storage/async-storage` for local persistence (streaks, check-ins, tasks, brain dump).
-- **Architecture**: React state/hooks (`useState`, `useEffect`, focused service wrappers). Centralized store can be introduced later if complexity increases.
+- **Storage**:
+  - Android: `@op-engineering/op-sqlite` for robust local SQLite storage
+  - Web: `@react-native-async-storage/async-storage` for compatibility
+- **Architecture**: Zustand with persistence middleware
+- **Sync**: Google Tasks API integration (Android priority)
 
-### 4.3 Testing
+### 4.4 Testing
 
-- **Unit/Integration**: Jest + React Testing Library.
-- **E2E**: Detox for automated UI testing on Android.
-- **CI/CD**: GitHub Actions (Android build and test automation).
+- **Unit/Integration**: Jest + React Testing Library
+- **E2E**: Detox for automated UI testing on Android
+- **CI/CD**: GitHub Actions (Android build and test automation)
+- **Device Testing**: Physical Android devices and emulators
 
 ## 5. Design Philosophy (UX)
 

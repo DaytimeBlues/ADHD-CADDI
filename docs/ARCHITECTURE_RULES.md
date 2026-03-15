@@ -1,5 +1,7 @@
 # Engineering Architecture Rules
 
+> **Android-First Architecture**: These rules prioritize Android as the primary platform. Web is supported for development convenience only.
+
 This document defines the architectural standards for the ADHD-CADDI codebase. These rules are enforced through tooling and code review.
 
 ## File Size Limits
@@ -26,9 +28,11 @@ Files exceeding the hard cap will fail CI checks.
 
 ### Platform-Specific Code
 
+- **Android-first**: All features are designed for Android first, then adapted to web
 - Platform variants (`.web.ts`, `.native.ts`) should share a common core
 - Do not duplicate entire classes between platforms
 - Platform files should be thin adapters (<150 lines)
+- Web implementations may be stubs if the feature is Android-only (e.g., overlay)
 
 ### Hooks
 

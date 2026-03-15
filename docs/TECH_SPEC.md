@@ -6,13 +6,13 @@
 
 ## I. Project Logistics
 
-| Key                     | Value                                           |
-| ----------------------- | ----------------------------------------------- |
-| **Repo Name**           | `ADHD-CADDI`                                    |
-| **Goal**                | Speed of delivery (not learning a new stack)    |
-| **Primary Platforms**   | Native Android + shared React Native surfaces |
-| **Secondary Platforms** | Local web development surface |
-| **Deployment**          | Android APK / sideload-oriented release path |
+| Key                    | Value                                                |
+| ---------------------- | ---------------------------------------------------- |
+| **Repo Name**          | `ADHD-CADDI`                                         |
+| **Goal**               | Speed of delivery (not learning a new stack)         |
+| **Primary Platform**   | **Android** (native, full feature support)           |
+| **Secondary Platform** | Web (development only, limited features)             |
+| **Deployment**         | Android APK / Firebase App Distribution / Play Store |
 
 Current web product stance: offline/PWA support is intentionally disabled until a dedicated verification pass re-enables it. Do not treat service-worker-backed offline behavior as part of the current release surface.
 
@@ -368,17 +368,17 @@ npm run e2e          # Playwright E2E (web)
 
 > Park these ideas here to clear your mind. They are **not** in scope for the current sprint.
 
-| Idea                        | Notes                              |
-| --------------------------- | ---------------------------------- |
-| AI micro-step generator     | Use Gemini API to auto-break tasks |
-| Voice input for Brain Dump  | Speech-to-text capture             |
-| Widget / Quick Actions      | Android home screen widget         |
-| Apple Watch companion       | Breathing exercises on wrist       |
-| Offline-first sync          | CRDTs for eventual consistency     |
-| Habit streaks visualization | Calendar heatmap                   |
-| Export data to JSON         | User data portability              |
+| Idea                         | Notes                                                   |
+| ---------------------------- | ------------------------------------------------------- |
+| AI micro-step generator      | Use Gemini API to auto-break tasks                      |
+| Voice input for Brain Dump   | Speech-to-text capture                                  |
+| Widget / Quick Actions       | Android home screen widget                              |
+| Apple Watch companion        | Breathing exercises on wrist                            |
+| Offline-first sync           | CRDTs for eventual consistency                          |
+| Habit streaks visualization  | Calendar heatmap                                        |
+| Export data to JSON          | User data portability                                   |
 | Additional theme experiments | Current app already ships Linear, Cosmic, and Night Awe |
-| Notification reminders      | "Time for a Check-In" push         |
+| Notification reminders       | "Time for a Check-In" push                              |
 
 ---
 

@@ -1,168 +1,142 @@
-# ADHD-CADDI - React Native and Android
+# ADHD-CADDI - Android-First React Native App
 
-> [!IMPORTANT]
-> Active release paths: Android remains the primary native release target, and web now has a limited Firebase Hosting beta surface for friend testing. GitHub Pages is not a supported release path.
+> [!IMPORTANT] > **Android-First Strategy**: Android is the primary release target and receives full feature support. Web is maintained for development convenience and limited friend testing, but does not have feature parity with Android.
 
-## Deployment Status
+## Platform Strategy
 
-- Release verification path: `.github/workflows/android.yml` builds debug and release APK artifacts on CI
-- Local install paths: `npm run install:android:dev` and `npm run install:android:preview`
-- Web beta host: Firebase Hosting via `npm run deploy:firebase`
-- Web local development surface: `npm run web`
+### Android (Primary)
 
-## Web Beta Scope
+- **Full feature support**: All features work natively on Android
+- **System integrations**: Floating overlay, notifications, deep linking
+- **Offline-first**: SQLite local storage with sync when online
+- **Distribution**: Firebase App Distribution for internal beta, Play Store for production
+- **CI/CD**: Automated builds via `.github/workflows/android.yml`
 
-The current web beta is intentionally narrow so testers only see flows that are honest and supported.
+### Web (Secondary/Development)
 
-- Supported for friend testing: Home, Focus, Tasks, Brain Dump local capture flow, Check In, Chat, and Diagnostics
-- Limited or unsupported on web: Google sign-in driven sync, Google Calendar sync, and any feature that depends on native-only Android capabilities
-- Hosting model: root-hosted SPA on Firebase Hosting, so deep links should load from `/tasks`, `/chat`, `/check-in`, and `/diagnostics` without a repository subpath
+- **Purpose**: Local development, UI iteration, limited friend testing
+- **Limitations**: No overlay, limited offline support, no native integrations
+- **Hosting**: Firebase Hosting only
+- **Scope**: Home, Focus, Tasks, Brain Dump, Check In, Chat, Diagnostics
 
-## Features
-
-- Ignite: 5-minute focus timer with brown noise
-- Fog Cutter: break overwhelming tasks into micro-steps
-- Pomodoro: classic Pomodoro technique
-- Anchor: breathing exercises
-- Check In: mood and energy tracking
-- Brain Dump: quick capture for racing thoughts
-- Calendar: simple monthly view
-- Theme variants: Linear, Cosmic, and Night Awe
-
-## Getting Started (Web)
-
-Use this for local development, shared UI iteration, and Firebase beta verification.
-
-Offline/PWA status: web is still online-first. Service worker registration is intentionally disabled, so do not treat the Firebase beta as a supported offline/PWA release surface.
+## Quick Start (Android)
 
 ### Prerequisites
 
 - Node.js 20
+- JDK 17
+- Android Studio (for emulator)
 
-### Installation
+### Install Dependencies
 
 ```bash
 npm install
 ```
 
-### Running Locally
+### Run on Android Emulator
 
 ```bash
+# Start emulator and run app
+npm run android
+
+# Or with logging
+npm run android & adb logcat -s "ReactNative:V" "ADHD-CADDI:V" "AndroidRuntime:E"
+```
+
+### Run on Physical Device
+
+```bash
+# Development build (fastest, debuggable)
+npm run install:android:dev
+
+# Preview build (release-like, no signing required)
+npm run install:android:preview
+
+# Production build (requires release keystore)
+npm run build:android:prod
+```
+
+## Android-First Features
+
+These features are **Android-only** and will not work on web:
+
+| Feature            | Android | Web     | Description                         |
+| ------------------ | ------- | ------- | ----------------------------------- |
+| Floating Overlay   | ✓       | ✗       | Quick-access bubble over other apps |
+| Push Notifications | ✓       | ✗       | Native notification system          |
+| Background Sync    | ✓       | ✗       | Sync when app is closed             |
+| Biometric Lock     | ✓       | ✗       | Fingerprint/face unlock             |
+| System Share       | ✓       | ✗       | Share to app from other apps        |
+| Deep Links         | ✓       | Limited | Navigate from overlay to screens    |
+
+## Web Development (Secondary)
+
+Use web only for UI development and quick iteration.
+
+```bash
+# Local web dev server
 npm run web
-```
 
-The app will be available at `http://localhost:3000`.
-
-Useful direct routes during web development:
-
-- Diagnostics: `http://localhost:3000/diagnostics`
-- Pomodoro: `http://localhost:3000/pomodoro`
-
-### Serving The Built Web Beta
-
-```bash
+# Build for Firebase beta
 npm run build:web
-npx serve -s dist -l 4173
+npm run deploy:firebase
 ```
 
-Then verify:
+## Project Structure
 
-- `http://127.0.0.1:4173/`
-- `http://127.0.0.1:4173/tasks`
-- `http://127.0.0.1:4173/chat`
-- `http://127.0.0.1:4173/check-in`
-- `http://127.0.0.1:4173/diagnostics`
+```
+android/              # Native Android code (Java/Kotlin)
+src/
+  components/         # React components
+  screens/           # Screen components
+  services/          # Business logic, native bridges
+  store/             # Zustand state management
+  tutorial/          # Tutorial flow registry (new)
+  navigation/        # Navigation configuration
+docs/                # Documentation
+```
 
-### Running Checks
+## Documentation
+
+- `docs/ANDROID_INTERNAL_BETA.md` - Internal tester guide
+- `docs/FIREBASE_APP_DISTRIBUTION.md` - Distribution setup
+- `docs/PRD.md` - Product requirements
+- `docs/TECH_SPEC.md` - Technical specification
+- `docs/ARCHITECTURE_RULES.md` - Architecture decisions
+
+## Development Workflow
+
+1. **Android-first development**: Build and test on Android emulator/device first
+2. **Web for UI iteration**: Use web for quick UI changes
+3. **Verify on Android**: Always verify features work on Android before committing
+4. **Logcat monitoring**: Use `adb logcat` to monitor app behavior
+
+## Testing
 
 ```bash
 # Unit tests
 npm test
 
+# Android e2e tests (requires emulator)
+npm run test:e2e:android
+
 # Lint and type-check
 npm run lint
 npx tsc --noEmit
-
-# Lightweight admin checks
-npm run admin:check
 ```
 
-### Branch Workflow
-
-1. Create a branch from `main`.
-2. Run local checks.
-3. Push the branch for review.
-4. Merge to `main` only when ready for Android CI verification.
-
-If the change is isolated or experimental, do not push directly to `main`.
-
-## Advanced: Native Android
-
-The native Android shell is a secondary wrapper used for platform-specific features like system-wide overlays. Android Studio is not required for general web or shared-feature development.
-
-### Extras in Native Mode
-
-- Floating Menu (Android): an expandable quick-action menu that floats over other apps
-
-### Native Setup
-
-1. Install JDK 17 and Android Studio.
-2. `npm install`
-3. `npm run android:clean`
-4. `npm run android`
-
-### Android Phone-Only Deployment
-
-If you only want to run the app on your own Android phone, use these local profiles.
+## Monitoring
 
 ```bash
-# Development profile (fastest, debuggable)
-npm run install:android:dev
+# View React Native logs
+adb logcat -s "ReactNative:V" "ReactNativeJS:V"
 
-# Preview profile (release-like, installable without release keystore)
-npm run install:android:preview
+# View app-specific logs
+adb logcat -s "ADHD-CADDI:V"
 
-# Production profile (requires release keystore env vars)
-npm run build:android:prod
+# View all logs with filtering
+adb logcat | grep -i "adhdcaddi\|reactnative"
 ```
-
-Profile package IDs:
-
-- Dev: `com.adhdcaddi`
-- Preview: `com.adhdcaddi.preview`
-- Production: `com.adhdcaddi`
-
-### Backend Options for Personal Use
-
-- Default API endpoint is `https://spark-adhd-api.vercel.app`
-- If the API is unavailable, core app flows still work; AI sorting shows a graceful error
-- For a zero-cloud personal workflow, use the local features and avoid AI sort
-
-### Native Tests
-
-```bash
-# UI tests (requires emulator)
-npm run test:e2e:android
-```
-
-## Tech Stack
-
-- Framework: React Native Web plus React Native
-- Logic: TypeScript
-- State/Storage: AsyncStorage
-- Testing: Jest plus Playwright
-- Release verification: Android CI / local Android install flows
-
-## Config and Operations
-
-- Public client config lives in `EXPO_PUBLIC_*` variables.
-- Real secrets must stay on the server side.
-- Direct client-side AI providers are for development/staging only and stay blocked for production builds.
-- Admin checks are documented in [docs/ops-admin.md](docs/ops-admin.md).
-
-## Dependency Policy
-
-This repo does not fully pin every dependency version yet. The lockfile is the main reproducibility control, and some packages intentionally use semver ranges such as `^`.
 
 ## License
 
