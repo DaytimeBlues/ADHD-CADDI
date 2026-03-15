@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { CosmicTokens, Tokens } from '../theme/tokens';
 import type { ThemeTokens } from '../theme/types';
 import type { ThemeVariant } from '../theme/themeVariant';
