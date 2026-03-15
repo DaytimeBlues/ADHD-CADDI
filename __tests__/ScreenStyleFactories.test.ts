@@ -1,5 +1,6 @@
 import { Platform } from 'react-native';
-import { CosmicTokens, Tokens } from '../src/theme/tokens';
+import { CosmicTokens, NightAweTokens, Tokens } from '../src/theme/tokens';
+import { LinearTokens } from '../src/theme/linearTokens';
 import { getCheckInScreenStyles } from '../src/screens/CheckInScreen.styles';
 import { getFogCutterScreenStyles } from '../src/screens/FogCutterScreen.styles';
 import { getIgniteScreenStyles } from '../src/screens/IgniteScreen.styles';
@@ -58,8 +59,8 @@ describe('screen style factories', () => {
   });
 
   it('returns native fog cutter styles for both themes', () => {
-    const cosmicStyles = getFogCutterScreenStyles(true);
-    const linearStyles = getFogCutterScreenStyles(false);
+    const cosmicStyles = getFogCutterScreenStyles('cosmic', CosmicTokens);
+    const linearStyles = getFogCutterScreenStyles('linear', LinearTokens);
 
     expect(cosmicStyles.container.backgroundColor).toBe('transparent');
     expect(linearStyles.container.backgroundColor).toBe(
@@ -73,8 +74,8 @@ describe('screen style factories', () => {
     mockIsWeb = true;
     mockWebPlatform();
 
-    const cosmicStyles = getFogCutterScreenStyles(true);
-    const linearStyles = getFogCutterScreenStyles(false);
+    const cosmicStyles = getFogCutterScreenStyles('cosmic', CosmicTokens);
+    const linearStyles = getFogCutterScreenStyles('linear', LinearTokens);
     const cosmicFocusedStyles = cosmicStyles.inputFocused as {
       boxShadow?: string;
     };
@@ -90,8 +91,8 @@ describe('screen style factories', () => {
   });
 
   it('returns native ignite styles for both themes', () => {
-    const cosmicStyles = getIgniteScreenStyles(true);
-    const linearStyles = getIgniteScreenStyles(false);
+    const cosmicStyles = getIgniteScreenStyles('cosmic', CosmicTokens);
+    const linearStyles = getIgniteScreenStyles('linear', LinearTokens);
 
     expect(cosmicStyles.title.fontFamily).toBe('Space Grotesk');
     expect(linearStyles.title.fontFamily).toBe(Tokens.type.fontFamily.mono);
@@ -105,8 +106,8 @@ describe('screen style factories', () => {
     mockIsWeb = true;
     mockWebPlatform();
 
-    const cosmicStyles = getIgniteScreenStyles(true);
-    const linearStyles = getIgniteScreenStyles(false);
+    const cosmicStyles = getIgniteScreenStyles('cosmic', CosmicTokens);
+    const linearStyles = getIgniteScreenStyles('linear', LinearTokens);
 
     expect(cosmicStyles.title.textShadow).toContain('rgba');
     expect(cosmicStyles.statusBadge.backdropFilter).toBe('blur(8px)');
@@ -116,7 +117,7 @@ describe('screen style factories', () => {
   });
 
   it('returns shared tasks screen styles', () => {
-    const styles = getTasksScreenStyles();
+    const styles = getTasksScreenStyles('cosmic', CosmicTokens);
 
     expect(styles.headerSubtitle.color).toBe(
       CosmicTokens.colors.semantic.primary,
