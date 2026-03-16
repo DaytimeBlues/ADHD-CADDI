@@ -73,7 +73,11 @@ const IgniteScreen = () => {
 
   if (isNightAwe) {
     return (
-      <NightAweBackground variant="focus" activeFeature="ignite" motionMode="idle">
+      <NightAweBackground
+        variant="focus"
+        activeFeature="ignite"
+        motionMode="idle"
+      >
         {content}
       </NightAweBackground>
     );

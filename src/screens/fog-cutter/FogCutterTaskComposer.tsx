@@ -1,11 +1,5 @@
 import React, { RefObject, useMemo } from 'react';
-import {
-  FlatList,
-  Pressable,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { FlatList, Pressable, Text, TextInput, View } from 'react-native';
 import { LinearButton } from '../../components/ui/LinearButton';
 import { Shimmer } from '../../components/ui/Shimmer';
 import { RuneButton, GlowCard } from '../../ui/cosmic';
@@ -67,12 +61,7 @@ export const FogCutterTaskComposer = ({
       </Text>
     </View>
   ) : (
-    <GlowCard
-      glow="soft"
-      tone="base"
-      padding="md"
-      style={styles.rationaleCard}
-    >
+    <GlowCard glow="soft" tone="base" padding="md" style={styles.rationaleCard}>
       <Text style={styles.rationaleTitle}>WHY THIS WORKS</Text>
       <Text style={styles.rationaleText}>
         CBT/CADDI research shows ADHD paralysis comes from seeing tasks as

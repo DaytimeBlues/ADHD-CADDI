@@ -273,4 +273,45 @@ describe('Android Full Usability', () => {
       await device.pressBack();
     });
   });
+
+  describe('Night Awe Theme — Android Smoke', () => {
+    it('should launch app and display home screen', async () => {
+      await expect(element(by.id('home-title'))).toBeVisible();
+      await expect(element(by.id('home-streak'))).toBeVisible();
+    });
+
+    it('should navigate to all main tabs under default theme', async () => {
+      await element(by.id('nav-focus')).tap();
+      await expect(element(by.text('IGNITE_PROTOCOL'))).toBeVisible();
+
+      await element(by.id('nav-tasks')).tap();
+      await expect(element(by.text('BRAIN_DUMP'))).toBeVisible();
+
+      await element(by.id('nav-calendar')).tap();
+      await expect(element(by.text('CALENDAR'))).toBeVisible();
+
+      await element(by.id('nav-home')).tap();
+      await expect(element(by.id('home-title'))).toBeVisible();
+    });
+
+    it('should open Ignite screen without crash', async () => {
+      await element(by.id('mode-ignite')).tap();
+      await expect(element(by.text('IGNITE_PROTOCOL'))).toBeVisible();
+      await device.pressBack();
+    });
+
+    it('should open FogCutter screen without crash', async () => {
+      await element(by.id('mode-fogcutter')).tap();
+      await expect(element(by.text('FOG_CUTTER'))).toBeVisible();
+      await device.pressBack();
+    });
+
+    it('should open CheckIn screen without crash', async () => {
+      await element(by.id('mode-checkin')).tap();
+      await waitFor(element(by.text('HOW ARE YOU FEELING RIGHT NOW?')))
+        .toBeVisible()
+        .withTimeout(10000);
+      await device.pressBack();
+    });
+  });
 });

@@ -170,6 +170,20 @@ export const enableCosmicTheme = async (page: Page): Promise<void> => {
   });
 };
 
+export const enableNightAweTheme = async (page: Page): Promise<void> => {
+  // Sets the Zustand theme persist store to nightAwe.
+  // Must be called AFTER seedAlexPersona because seedAlexPersona clears localStorage.
+  await page.addInitScript(() => {
+    window.localStorage.setItem(
+      'spark-theme-storage',
+      JSON.stringify({
+        state: { variant: 'nightAwe', _hasHydrated: false },
+        version: 0,
+      }),
+    );
+  });
+};
+
 export const enableRecordingMock = async (page: Page): Promise<void> => {
   await page.addInitScript(() => {
     const globalRecord = window as unknown as Record<string, unknown>;

@@ -3,7 +3,10 @@ import { Tokens } from '../theme/tokens';
 import type { ThemeTokens } from '../theme/types';
 import type { ThemeVariant } from '../theme/themeVariant';
 
-export const getFogCutterScreenStyles = (variant: ThemeVariant, t: ThemeTokens) => {
+export const getFogCutterScreenStyles = (
+  variant: ThemeVariant,
+  t: ThemeTokens,
+) => {
   const isCosmic = variant === 'cosmic';
   const isNightAwe = variant === 'nightAwe';
   const textPrimary = isNightAwe
@@ -48,7 +51,8 @@ export const getFogCutterScreenStyles = (variant: ThemeVariant, t: ThemeTokens) 
   return StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: variant === 'linear' ? Tokens.colors.neutral.darkest : 'transparent',
+      backgroundColor:
+        variant === 'linear' ? Tokens.colors.neutral.darkest : 'transparent',
     },
     scrollContent: {
       flex: 1,
