@@ -76,7 +76,10 @@ export const TaskItem = memo(function TaskItem({
 
       <View style={styles.taskInfo}>
         <Text
-          style={[styles.taskTitle, task.completed && styles.taskTitleCompleted]}
+          style={[
+            styles.taskTitle,
+            task.completed && styles.taskTitleCompleted,
+          ]}
         >
           {task.title}
         </Text>

@@ -42,10 +42,9 @@ type BrainDumpRoute = RouteProp<
 const BrainDumpScreen = () => {
   const { isCosmic, isNightAwe, t, variant } = useTheme();
   const styles = useMemo(() => getBrainDumpStyles(variant, t), [t, variant]);
-  const loadingSpinnerColor =
-    isNightAwe
-      ? t.colors.nightAwe?.feature?.brainDump || t.colors.semantic.primary
-      : t.colors.brand[500];
+  const loadingSpinnerColor = isNightAwe
+    ? t.colors.nightAwe?.feature?.brainDump || t.colors.semantic.primary
+    : t.colors.brand[500];
   const route = useRoute<BrainDumpRoute>();
   const storeTasks = useTaskStore((state) => state.tasks);
   const activeTasks = useMemo(

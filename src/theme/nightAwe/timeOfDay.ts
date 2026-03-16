@@ -6,12 +6,7 @@ import {
   starColors,
 } from './semantic';
 
-export type NightAwePhase =
-  | 'predawn'
-  | 'sunrise'
-  | 'day'
-  | 'sunset'
-  | 'night';
+export type NightAwePhase = 'predawn' | 'sunrise' | 'day' | 'sunset' | 'night';
 
 export interface NightAwePalette {
   phase: NightAwePhase;

@@ -12,11 +12,6 @@ import { withOperationContext } from '../services/LoggerService';
 const CRITICAL_INIT_TIMEOUT_MS = 8000;
 let unhandledRejectionHandlerInstalled = false;
 
-const wait = (ms: number): Promise<void> =>
-  new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-
 interface BootstrapResult {
   success: boolean;
   errors: Error[];

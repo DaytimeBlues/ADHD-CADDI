@@ -180,10 +180,7 @@ export const TasksScreen = memo(function TasksScreen() {
               <>
                 <View style={styles.statCardSurface}>
                   <Text
-                    style={[
-                      styles.statValue,
-                      { color: priorityColors.urgent },
-                    ]}
+                    style={[styles.statValue, { color: priorityColors.urgent }]}
                   >
                     {stats.urgent}
                   </Text>
@@ -191,10 +188,7 @@ export const TasksScreen = memo(function TasksScreen() {
                 </View>
                 <View style={styles.statCardSurface}>
                   <Text
-                    style={[
-                      styles.statValue,
-                      { color: priorityColors.normal },
-                    ]}
+                    style={[styles.statValue, { color: priorityColors.normal }]}
                   >
                     {stats.total - stats.completed}
                   </Text>
@@ -216,10 +210,7 @@ export const TasksScreen = memo(function TasksScreen() {
                   style={styles.statCard}
                 >
                   <Text
-                    style={[
-                      styles.statValue,
-                      { color: priorityColors.urgent },
-                    ]}
+                    style={[styles.statValue, { color: priorityColors.urgent }]}
                   >
                     {stats.urgent}
                   </Text>
@@ -232,10 +223,7 @@ export const TasksScreen = memo(function TasksScreen() {
                   style={styles.statCard}
                 >
                   <Text
-                    style={[
-                      styles.statValue,
-                      { color: priorityColors.normal },
-                    ]}
+                    style={[styles.statValue, { color: priorityColors.normal }]}
                   >
                     {stats.total - stats.completed}
                   </Text>

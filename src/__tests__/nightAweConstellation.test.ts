@@ -9,7 +9,11 @@ describe('Night Awe constellation transitions', () => {
     const targets = getNightAweTransitionTargets('fogCutter');
 
     expect(targets.activeNodeId).toBe('fogCutter');
-    expect(targets.connectedNodeIds).toEqual(['ignite', 'checkIn', 'brainDump']);
+    expect(targets.connectedNodeIds).toEqual([
+      'ignite',
+      'checkIn',
+      'brainDump',
+    ]);
     expect(targets.activeEdgeIds).toEqual([
       'ignite-fogCutter',
       'fogCutter-checkIn',

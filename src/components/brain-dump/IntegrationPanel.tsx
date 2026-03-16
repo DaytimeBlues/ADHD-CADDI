@@ -357,9 +357,7 @@ const getStyles = (variant: ThemeVariant, t: ThemeTokens) => {
       marginTop: 2,
     },
     button: {
-      backgroundColor: isNightAwe
-        ? accent
-        : Tokens.colors.indigo.primary,
+      backgroundColor: isNightAwe ? accent : Tokens.colors.indigo.primary,
       paddingHorizontal: 12,
       paddingVertical: 6,
       borderRadius: isNightAwe ? 10 : 6,
