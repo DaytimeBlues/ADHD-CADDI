@@ -28,5 +28,11 @@ module.exports = {
         'no-console': ['error', { allow: ['warn', 'error'] }],
       },
     },
+    {
+      files: ['src/ui/nightAwe/NightAweBackground.tsx'],
+      rules: {
+        'react-native/no-inline-styles': 'off',
+      },
+    },
   ],
 };
