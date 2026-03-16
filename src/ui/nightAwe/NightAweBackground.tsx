@@ -1,12 +1,5 @@
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  Animated,
-  Platform,
-  StyleProp,
-  StyleSheet,
-  View,
-  ViewStyle,
-} from 'react-native';
+import { Animated, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import useReducedMotion from '../../hooks/useReducedMotion';
 import { getCurrentNightAwePalette } from '../../theme/nightAwe/timeOfDay';
 import { isWeb } from '../../utils/PlatformUtils';
@@ -174,10 +167,7 @@ export const NightAweBackground = memo(function NightAweBackground({
 
       <Animated.View
         pointerEvents="none"
-        style={[
-          styles.starField,
-          { opacity: starOpacity },
-        ]}
+        style={[styles.starField, { opacity: starOpacity }]}
       >
         {STAR_LAYOUT.map((star, index) => (
           <View
@@ -257,7 +247,10 @@ export const NightAweBackground = memo(function NightAweBackground({
               }
 
               return (
-                <Animated.View key={edgeId} style={{ opacity: activeEdgeOpacity }}>
+                <Animated.View
+                  key={edgeId}
+                  style={{ opacity: activeEdgeOpacity }}
+                >
                   {line}
                 </Animated.View>
               );
@@ -295,7 +288,9 @@ export const NightAweBackground = memo(function NightAweBackground({
               );
 
               if (!isActive || reduceMotion || motionMode === 'idle') {
-                return <React.Fragment key={node.id}>{baseNode}</React.Fragment>;
+                return (
+                  <React.Fragment key={node.id}>{baseNode}</React.Fragment>
+                );
               }
 
               return (
