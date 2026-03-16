@@ -1,17 +1,13 @@
 import { test, expect } from '@playwright/test';
 import { enableE2ETestMode } from './helpers/seed';
 
-/**
- * Basic smoke tests for ADHD-CADDI web app.
- */
+test.beforeEach(async ({ page }) => {
+  await enableE2ETestMode(page);
+  await page.goto('/');
+  await expect(page.getByTestId('home-title')).toBeVisible();
+});
 
 test.describe('Home Screen', () => {
-  test.beforeEach(async ({ page }) => {
-    await enableE2ETestMode(page);
-    await page.goto('/');
-    await expect(page.getByTestId('home-title')).toBeVisible();
-  });
-
   test('should load without crash', async ({ page }) => {
     await expect(page.getByTestId('home-title')).toBeVisible();
   });
@@ -49,12 +45,6 @@ test.describe('Home Screen', () => {
 });
 
 test.describe('Navigation', () => {
-  test.beforeEach(async ({ page }) => {
-    await enableE2ETestMode(page);
-    await page.goto('/');
-    await expect(page.getByTestId('home-title')).toBeVisible();
-  });
-
   test('should navigate to Focus tab', async ({ page }) => {
     await page.getByTestId('nav-focus').click({ force: true });
     await expect(page.getByText('IGNITE_PROTOCOL')).toBeVisible({
@@ -64,7 +54,8 @@ test.describe('Navigation', () => {
 
   test('should navigate to Tasks tab', async ({ page }) => {
     await page.getByTestId('nav-tasks').click({ force: true });
-    await expect(page.getByText('BRAIN_DUMP')).toBeVisible({
+    // Check for Tasks screen region or header text
+    await expect(page.getByText('NEBULA QUEUE')).toBeVisible({
       timeout: 15000,
     });
   });

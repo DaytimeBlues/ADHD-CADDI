@@ -12,6 +12,9 @@ test.describe('BrainDump Flow', () => {
       timeout: 15000,
     });
     await page.getByTestId('nav-tasks').click({ force: true });
+    await expect(page.getByText('TASKS')).toBeVisible();
+    // Navigate to Brain Dump from Tasks screen
+    await page.getByLabel('Open Brain Dump').click({ force: true });
     await expect(page.getByText('BRAIN_DUMP')).toBeVisible();
   });
 

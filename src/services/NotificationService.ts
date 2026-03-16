@@ -1,13 +1,50 @@
 import { LoggerService } from './LoggerService';
+import { NativeModules, Platform } from 'react-native';
 
 type NotificationsModule = typeof import('expo-notifications');
 
 let notificationsModule: NotificationsModule | null | undefined;
 let notificationHandlerConfigured = false;
+let nativeModuleChecked = false;
+let nativeModuleAvailable = false;
+
+/**
+ * Check if ExpoNotifications native module is available
+ * This must be done BEFORE trying to require the JS module
+ */
+const checkNativeModuleAvailable = (): boolean => {
+  if (nativeModuleChecked) {
+    return nativeModuleAvailable;
+  }
+  nativeModuleChecked = true;
+
+  // Check if the native module is registered
+  const { ExpoNotifications } = NativeModules;
+  if (!ExpoNotifications) {
+    LoggerService.warn({
+      service: 'NotificationService',
+      operation: 'checkNativeModule',
+      message:
+        'ExpoNotifications native module not found; notification features disabled.',
+      context: { platform: Platform.OS },
+    });
+    nativeModuleAvailable = false;
+    return false;
+  }
+
+  nativeModuleAvailable = true;
+  return true;
+};
 
 const getNotifications = (): NotificationsModule | null => {
   if (notificationsModule !== undefined) {
     return notificationsModule;
+  }
+
+  // Check native module availability first
+  if (!checkNativeModuleAvailable()) {
+    notificationsModule = null;
+    return null;
   }
 
   try {

@@ -13,10 +13,11 @@ class TimerServiceClass {
   private tickMs = 1000;
   private lastIsRunning = false;
   private lastTargetEndTime: number | null = null;
+  private isInitialized = false;
 
   constructor() {
     this.checkE2EMode();
-    this.initStoreListener();
+    // Don't initialize store listener immediately - wait for first start()
   }
 
   private checkE2EMode() {
@@ -31,6 +32,11 @@ class TimerServiceClass {
   }
 
   private initStoreListener() {
+    if (this.isInitialized) {
+      return;
+    }
+    this.isInitialized = true;
+
     // Subscribe to state changes to handle side-effects (notifications)
     // This removes the need for the store to know about NotificationService
     useTimerStore.subscribe((state) => {
@@ -68,6 +74,9 @@ class TimerServiceClass {
    * Start the global timer interval if not already running
    */
   public start() {
+    // Lazy initialization - only subscribe to store when timer is actually used
+    this.initStoreListener();
+
     if (this.intervalId) {
       return;
     }

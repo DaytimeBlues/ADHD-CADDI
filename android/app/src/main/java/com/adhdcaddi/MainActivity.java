@@ -29,7 +29,9 @@ public class MainActivity extends ReactActivity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
+    // Pass null to prevent ScreenFragment restoration crash
+    // https://github.com/software-mansion/react-native-screens/issues/17
+    super.onCreate(null);
     handleRouteIntent(getIntent());
   }
 
