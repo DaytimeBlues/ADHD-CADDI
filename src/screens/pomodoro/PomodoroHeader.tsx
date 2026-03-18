@@ -17,7 +17,6 @@ export const PomodoroHeader = ({
   return (
     <>
       <View style={styles.header}>
-        <Text style={styles.title}>POMODORO</Text>
         <Text style={styles.subtitle}>
           {isWorking ? 'FOCUS BLOCK' : 'RECOVERY BREAK'}
         </Text>

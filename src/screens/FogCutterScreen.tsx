@@ -10,6 +10,7 @@ import { useFogCutterAI } from '../hooks/useFogCutterAI';
 import { getFogCutterScreenStyles } from './FogCutterScreen.styles';
 import { FogCutterTaskComposer } from './fog-cutter/FogCutterTaskComposer';
 import { FogCutterTaskList } from './fog-cutter/FogCutterTaskList';
+import { BackHeader } from '../components/ui/BackHeader';
 
 type FogCutterNavigation = {
   navigate: (route: string) => void;
@@ -94,8 +95,9 @@ const FogCutterScreen = ({ navigation }: FogCutterScreenProps) => {
     >
       <View style={styles.scrollContent}>
         <View style={styles.content}>
+          <BackHeader title="FOG_CUTTER" />
           <View style={styles.header}>
-            <Text style={styles.title}>FOG_CUTTER</Text>
+            <Text style={styles.title}>DECOMPOSITION</Text>
             <View style={styles.headerLine} />
           </View>
 

@@ -1,0 +1,13 @@
+
+> adhd-caddi-rn@1.0.0 test
+> jest --runInBand --testPathPattern=(StorageService|TaskStore|ActivationService|OverlayService).test
+
+PASS __tests__/StorageService.test.ts
+PASS __tests__/OverlayService.test.ts
+PASS __tests__/ActivationService.test.ts
+
+Test Suites: 3 passed, 3 total
+Tests:       33 passed, 33 total
+Snapshots:   0 total
+Time:        0.642 s, estimated 2 s
+Ran all test suites matching /(StorageService|TaskStore|ActivationService|OverlayService).test/i.

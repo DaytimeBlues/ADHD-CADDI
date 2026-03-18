@@ -13,6 +13,7 @@ import { CalendarHeader } from './calendar/CalendarHeader';
 import { CalendarGrid } from './calendar/CalendarGrid';
 import { CalendarRationale } from './calendar/CalendarRationale';
 import { GoogleCalendarConnection } from './calendar/GoogleCalendarConnection';
+import { BackHeader } from '../components/ui/BackHeader';
 
 const CalendarScreen = () => {
   const { isCosmic } = useTheme();
@@ -48,7 +49,7 @@ const CalendarScreen = () => {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.content}>
-            <Text style={styles.title}>CALENDAR</Text>
+            <BackHeader title="CALENDAR" />
 
             <CalendarRationale />
 

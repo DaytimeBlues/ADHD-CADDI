@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Tokens } from '../theme/tokens';
 import { CosmicBackground } from '../ui/cosmic';
+import { BackHeader } from '../components/ui/BackHeader';
 import {
   BackupSection,
   DiagnosticsStatusSection,
@@ -21,10 +22,6 @@ import {
   useDiagnosticsData,
   useThemeSwitcher,
 } from './diagnostics/hooks';
-
-type NavigationNode = {
-  goBack: () => void;
-};
 
 type DiagnosticsPressableState = {
   focused?: boolean;
@@ -41,7 +38,7 @@ const webFocusOutline: object =
       }
     : {};
 
-const DiagnosticsScreen = ({ navigation }: { navigation: NavigationNode }) => {
+const DiagnosticsScreen = () => {
   const { diagnostics, isRefreshing, refreshDiagnostics } =
     useDiagnosticsData();
   const {
@@ -62,21 +59,7 @@ const DiagnosticsScreen = ({ navigation }: { navigation: NavigationNode }) => {
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.container}>
           <View style={styles.header}>
-            <Pressable
-              onPress={() => navigation.goBack()}
-              style={(state: DiagnosticsPressableState) => [
-                styles.backButton,
-                state.focused && styles.backButtonFocused,
-              ]}
-              accessibilityLabel="Go back"
-              accessibilityHint="Returns to previous screen"
-              accessibilityRole="button"
-            >
-              <Text style={styles.backButtonText}>{'< BACK'}</Text>
-            </Pressable>
-
-            <Text style={styles.title}>DIAGNOSTICS</Text>
-
+            <BackHeader title="DIAGNOSTICS" />
             <Pressable
               onPress={() => {
                 refreshDiagnostics().catch(() => undefined);
@@ -157,13 +140,6 @@ const styles = StyleSheet.create({
   },
   backButtonFocused: {
     ...webFocusOutline,
-  },
-  backButtonText: {
-    fontFamily: Tokens.type.fontFamily.mono,
-    fontSize: 12,
-    fontWeight: '700',
-    color: Tokens.colors.indigo.primary,
-    letterSpacing: 0.5,
   },
   title: {
     fontFamily: Tokens.type.fontFamily.mono,

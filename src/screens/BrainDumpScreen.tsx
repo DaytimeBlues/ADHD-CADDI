@@ -24,6 +24,7 @@ import {
   IntegrationPanel,
 } from '../components/brain-dump';
 import { TutorialBubble } from '../components/tutorial/TutorialBubble';
+import { BackHeader } from '../components/ui/BackHeader';
 import useBrainDump from '../hooks/useBrainDump';
 import { useTaskStore } from '../store/useTaskStore';
 import useBrainDumpTutorial from './brain-dump/useBrainDumpTutorial';
@@ -92,8 +93,9 @@ const BrainDumpScreen = () => {
     >
       <View style={styles.centerContainer}>
         <View style={styles.contentWrapper}>
+          <BackHeader title="BRAIN_DUMP" />
           <View style={styles.header}>
-            <Text style={styles.title}>BRAIN_DUMP</Text>
+            <Text style={styles.title}>CAPTURE_SYSTEM</Text>
             <View style={styles.headerLine} />
             <Pressable
               onPress={() => startTutorial(brainDumpOnboardingFlow)}

@@ -103,13 +103,7 @@ describe('DiagnosticsScreen', () => {
 
   it('renders sections and wires interactions', () => {
     const goBackMock = jest.fn();
-    const view = render(
-      <DiagnosticsScreen
-        navigation={{
-          goBack: goBackMock,
-        }}
-      />,
-    );
+    const view = render(<DiagnosticsScreen />);
 
     expect(view.getByText('SYSTEM STATUS')).toBeTruthy();
     expect(view.getByText('SETUP INSTRUCTIONS')).toBeTruthy();

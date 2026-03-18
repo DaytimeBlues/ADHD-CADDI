@@ -1,12 +1,5 @@
 import React, { memo, useCallback, useMemo, useState } from 'react';
-import {
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-  Pressable,
-} from 'react-native';
+import { ScrollView, Text, TextInput, View, Pressable } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, {
@@ -22,6 +15,7 @@ import { getTaskPriorityColors } from './TasksScreen.constants';
 import { FilterTab } from './TasksScreen.FilterTab';
 import { getTasksScreenStyles } from './TasksScreen.styles';
 import { TaskItem } from './TasksScreen.TaskItem';
+import { BackHeader } from '../components/ui/BackHeader';
 import { useTheme } from '../theme/useTheme';
 import {
   BrainDumpInput,
@@ -159,22 +153,7 @@ export const TasksScreen = memo(function TasksScreen() {
         accessibilityLabel="Tasks screen"
         accessibilityRole="summary"
       >
-        <View style={styles.headerRow}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={styles.backButton}
-            accessibilityLabel="Go back"
-            accessibilityRole="button"
-          >
-            <Text style={styles.backIcon}>{'<'}</Text>
-          </TouchableOpacity>
-          <View>
-            <Text style={styles.headerTitle}>BRAIN_DUMP</Text>
-            <Text style={styles.headerSubtitle}>
-              {isNightAwe ? 'STEADY QUEUE' : 'NEBULA QUEUE'}
-            </Text>
-          </View>
-        </View>
+        <BackHeader title="TASKS" />
 
         {utilityActions}
       </View>

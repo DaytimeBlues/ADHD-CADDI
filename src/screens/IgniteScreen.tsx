@@ -6,6 +6,7 @@ import { NightAweBackground } from '../ui/nightAwe';
 import { getIgniteScreenStyles } from './IgniteScreen.styles';
 import { IgniteTimerDisplay } from './ignite/IgniteTimerDisplay';
 import { useIgniteController } from './ignite/useIgniteController';
+import { BackHeader } from '../components/ui/BackHeader';
 
 const IgniteScreen = () => {
   const { isCosmic, isNightAwe, t, variant } = useTheme();
@@ -31,8 +32,8 @@ const IgniteScreen = () => {
     >
       <View style={styles.centerWrapper}>
         <View style={styles.content}>
+          <BackHeader title="IGNITE_PROTOCOL" />
           <View style={styles.header}>
-            <Text style={styles.title}>IGNITE_PROTOCOL</Text>
             <View style={styles.statusBadge}>
               <Text style={styles.statusText}>
                 {controller.isRunning ? 'RUNNING' : 'READY'}

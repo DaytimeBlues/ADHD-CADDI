@@ -1,0 +1,21 @@
+
+> adhd-caddi-rn@1.0.0 e2e:core
+> playwright test e2e/tutorial-bubble-smoke.spec.ts e2e/bubble-features.spec.ts --project=chromium
+
+[2m[WebServer] [22m<i> [webpack-dev-server] Project is running at:
+[2m[WebServer] [22m<i> [webpack-dev-server] Loopback: [36mhttp://localhost:3000/[39m, [36mhttp://[::1]:3000/[39m
+[2m[WebServer] [22m<i> [webpack-dev-server] On Your Network (IPv4): [36mhttp://10.75.61.236:3000/[39m
+[2m[WebServer] [22m<i> [webpack-dev-server] Content not from webpack is served from '[36mC:\dev\ADHD-CADDI-V1\public[39m' directory
+[2m[WebServer] [22m<i> [webpack-dev-server] 404s will fallback to '[36m/index.html[39m'
+[2m[WebServer] [22m<i> [webpack-dev-middleware] wait until bundle finished: /
+[2m[WebServer] [22m<i> [webpack-dev-middleware] wait until bundle finished: /
+
+Running 5 tests using 5 workers
+
+  ok 2 [chromium] › e2e\bubble-features.spec.ts:19:7 › Bubble Features: Interruption & Vignette Check-ins › main bubble opens inbox when review items are waiting (2.1s)
+  ok 3 [chromium] › e2e\bubble-features.spec.ts:71:7 › Bubble Features: Interruption & Vignette Check-ins › Check In screen uses the registered route and current vignette quotes (2.4s)
+  ok 4 [chromium] › e2e\tutorial-bubble-smoke.spec.ts:16:7 › Tutorial And Bubble Smoke › brain dump tutorial auto-starts and can be replayed (2.7s)
+  ok 1 [chromium] › e2e\bubble-features.spec.ts:36:7 › Bubble Features: Interruption & Vignette Check-ins › zero-review bubble state opens drawer and supports check-in capture mode (4.6s)
+  ok 5 [chromium] › e2e\tutorial-bubble-smoke.spec.ts:38:7 › Tutorial And Bubble Smoke › capture bubble saves a text note and routes into inbox (4.5s)
+
+  5 passed (24.4s)

@@ -196,10 +196,18 @@ const crossFadeOptions = {
 };
 
 const TabNavigator = () => {
-  const { isCosmic } = useTheme();
+  const { isCosmic, isNightAwe } = useTheme();
   const webSceneContainerStyle = isCosmic
     ? styles.webSceneContainerCosmic
-    : styles.webSceneContainerLinear;
+    : isNightAwe
+      ? styles.webSceneContainerNightAwe
+      : styles.webSceneContainerLinear;
+
+  // Night-Awe colors from theme tokens
+  const nightAweBackground = '#08111E';
+  const nightAweBorder = 'rgba(175, 199, 255, 0.15)';
+  const nightAweActiveTint = '#AFC7FF';
+  const nightAweInactiveTint = '#7A8BA3';
 
   return (
     <Tab.Navigator
@@ -208,17 +216,27 @@ const TabNavigator = () => {
       screenOptions={{
         tabBarActiveTintColor: isCosmic
           ? '#8B5CF6'
-          : Tokens.colors.indigo.primary,
+          : isNightAwe
+            ? nightAweActiveTint
+            : Tokens.colors.indigo.primary,
         tabBarInactiveTintColor: isCosmic
           ? '#B9C2D9'
-          : Tokens.colors.text.tertiary,
+          : isNightAwe
+            ? nightAweInactiveTint
+            : Tokens.colors.text.tertiary,
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: isCosmic ? '#070712' : Tokens.colors.neutral.darker,
+          backgroundColor: isCosmic
+            ? '#070712'
+            : isNightAwe
+              ? nightAweBackground
+              : Tokens.colors.neutral.darker,
           borderTopWidth: 1,
           borderTopColor: isCosmic
             ? 'rgba(42, 53, 82, 0.3)'
-            : Tokens.colors.neutral.borderSubtle,
+            : isNightAwe
+              ? nightAweBorder
+              : Tokens.colors.neutral.borderSubtle,
           height: 60,
           paddingBottom: 8,
           elevation: 0,
@@ -303,6 +321,11 @@ const styles = StyleSheet.create({
   webSceneContainerCosmic: {
     paddingTop: 64,
     backgroundColor: '#070712',
+    height: '100%',
+  },
+  webSceneContainerNightAwe: {
+    paddingTop: 64,
+    backgroundColor: '#08111E',
     height: '100%',
   },
   webSceneContainerLinear: {

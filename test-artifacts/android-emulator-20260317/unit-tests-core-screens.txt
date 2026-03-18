@@ -1,0 +1,14 @@
+
+> adhd-caddi-rn@1.0.0 test
+> jest --runInBand --testPathPattern=(TasksScreen|BrainDumpScreen|IgniteScreen|PomodoroScreen|ChatScreen).test
+
+PASS __tests__/IgniteScreen.test.tsx
+PASS __tests__/BrainDumpScreen.test.tsx
+PASS __tests__/PomodoroScreen.test.tsx
+PASS __tests__/ChatScreen.test.tsx
+
+Test Suites: 4 passed, 4 total
+Tests:       6 passed, 6 total
+Snapshots:   0 total
+Time:        1.615 s, estimated 3 s
+Ran all test suites matching /(TasksScreen|BrainDumpScreen|IgniteScreen|PomodoroScreen|ChatScreen).test/i.

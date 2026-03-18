@@ -8,6 +8,7 @@ import { PomodoroControls } from './pomodoro/PomodoroControls';
 import { PomodoroHeader } from './pomodoro/PomodoroHeader';
 import { PomodoroSessionCounter } from './pomodoro/PomodoroSessionCounter';
 import { PomodoroTimerCard } from './pomodoro/PomodoroTimerCard';
+import { BackHeader } from '../components/ui/BackHeader';
 
 const PomodoroScreen = () => {
   const { isCosmic } = useTheme();
@@ -32,6 +33,7 @@ const PomodoroScreen = () => {
         accessibilityRole="summary"
       >
         <View style={styles.content}>
+          <BackHeader title="POMODORO" />
           <PomodoroHeader isCosmic={isCosmic} isWorking={isWorking} />
           <PomodoroTimerCard
             isCosmic={isCosmic}

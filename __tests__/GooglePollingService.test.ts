@@ -27,11 +27,16 @@ describe('GooglePollingService', () => {
   const processOfflineQueue = jest.fn().mockResolvedValue(undefined);
 
   beforeEach(() => {
+    jest.useFakeTimers();
     jest.clearAllMocks();
     config.googleWebClientId = 'web-client-id';
     config.googleIosClientId = 'ios-client-id';
     mockFetch.mockResolvedValue({ isConnected: true });
     mockAddEventListener.mockReturnValue(jest.fn());
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
   it('does not attach listeners when Google client IDs are missing', () => {

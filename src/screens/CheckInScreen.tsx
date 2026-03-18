@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { SafeAreaView, ScrollView, Text, View } from 'react-native';
 import { CosmicBackground, GlowCard, RuneButton } from '../ui/cosmic';
 import { EvidenceBadge } from '../components/ui/EvidenceBadge';
+import { BackHeader } from '../components/ui/BackHeader';
 import ActivationService from '../services/ActivationService';
 import CheckInInsightService from '../services/CheckInInsightService';
 import { LoggerService } from '../services/LoggerService';
@@ -105,9 +106,7 @@ const CheckInScreen = ({ navigation }: { navigation?: CheckInNavigation }) => {
             contentContainerStyle={styles.content}
             keyboardShouldPersistTaps="handled"
           >
-            <Text style={styles.title} testID="checkin-title">
-              CHECK IN
-            </Text>
+            <BackHeader title="CHECK IN" />
             <Text style={styles.subtitle} testID="checkin-subtitle">
               HOW ARE YOU FEELING RIGHT NOW?
             </Text>

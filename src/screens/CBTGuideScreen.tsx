@@ -1,18 +1,12 @@
 import React, { useMemo } from 'react';
-import {
-  Linking,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  Text,
-  View,
-} from 'react-native';
+import { Linking, SafeAreaView, ScrollView, Text, View } from 'react-native';
 import { useTheme } from '../theme/useTheme';
 import { CosmicBackground } from '../ui/cosmic';
 import { buildCbtCategories } from './cbt-guide/cbtGuideData';
 import { CbtGuideCategoryCard } from './cbt-guide/CbtGuideCategoryCard';
 import { CbtGuideOverviewCard } from './cbt-guide/CbtGuideOverviewCard';
 import { getCbtGuideStyles } from './cbt-guide/cbtGuideStyles';
+import { BackHeader } from '../components/ui/BackHeader';
 
 type ScreenNavigation = {
   navigate: (route: string) => void;
@@ -33,22 +27,9 @@ const CBTGuideScreen = ({ navigation }: { navigation: ScreenNavigation }) => {
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.maxWidthWrapper}>
+            <BackHeader title="CBT FOR ADHD" />
             <View style={styles.header}>
-              <Pressable
-                onPress={() => navigation.goBack()}
-                style={(state) => [
-                  styles.backButton,
-                  (state as { pressed: boolean; hovered?: boolean }).hovered &&
-                    styles.backButtonHovered,
-                  state.pressed && styles.backButtonPressed,
-                ]}
-                accessibilityLabel="Go back"
-                accessibilityRole="button"
-              >
-                <Text style={styles.backButtonText}>←</Text>
-              </Pressable>
               <View>
-                <Text style={styles.headerTitle}>CBT FOR ADHD</Text>
                 <Text style={styles.headerSubtitle}>
                   EVIDENCE-BASED STRATEGIES
                 </Text>

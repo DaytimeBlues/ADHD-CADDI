@@ -1,0 +1,21 @@
+
+> adhd-caddi-rn@1.0.0 test
+> jest --runInBand --testPathPattern=HomeScreen.test
+
+PASS __tests__/HomeScreen.test.tsx
+  HomeScreen
+    √ renders correctly (681 ms)
+    √ displays mode cards (16 ms)
+    √ shows streak container (15 ms)
+    √ renders activation trend metrics correctly (13 ms)
+    √ navigates to FogCutter when its card is pressed (11 ms)
+    √ navigates to Focus (Ignite) when Resume card is pressed (12 ms)
+    √ shows re-entry prompt and routes to Focus (15 ms)
+    √ renders overlay debug log entries when permission event is received (83 ms)
+    √ syncs overlay toggle from running state and lifecycle events (30 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       9 passed, 9 total
+Snapshots:   0 total
+Time:        1.853 s, estimated 2 s
+Ran all test suites matching /HomeScreen.test/i.

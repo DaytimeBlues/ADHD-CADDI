@@ -1,4 +1,4 @@
-﻿/**
+/**
  * InboxScreen
  *
  * Triage screen for captured items. Every capture lands here before being
@@ -8,7 +8,6 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, Text, FlatList, Pressable, SafeAreaView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../theme/useTheme';
 import CaptureService, {
   CaptureItem,
@@ -23,13 +22,13 @@ import {
   type FilterTab,
 } from './inbox/inboxParts';
 import { styles } from './inbox/inboxStyles';
+import { BackHeader } from '../components/ui/BackHeader';
 
 // ============================================================================
 // SCREEN
 // ============================================================================
 
 const InboxScreen = (): JSX.Element => {
-  const navigation = useNavigation();
   const { isCosmic } = useTheme();
 
   const [items, setItems] = useState<CaptureItem[]>([]);
@@ -145,28 +144,7 @@ const InboxScreen = (): JSX.Element => {
         accessibilityRole="summary"
       >
         {/* Header */}
-        <View style={[styles.header, isCosmic && styles.headerCosmic]}>
-          <Pressable
-            onPress={() => navigation.goBack()}
-            style={styles.closeBtn}
-            testID="inbox-close"
-            accessibilityLabel="Close inbox"
-            accessibilityRole="button"
-          >
-            <Text
-              style={[
-                styles.closeBtnText,
-                isCosmic && styles.closeBtnTextCosmic,
-              ]}
-            >
-              X
-            </Text>
-          </Pressable>
-          <Text style={[styles.title, isCosmic && styles.titleCosmic]}>
-            CAPTURE INBOX
-          </Text>
-          <View style={styles.closeBtnPlaceholder} />
-        </View>
+        <BackHeader title="CAPTURE INBOX" />
 
         {/* Filter tabs */}
         <View

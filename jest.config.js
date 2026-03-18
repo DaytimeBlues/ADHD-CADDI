@@ -19,6 +19,9 @@ module.exports = {
     '\\.(png|jpg|jpeg|gif|webp|svg|mp3|wav|m4a|aac|ogg)$':
       '<rootDir>/__tests__/__mocks__/fileMock.js',
   },
+  transformIgnorePatterns: [
+    'node_modules/(?!(react-native|@react-native|react-native-vector-icons|@react-navigation|expo-.*|@expo/.*|@sentry/.*)/)',
+  ],
   collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts'],
   setupFilesAfterEnv: ['<rootDir>/__tests__/setup.ts'],
   coverageThreshold: {
