@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "Running regression suite (critical tests + coverage thresholds)..."
+echo "Running regression suite (critical tests + full coverage gate)..."
 
 npx jest \
   --runTestsByPath \
@@ -13,10 +13,4 @@ npx jest \
   __tests__/HomeScreen.test.tsx \
   __tests__/CBTGuideScreen.test.tsx
 
-npx jest \
-  --coverage \
-  --runTestsByPath \
-  __tests__/helpers.test.ts \
-  __tests__/helpers.fuzz.test.ts \
-  __tests__/StorageService.test.ts \
-  __tests__/useTimer.test.ts
+npm run test:coverage -- --runInBand --watch=false

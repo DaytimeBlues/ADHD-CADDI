@@ -66,6 +66,7 @@ describe('GooglePollingService', () => {
       }),
     );
     expect(syncToBrainDump).not.toHaveBeenCalled();
+    service.stopForegroundPolling();
   });
 
   it('logs and syncs when connectivity transitions from offline to online', () => {
@@ -87,5 +88,6 @@ describe('GooglePollingService', () => {
     );
     expect(syncToBrainDump).toHaveBeenCalled();
     expect(processOfflineQueue).toHaveBeenCalled();
+    service.stopForegroundPolling();
   });
 });
