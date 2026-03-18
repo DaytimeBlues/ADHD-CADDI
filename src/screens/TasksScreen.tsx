@@ -23,11 +23,24 @@ import { FilterTab } from './TasksScreen.FilterTab';
 import { getTasksScreenStyles } from './TasksScreen.styles';
 import { TaskItem } from './TasksScreen.TaskItem';
 import { useTheme } from '../theme/useTheme';
+import {
+  BrainDumpInput,
+  BrainDumpItem,
+  BrainDumpGuide,
+} from '../components/brain-dump';
+import { useBrainDump } from '../hooks/useBrainDump';
 
 export const TasksScreen = memo(function TasksScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const { isNightAwe, t, variant } = useTheme();
+  const {
+    items: dumpItems,
+    addItem: addDumpItem,
+    deleteItem: deleteDumpItem,
+    showGuide,
+    dismissGuide,
+  } = useBrainDump();
   const styles = useMemo(() => getTasksScreenStyles(variant, t), [t, variant]);
   const priorityColors = useMemo(
     () => getTaskPriorityColors(t, variant),
@@ -156,7 +169,7 @@ export const TasksScreen = memo(function TasksScreen() {
             <Text style={styles.backIcon}>{'<'}</Text>
           </TouchableOpacity>
           <View>
-            <Text style={styles.headerTitle}>TASKS</Text>
+            <Text style={styles.headerTitle}>BRAIN_DUMP</Text>
             <Text style={styles.headerSubtitle}>
               {isNightAwe ? 'STEADY QUEUE' : 'NEBULA QUEUE'}
             </Text>
@@ -174,6 +187,11 @@ export const TasksScreen = memo(function TasksScreen() {
         ]}
         showsVerticalScrollIndicator={false}
       >
+        <BrainDumpInput onAdd={addDumpItem} />
+        <BrainDumpGuide showGuide={showGuide} onDismiss={dismissGuide} />
+        {dumpItems.map((item) => (
+          <BrainDumpItem key={item.id} item={item} onDelete={deleteDumpItem} />
+        ))}
         <Animated.View entering={FadeIn.delay(100).duration(300)}>
           <View style={styles.statsRow}>
             {isNightAwe ? (
