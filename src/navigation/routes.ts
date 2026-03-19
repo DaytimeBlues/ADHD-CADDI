@@ -5,6 +5,10 @@
  */
 
 export const ROUTES = {
+  // Auth Stack
+  LOGIN: 'Login' as const,
+  SIGN_UP: 'SignUp' as const,
+
   // Root Stack
   MAIN: 'Main' as const,
 

@@ -13,6 +13,8 @@ import { ROUTES } from './routes';
 import { CaptureBubble } from '../components/capture';
 import ErrorBoundary from '../components/ErrorBoundary';
 import AppIcon from '../components/AppIcon';
+import { useAuth } from '../contexts/AuthContext';
+import LoginScreen from '../screens/LoginScreen';
 
 import { isWeb } from '../utils/PlatformUtils';
 
@@ -39,15 +41,13 @@ const loadScreen = <P extends object>(
   lazyFactory: () => Promise<{ default: React.ComponentType<P> }>,
 ): React.ComponentType<P> => {
   if (process.env.NODE_ENV === 'test') {
-    // Jest does not support these lazy dynamic imports without extra VM flags.
-    // Using require in tests keeps the production bundle lazy-loaded.
     return screenModuleLoaders[modulePath]().default as React.ComponentType<P>;
   }
 
   return lazy(lazyFactory) as unknown as React.ComponentType<P>;
 };
 
-// Lazy loaded screens keep the first web bundle smaller.
+// Lazy loaded screens
 const HomeScreen = loadScreen(
   '../screens/HomeScreen',
   () => import('../screens/HomeScreen'),
@@ -112,19 +112,15 @@ const renderWebTabBar = (props: BottomTabBarProps) => <WebNavBar {...props} />;
 const HomeTabIcon = ({ color }: TabBarIconProps) => (
   <AppIcon name="home" size={24} color={color} />
 );
-
 const FocusTabIcon = ({ color }: TabBarIconProps) => (
   <AppIcon name="fire" size={24} color={color} />
 );
-
 const TasksTabIcon = ({ color }: TabBarIconProps) => (
   <AppIcon name="text-box-outline" size={24} color={color} />
 );
-
 const CalendarTabIcon = ({ color }: TabBarIconProps) => (
   <AppIcon name="calendar" size={24} color={color} />
 );
-
 const ChatTabIcon = ({ color }: TabBarIconProps) => (
   <AppIcon name="message-text-outline" size={24} color={color} />
 );
@@ -161,14 +157,12 @@ const LazyInbox = withSuspense(InboxScreen);
 const LazyCheckIn = withSuspense(CheckInScreen);
 const LazyCBTGuide = withSuspense(CBTGuideScreen);
 const LazyDiagnostics = withSuspense(DiagnosticsScreen);
-
 const LazyHome = withSuspense(HomeScreen);
 const LazyIgnite = withSuspense(IgniteScreen);
 const LazyTasks = withSuspense(TasksScreen);
 const LazyBrainDump = withSuspense(BrainDumpScreen);
 const LazyChat = withSuspense(ChatScreen);
 
-// Phase 6: Wrapped Cosmic screens for primary tabs (with ErrorBoundary)
 const SafeHomeScreen = withErrorBoundary(LazyHome);
 const SafeIgniteScreen = withErrorBoundary(LazyIgnite);
 const SafeTasksScreen = withErrorBoundary(LazyTasks);
@@ -203,7 +197,6 @@ const TabNavigator = () => {
       ? styles.webSceneContainerNightAwe
       : styles.webSceneContainerLinear;
 
-  // Night-Awe colors from theme tokens
   const nightAweBackground = '#08111E';
   const nightAweBorder = 'rgba(175, 199, 255, 0.15)';
   const nightAweActiveTint = '#AFC7FF';
@@ -251,59 +244,35 @@ const TabNavigator = () => {
         },
       }}
     >
-      {/* Phase 6: Primary tabs migrated to Cosmic UI equivalents */}
       <Tab.Screen
         name={ROUTES.HOME}
         component={SafeHomeScreen}
-        options={{
-          tabBarIcon: HomeTabIcon,
-          tabBarTestID: 'nav-home',
-        }}
+        options={{ tabBarIcon: HomeTabIcon, tabBarTestID: 'nav-home' }}
       />
       <Tab.Screen
         name={ROUTES.FOCUS}
         component={SafeIgniteScreen}
-        options={{
-          tabBarIcon: FocusTabIcon,
-          tabBarTestID: 'nav-focus',
-        }}
+        options={{ tabBarIcon: FocusTabIcon, tabBarTestID: 'nav-focus' }}
       />
       <Tab.Screen
         name={ROUTES.TASKS}
         component={SafeTasksScreen}
-        options={{
-          tabBarIcon: TasksTabIcon,
-          tabBarTestID: 'nav-tasks',
-        }}
+        options={{ tabBarIcon: TasksTabIcon, tabBarTestID: 'nav-tasks' }}
       />
       <Tab.Screen
         name={ROUTES.CALENDAR}
         component={SafeLazyCalendar}
-        options={{
-          tabBarIcon: CalendarTabIcon,
-          tabBarTestID: 'nav-calendar',
-        }}
+        options={{ tabBarIcon: CalendarTabIcon, tabBarTestID: 'nav-calendar' }}
       />
       <Tab.Screen
         name={ROUTES.CHAT}
         component={SafeChatScreen}
-        options={{
-          tabBarIcon: ChatTabIcon,
-          tabBarTestID: 'nav-chat',
-        }}
+        options={{ tabBarIcon: ChatTabIcon, tabBarTestID: 'nav-chat' }}
       />
     </Tab.Navigator>
   );
 };
 
-/**
- * TabNavigatorWithBubble
- *
- * Wraps the TabNavigator in a flex-1 View and renders the CaptureBubble
- * above all tab screens. The Bubble is NOT shown on fullscreen modals
- * (Pomodoro, Anchor, FogCutter) — those are sibling Stack.Screens above
- * this component, so the bubble is naturally hidden there.
- */
 const TabNavigatorWithBubble = () => (
   <View style={styles.container}>
     <TabNavigator />
@@ -338,23 +307,56 @@ const styles = StyleSheet.create({
   },
 });
 
-const AppNavigatorContent = () => (
+const AuthNavigator = () => (
   <Stack.Navigator screenOptions={crossFadeOptions}>
-    <Stack.Screen name={ROUTES.MAIN} component={TabNavigatorWithBubble} />
-    <Stack.Screen name={ROUTES.CHECK_IN} component={SafeLazyCheckIn} />
-    <Stack.Screen name={ROUTES.CBT_GUIDE} component={SafeLazyCBTGuide} />
-    <Stack.Screen name={ROUTES.DIAGNOSTICS} component={SafeLazyDiagnostics} />
-    <Stack.Screen name={ROUTES.BRAIN_DUMP} component={SafeBrainDumpScreen} />
-    <Stack.Screen name={ROUTES.FOG_CUTTER} component={SafeLazyFogCutter} />
-    <Stack.Screen name={ROUTES.POMODORO} component={SafeLazyPomodoro} />
-    <Stack.Screen name={ROUTES.ANCHOR} component={SafeLazyAnchor} />
-    <Stack.Screen
-      name={ROUTES.INBOX}
-      component={SafeLazyInbox}
-      options={{ presentation: 'modal' }}
-    />
+    <Stack.Screen name={ROUTES.LOGIN} component={LoginScreen} />
   </Stack.Navigator>
 );
+
+const AppNavigatorContent = () => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <SuspenseFallback />;
+  }
+
+  return (
+    <Stack.Navigator screenOptions={crossFadeOptions}>
+      {user ? (
+        <>
+          <Stack.Screen name={ROUTES.MAIN} component={TabNavigatorWithBubble} />
+          <Stack.Screen name={ROUTES.CHECK_IN} component={SafeLazyCheckIn} />
+          <Stack.Screen name={ROUTES.CBT_GUIDE} component={SafeLazyCBTGuide} />
+          <Stack.Screen
+            name={ROUTES.DIAGNOSTICS}
+            component={SafeLazyDiagnostics}
+          />
+          <Stack.Screen
+            name={ROUTES.BRAIN_DUMP}
+            component={SafeBrainDumpScreen}
+          />
+          <Stack.Screen
+            name={ROUTES.FOG_CUTTER}
+            component={SafeLazyFogCutter}
+          />
+          <Stack.Screen name={ROUTES.POMODORO} component={SafeLazyPomodoro} />
+          <Stack.Screen name={ROUTES.ANCHOR} component={SafeLazyAnchor} />
+          <Stack.Screen
+            name={ROUTES.INBOX}
+            component={SafeLazyInbox}
+            options={{ presentation: 'modal' }}
+          />
+        </>
+      ) : (
+        <Stack.Screen
+          name="Auth"
+          component={AuthNavigator}
+          options={{ headerShown: false }}
+        />
+      )}
+    </Stack.Navigator>
+  );
+};
 
 const AppNavigator = () => <AppNavigatorContent />;
 

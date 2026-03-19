@@ -10,15 +10,15 @@ import { ROUTES } from '../src/navigation/routes';
 describe('web linking config', () => {
   it('resolves Phase 1 stack routes from the base path', () => {
     const checkInState = appLinking.getStateFromPath?.(
-      '/ADHD-CADDI/check-in',
+      '/check-in',
       appLinking.config,
     );
     const cbtGuideState = appLinking.getStateFromPath?.(
-      '/ADHD-CADDI/cbt-guide',
+      '/cbt-guide',
       appLinking.config,
     );
     const diagnosticsState = appLinking.getStateFromPath?.(
-      '/ADHD-CADDI/diagnostics',
+      '/diagnostics',
       appLinking.config,
     );
 
@@ -46,7 +46,7 @@ describe('web linking config', () => {
         },
         appLinking.config,
       ),
-    ).toBe('/ADHD-CADDI/check-in');
+    ).toBe('/check-in');
 
     expect(
       appLinking.getPathFromState?.(
@@ -60,7 +60,7 @@ describe('web linking config', () => {
         },
         appLinking.config,
       ),
-    ).toBe('/ADHD-CADDI/cbt-guide');
+    ).toBe('/cbt-guide');
 
     expect(
       appLinking.getPathFromState?.(
@@ -74,6 +74,6 @@ describe('web linking config', () => {
         },
         appLinking.config,
       ),
-    ).toBe('/ADHD-CADDI/diagnostics');
+    ).toBe('/diagnostics');
   });
 });

@@ -1,9 +1,14 @@
+import { NavigationContainer } from '@react-navigation/native';
 import { render, screen } from '@testing-library/react-native';
 import React from 'react';
 
-jest.mock('@react-navigation/native', () => ({
-  useRoute: () => ({ params: {} }),
-}));
+jest.mock('@react-navigation/native', () => {
+  const actual = jest.requireActual('@react-navigation/native');
+  return {
+    ...actual,
+    useRoute: () => ({ params: {} }),
+  };
+});
 
 jest.mock('../src/hooks/useReducedMotion', () => ({
   __esModule: true,
@@ -138,17 +143,29 @@ import IgniteScreen from '../src/screens/IgniteScreen';
 
 describe('Phase B loading states', () => {
   it('shows loading state for BrainDump initial hydration', () => {
-    render(<BrainDumpScreen />);
+    render(
+      <NavigationContainer>
+        <BrainDumpScreen />
+      </NavigationContainer>,
+    );
     expect(screen.getByText('LOADING...')).toBeTruthy();
   });
 
   it('shows loading state for FogCutter initial hydration', () => {
-    render(<FogCutterScreen />);
+    render(
+      <NavigationContainer>
+        <FogCutterScreen />
+      </NavigationContainer>,
+    );
     expect(screen.getByText('LOADING...')).toBeTruthy();
   });
 
   it('shows restoring state for Ignite session restore', () => {
-    render(<IgniteScreen />);
+    render(
+      <NavigationContainer>
+        <IgniteScreen />
+      </NavigationContainer>,
+    );
     expect(screen.getByText('RESTORING...')).toBeTruthy();
   });
 });

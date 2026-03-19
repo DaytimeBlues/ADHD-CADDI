@@ -1,4 +1,5 @@
 import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
 import { fireEvent, render } from '@testing-library/react-native';
 import DiagnosticsScreen from '../DiagnosticsScreen';
 
@@ -102,8 +103,11 @@ describe('DiagnosticsScreen', () => {
   });
 
   it('renders sections and wires interactions', () => {
-    const goBackMock = jest.fn();
-    const view = render(<DiagnosticsScreen />);
+    const view = render(
+      <NavigationContainer>
+        <DiagnosticsScreen />
+      </NavigationContainer>,
+    );
 
     expect(view.getByText('SYSTEM STATUS')).toBeTruthy();
     expect(view.getByText('SETUP INSTRUCTIONS')).toBeTruthy();
@@ -116,7 +120,10 @@ describe('DiagnosticsScreen', () => {
     fireEvent.press(view.getByTestId('diagnostics-import-backup'));
     fireEvent.press(view.getByLabelText('Select Linear theme'));
 
-    expect(goBackMock).toHaveBeenCalledTimes(1);
+    const { useNavigation } = require('@react-navigation/native');
+    const navigation = useNavigation();
+
+    expect(navigation.goBack).toHaveBeenCalledTimes(1);
     expect(mockRefreshDiagnostics).toHaveBeenCalledTimes(1);
     expect(mockExportBackup).toHaveBeenCalledTimes(1);
     expect(mockImportBackup).toHaveBeenCalledTimes(1);

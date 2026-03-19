@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
 import { render, screen } from '@testing-library/react-native';
+import { NavigationContainer } from '@react-navigation/native';
 import { CosmicTokens } from '../src/theme/cosmicTokens';
 import { TaskItem } from '../src/screens/TasksScreen.TaskItem';
 import type { Task } from '../src/types/task';
@@ -60,11 +61,13 @@ jest.mock('react-native-reanimated', () => {
 describe('TaskItem', () => {
   it('uses the semantic error color for urgent badge text', () => {
     render(
-      <TaskItem
-        task={createTask({ priority: 'urgent' })}
-        onToggle={jest.fn()}
-        onDelete={jest.fn()}
-      />,
+      <NavigationContainer>
+        <TaskItem
+          task={createTask({ priority: 'urgent' })}
+          onToggle={jest.fn()}
+          onDelete={jest.fn()}
+        />
+      </NavigationContainer>,
     );
 
     const urgentLabel = screen.getByText('URGENT');
@@ -75,11 +78,13 @@ describe('TaskItem', () => {
 
   it('uses the semantic warning color for important badge text', () => {
     render(
-      <TaskItem
-        task={createTask({ priority: 'important' })}
-        onToggle={jest.fn()}
-        onDelete={jest.fn()}
-      />,
+      <NavigationContainer>
+        <TaskItem
+          task={createTask({ priority: 'important' })}
+          onToggle={jest.fn()}
+          onDelete={jest.fn()}
+        />
+      </NavigationContainer>,
     );
 
     const importantLabel = screen.getByText('IMPORTANT');
@@ -92,11 +97,13 @@ describe('TaskItem', () => {
 
   it('keeps completed urgent checkbox fill and border aligned to the semantic error color', () => {
     render(
-      <TaskItem
-        task={createTask({ completed: true, priority: 'urgent' })}
-        onToggle={jest.fn()}
-        onDelete={jest.fn()}
-      />,
+      <NavigationContainer>
+        <TaskItem
+          task={createTask({ completed: true, priority: 'urgent' })}
+          onToggle={jest.fn()}
+          onDelete={jest.fn()}
+        />
+      </NavigationContainer>,
     );
 
     const checkbox = screen.getByTestId('task-checkbox-task-1');

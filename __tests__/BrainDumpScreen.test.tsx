@@ -71,6 +71,11 @@ const skipTutorial = () => {
 jest.mock('@react-navigation/native', () => ({
   __esModule: true,
   useRoute: () => ({ params: {} }),
+  useNavigation: () => ({
+    goBack: jest.fn(),
+    navigate: jest.fn(),
+    setOptions: jest.fn(),
+  }),
 }));
 
 // PlatformUtils — use dynamic getter pattern to allow per-test overrides

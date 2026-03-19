@@ -30,6 +30,22 @@ jest.mock('@react-native-community/netinfo', () => ({
   useNetInfo: jest.fn(() => netInfoState),
 }));
 
+// Global navigation mock — BackHeader.tsx calls useNavigation() unconditionally,
+// so every screen test needs this available even without a NavigationContainer wrapper.
+jest.mock('@react-navigation/native', () => {
+  const actual = jest.requireActual('@react-navigation/native');
+  return {
+    ...actual,
+    useNavigation: () => ({
+      goBack: jest.fn(),
+      navigate: jest.fn(),
+      canGoBack: jest.fn(() => true),
+      dispatch: jest.fn(),
+    }),
+    useRoute: () => ({ key: 'test', name: 'Test' }),
+  };
+});
+
 // Prevent open handles from lingering timers/intervals (TimerService, CheckInService, etc.)
 afterEach(() => {
   jest.clearAllTimers();

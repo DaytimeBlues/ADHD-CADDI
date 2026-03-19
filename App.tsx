@@ -123,6 +123,8 @@ const syncWebUrlFromNavigation = () => {
   }
 };
 
+import { AuthProvider } from './src/contexts/AuthContext';
+
 const App = () => {
   const isReady = useAppBootstrap();
   const isDriftVisible = useDriftStore((state) => state.isVisible);
@@ -211,31 +213,33 @@ const App = () => {
 
   const content = isAuthenticated ? (
     <ErrorBoundary>
-      <NavigationContainer
-        ref={navigationRef}
-        linking={appLinking}
-        onReady={() => {
-          // Flush any overlay intents that were queued before navigation was ready
-          flushOverlayIntentQueue();
-          syncWebUrlFromNavigation();
-          if (Platform.OS === 'android') {
-            LoggerService.info({
-              service: 'AndroidReleaseSmoke',
-              operation: 'reportAppReady',
-              message: 'APP_READY',
-              platform: 'android',
-            });
-          }
-        }}
-        onStateChange={syncWebUrlFromNavigation}
-      >
-        <StatusBar
-          barStyle="light-content"
-          backgroundColor={Tokens.colors.neutral.darkest}
-        />
-        <AppNavigator />
-        <DriftCheckOverlay visible={isDriftVisible} onClose={hideDrift} />
-      </NavigationContainer>
+      <AuthProvider>
+        <NavigationContainer
+          ref={navigationRef}
+          linking={appLinking}
+          onReady={() => {
+            // Flush any overlay intents that were queued before navigation was ready
+            flushOverlayIntentQueue();
+            syncWebUrlFromNavigation();
+            if (Platform.OS === 'android') {
+              LoggerService.info({
+                service: 'AndroidReleaseSmoke',
+                operation: 'reportAppReady',
+                message: 'APP_READY',
+                platform: 'android',
+              });
+            }
+          }}
+          onStateChange={syncWebUrlFromNavigation}
+        >
+          <StatusBar
+            barStyle="light-content"
+            backgroundColor={Tokens.colors.neutral.darkest}
+          />
+          <AppNavigator />
+          <DriftCheckOverlay visible={isDriftVisible} onClose={hideDrift} />
+        </NavigationContainer>
+      </AuthProvider>
     </ErrorBoundary>
   ) : (
     <ErrorBoundary>

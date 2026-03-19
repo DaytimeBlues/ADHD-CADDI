@@ -28,6 +28,11 @@ const tutorialState = {
 jest.mock('@react-navigation/native', () => ({
   __esModule: true,
   useRoute: () => ({ params: {} }),
+  useNavigation: () => ({
+    goBack: jest.fn(),
+    navigate: jest.fn(),
+    setOptions: jest.fn(),
+  }),
 }));
 
 jest.mock('react-native-gesture-handler', () => {

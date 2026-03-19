@@ -3,6 +3,14 @@ import { NavigationContainer } from '@react-navigation/native';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { Text, View } from 'react-native';
 import AppNavigator from '../src/navigation/AppNavigator';
+import { AuthProvider } from '../src/contexts/AuthContext';
+
+const mockUseAuth = jest.fn();
+jest.mock('../src/contexts/AuthContext', () => ({
+  ...jest.requireActual('../src/contexts/AuthContext'),
+  useAuth: () => mockUseAuth(),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
 
 let consoleErrorSpy: ReturnType<typeof jest.spyOn>;
 
@@ -147,10 +155,18 @@ describe('AppNavigator route registration', () => {
   });
 
   const renderNavigator = async () => {
+    mockUseAuth.mockReturnValue({
+      user: { uid: 'test-user' },
+      loading: false,
+      signOut: jest.fn(),
+    });
+
     render(
-      <NavigationContainer>
-        <AppNavigator />
-      </NavigationContainer>,
+      <AuthProvider>
+        <NavigationContainer>
+          <AppNavigator />
+        </NavigationContainer>
+      </AuthProvider>,
     );
 
     act(() => {

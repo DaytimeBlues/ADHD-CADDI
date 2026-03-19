@@ -1,25 +1,22 @@
-/**
- * firebase.ts
- * Firebase app initialisation and auth exports for ADHD-CADDI.
- *
- * The config values below come from the Firebase console for project adhd-3f643.
- * They are intentionally public (Firebase API keys are not secrets — they
- * identify the project, not grant admin access). Real secrets live in
- * server-side env vars or CI secrets.
- *
- * To swap projects, update EXPO_PUBLIC_FIREBASE_* env vars in .env
- * (or replace the fallback strings here).
- */
-
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import {
   getAuth,
   initializeAuth,
   GoogleAuthProvider,
   EmailAuthProvider,
+  indexedDBLocalPersistence,
+  browserLocalPersistence,
+  Auth,
 } from 'firebase/auth';
+import { Platform } from 'react-native';
 
-// ─── Firebase project config (adhd-3f643) ────────────────────────────────────
+/**
+ * firebase.ts
+ * Firebase app initialisation and auth exports for ADHD-CADDI.
+ *
+ * Config values come from the Firebase console for project adhd-3f643.
+ * Env vars (EXPO_PUBLIC_FIREBASE_*) override fallbacks if present.
+ */
 const firebaseConfig = {
   apiKey:
     process.env.EXPO_PUBLIC_FIREBASE_API_KEY ??
@@ -27,8 +24,7 @@ const firebaseConfig = {
   authDomain:
     process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN ??
     'adhd-3f643.firebaseapp.com',
-  projectId:
-    process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID ?? 'adhd-3f643',
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID ?? 'adhd-3f643',
   storageBucket:
     process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET ??
     'adhd-3f643.firebasestorage.app',
@@ -41,36 +37,40 @@ const firebaseConfig = {
     process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID ?? 'G-QPP8H2B002',
 };
 
-// ─── App singleton (safe to call multiple times — e.g. hot reload) ───────────
+// ─── App singleton ───────────────────────────────────────────────────────────
 const firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-// ─── Auth ────────────────────────────────────────────────────────────────────
-// On React Native / Expo we need to choose a persistence adapter.
-// We use a lazy import so the web bundle never pulls in the native adapter.
-let auth: ReturnType<typeof getAuth>;
+// ─── Auth Initialization (Cross-Platform Persistence) ────────────────────────
+let auth: Auth;
 
-try {
-  // Expo / React Native: use AsyncStorage persistence if available
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { getReactNativePersistence } = require('firebase/auth');
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+if (Platform.OS === 'web') {
+  // Web: prioritize IndexedDB then BrowserLocal
   auth = initializeAuth(firebaseApp, {
-    persistence: getReactNativePersistence(AsyncStorage),
+    persistence: [indexedDBLocalPersistence, browserLocalPersistence],
   });
-} catch {
-  // Web or already initialised — fall back to default (localStorage) persistence
-  auth = getAuth(firebaseApp);
+} else {
+  // Native/Expo: Force AsyncStorage persistence
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { getReactNativePersistence } = require('firebase/auth');
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+    auth = initializeAuth(firebaseApp, {
+      persistence: getReactNativePersistence(AsyncStorage),
+    });
+  } catch (err) {
+    // Fallback to default if something goes wrong during initialization
+    console.warn('[Firebase] Fallback auth initialization:', err);
+    auth = getAuth(firebaseApp);
+  }
 }
 
 // ─── Auth providers ──────────────────────────────────────────────────────────
-/** Pre-configured Google provider. Scopes added for Tasks/Calendar sync. */
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.addScope('https://www.googleapis.com/auth/tasks');
 googleProvider.addScope('https://www.googleapis.com/auth/calendar.events');
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 
-/** Pre-configured Email/Password provider (used for linking accounts). */
 export const emailProvider = new EmailAuthProvider();
 
 // ─── Exports ─────────────────────────────────────────────────────────────────

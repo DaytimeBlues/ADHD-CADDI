@@ -5,6 +5,7 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react-native';
+import { NavigationContainer } from '@react-navigation/native';
 import IgniteScreen from '../src/screens/IgniteScreen';
 
 const mockStart = jest.fn();
@@ -106,7 +107,11 @@ describe('IgniteScreen', () => {
   });
 
   it('renders and starts timer', () => {
-    render(<IgniteScreen />);
+    render(
+      <NavigationContainer>
+        <IgniteScreen />
+      </NavigationContainer>,
+    );
 
     expect(screen.getByText('IGNITE_PROTOCOL')).toBeTruthy();
     return waitFor(() => {
@@ -116,7 +121,11 @@ describe('IgniteScreen', () => {
   });
 
   it('keeps the audio toggle off when brown noise playback is unavailable', async () => {
-    render(<IgniteScreen />);
+    render(
+      <NavigationContainer>
+        <IgniteScreen />
+      </NavigationContainer>,
+    );
 
     await waitFor(() => {
       expect(screen.getByText('NOISE: OFF')).toBeTruthy();
