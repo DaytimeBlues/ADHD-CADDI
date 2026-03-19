@@ -15,7 +15,6 @@ const mockFlushOverlayIntentQueue = jest.fn();
 const mockHandleOverlayIntent = jest.fn();
 const mockHideDrift = jest.fn();
 const mockAddListener = jest.fn();
-const mockLoggerWarn = jest.fn();
 
 jest.mock('../src/init/bootstrap', () => ({
   bootstrapApp: () => mockBootstrapApp(),
@@ -155,13 +154,16 @@ jest.mock('../src/services/AgentEventBus', () => ({
 
 jest.mock('../src/services/LoggerService', () => ({
   LoggerService: {
-    warn: (...args: unknown[]) => mockLoggerWarn(...args),
+    warn: jest.fn(),
     error: jest.fn(),
     fatal: jest.fn(),
     info: jest.fn(),
   },
   withOperationContext: (value: unknown) => value,
 }));
+
+const getMockLoggerWarn = (): jest.Mock =>
+  jest.requireMock('../src/services/LoggerService').LoggerService.warn;
 
 jest.mock('react-native', () => {
   return {
@@ -232,7 +234,7 @@ describe('App bootstrap', () => {
 
     jest.advanceTimersByTime(9000);
 
-    expect(mockLoggerWarn).not.toHaveBeenCalledWith(
+    expect(getMockLoggerWarn()).not.toHaveBeenCalledWith(
       expect.objectContaining({
         service: 'bootstrap',
         operation: 'bootstrapApp',

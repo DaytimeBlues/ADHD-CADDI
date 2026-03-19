@@ -4,11 +4,10 @@ import {
   initializeAuth,
   GoogleAuthProvider,
   EmailAuthProvider,
-  indexedDBLocalPersistence,
-  browserLocalPersistence,
   Auth,
 } from 'firebase/auth';
 import { Platform } from 'react-native';
+import { LoggerService } from './LoggerService';
 
 /**
  * firebase.ts
@@ -43,26 +42,26 @@ const firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
 // ─── Auth Initialization (Cross-Platform Persistence) ────────────────────────
 let auth: Auth;
 
-if (Platform.OS === 'web') {
-  // Web: prioritize IndexedDB then BrowserLocal
+try {
+  // Firebase's RN persistence helper is exposed from the RN build, not the default web entrypoint.
+  const {
+    getReactNativePersistence,
+  } = require('@firebase/auth/dist/rn/index.js');
+  const AsyncStorage =
+    require('@react-native-async-storage/async-storage').default;
   auth = initializeAuth(firebaseApp, {
-    persistence: [indexedDBLocalPersistence, browserLocalPersistence],
+    persistence: getReactNativePersistence(AsyncStorage),
   });
-} else {
-  // Native/Expo: Force AsyncStorage persistence
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { getReactNativePersistence } = require('firebase/auth');
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const AsyncStorage = require('@react-native-async-storage/async-storage').default;
-    auth = initializeAuth(firebaseApp, {
-      persistence: getReactNativePersistence(AsyncStorage),
-    });
-  } catch (err) {
-    // Fallback to default if something goes wrong during initialization
-    console.warn('[Firebase] Fallback auth initialization:', err);
-    auth = getAuth(firebaseApp);
-  }
+} catch (err) {
+  // Fallback to default if something goes wrong during initialization
+  LoggerService.warn({
+    service: 'Firebase',
+    operation: 'initializeAuth',
+    message: 'Falling back to default auth initialization.',
+    error: err,
+    platform: Platform.OS,
+  });
+  auth = getAuth(firebaseApp);
 }
 
 // ─── Auth providers ──────────────────────────────────────────────────────────
