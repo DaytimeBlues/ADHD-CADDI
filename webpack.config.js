@@ -50,7 +50,7 @@ module.exports = (env, argv) => {
       chunkFilename: isProduction
         ? '[name].[contenthash].js'
         : '[name].chunk.js',
-      publicPath: isProduction ? './' : '/',
+      publicPath: '/',
     },
     optimization: {
       runtimeChunk: 'single',
