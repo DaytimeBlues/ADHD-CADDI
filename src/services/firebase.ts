@@ -37,10 +37,10 @@ const firebaseConfig = {
     process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID ?? 'G-QPP8H2B002',
 };
 
-// ─── App singleton ───────────────────────────────────────────────────────────
+// ─── App singleton ────────────────────────────────────────────────────────────────────────────
 const firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-// ─── Auth Initialization (Cross-Platform Persistence) ────────────────────────
+// ─── Auth Initialization (Cross-Platform Persistence) ────────────────────────────
 let auth: Auth;
 
 if (Platform.OS === 'web') {
@@ -54,18 +54,20 @@ if (Platform.OS === 'web') {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const { getReactNativePersistence } = require('firebase/auth');
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+    const AsyncStorage =
+      require('@react-native-async-storage/async-storage').default;
     auth = initializeAuth(firebaseApp, {
       persistence: getReactNativePersistence(AsyncStorage),
     });
   } catch (err) {
     // Fallback to default if something goes wrong during initialization
+    // eslint-disable-next-line no-console
     console.warn('[Firebase] Fallback auth initialization:', err);
     auth = getAuth(firebaseApp);
   }
 }
 
-// ─── Auth providers ──────────────────────────────────────────────────────────
+// ─── Auth providers ────────────────────────────────────────────────────────────────────────────
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.addScope('https://www.googleapis.com/auth/tasks');
 googleProvider.addScope('https://www.googleapis.com/auth/calendar.events');
@@ -73,6 +75,6 @@ googleProvider.setCustomParameters({ prompt: 'select_account' });
 
 export const emailProvider = new EmailAuthProvider();
 
-// ─── Exports ─────────────────────────────────────────────────────────────────
+// ─── Exports ───────────────────────────────────────────────────────────────────────────────
 export { auth, firebaseApp };
 export default firebaseApp;
