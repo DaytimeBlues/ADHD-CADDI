@@ -32,16 +32,21 @@ jest.mock('@react-native-community/netinfo', () => ({
 
 // Global navigation mock — BackHeader.tsx calls useNavigation() unconditionally,
 // so every screen test needs this available even without a NavigationContainer wrapper.
+export const mockNavigation = {
+  goBack: jest.fn(),
+  navigate: jest.fn(),
+  canGoBack: jest.fn(() => true),
+  dispatch: jest.fn(),
+  setOptions: jest.fn(),
+  addListener: jest.fn(() => () => undefined),
+  isFocused: jest.fn(() => true),
+};
+
 jest.mock('@react-navigation/native', () => {
   const actual = jest.requireActual('@react-navigation/native');
   return {
     ...actual,
-    useNavigation: () => ({
-      goBack: jest.fn(),
-      navigate: jest.fn(),
-      canGoBack: jest.fn(() => true),
-      dispatch: jest.fn(),
-    }),
+    useNavigation: () => mockNavigation,
     useRoute: () => ({ key: 'test', name: 'Test' }),
   };
 });

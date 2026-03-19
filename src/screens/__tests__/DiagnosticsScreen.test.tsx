@@ -120,10 +120,10 @@ describe('DiagnosticsScreen', () => {
     fireEvent.press(view.getByTestId('diagnostics-import-backup'));
     fireEvent.press(view.getByLabelText('Select Linear theme'));
 
-    const { useNavigation } = require('@react-navigation/native');
-    const navigation = useNavigation();
+    // Verify navigation was called (using the exported mock object)
+    const { mockNavigation } = require('../../../__tests__/setup');
+    expect(mockNavigation.goBack).toHaveBeenCalledTimes(1);
 
-    expect(navigation.goBack).toHaveBeenCalledTimes(1);
     expect(mockRefreshDiagnostics).toHaveBeenCalledTimes(1);
     expect(mockExportBackup).toHaveBeenCalledTimes(1);
     expect(mockImportBackup).toHaveBeenCalledTimes(1);
