@@ -16,7 +16,7 @@ This guide walks through obtaining the required Google/Firebase configuration fi
 
 1. Go to [Firebase Console](https://console.firebase.google.com/)
 2. Click **"Add project"** or **"Create a project"**
-3. Project name: `Spark Focus OS` (or your preferred name)
+3. Project name: `ADHD-CADDI` (or your preferred name)
 4. Accept terms and click **"Continue"**
 5. Disable Google Analytics (optional, not required for this app)
 6. Click **"Create project"** and wait for completion
@@ -36,7 +36,7 @@ This guide walks through obtaining the required Google/Firebase configuration fi
    - Save it to: `android/app/google-services.json` in this repository
    - This file is gitignored; keep it local or provision it in CI
    - This file contains your Firebase project configuration
-5. Skip the "Add Firebase SDK" steps (already configured in the app)
+5. Skip the "Add Firebase SDK" steps (the repo already includes the Android-side wiring)
 6. Click **"Continue to console"**
 
 ---
@@ -111,7 +111,7 @@ Certificate fingerprints:
 2. Choose **"External"** user type (unless you have a Google Workspace org)
 3. Click **"Create"**
 4. Fill in required fields:
-   - **App name**: `Spark Focus OS`
+   - **App name**: `ADHD-CADDI`
    - **User support email**: Your email
    - **Developer contact email**: Your email
 5. Click **"Save and Continue"**
@@ -224,6 +224,42 @@ Open the Diagnostics screen in the app (available in `__DEV__` mode from Home sc
 - **Google Web Client ID**: Should show "Configured" ✓
 - **Google iOS Client ID**: Should show "Configured" ✓ (if set)
 - **Can Attempt Auth**: Should show "Yes" ✓
+
+---
+
+## Friend Testing Paths
+
+### Fastest path: direct APK sharing
+
+If you just want friends testing the Android app quickly, you can build and share the preview APK directly:
+
+```bash
+npm run build:android:preview
+```
+
+Common preview APK locations:
+
+- `android/app/build/outputs/apk/preview/app-preview.apk`
+- `%LOCALAPPDATA%/ADHD-CADDI-V1/android-build/app/outputs/apk/preview/app-preview.apk` on Windows when the local build-root override is active
+
+This is enough for core app testing.
+Google/Firebase-connected features still require `google-services.json`, Firebase project setup, and the Google client IDs below.
+
+### Firebase App Distribution
+
+Once Firebase is configured, you can upload the preview APK with:
+
+```bash
+FIREBASE_APP_ID=your_firebase_android_app_id
+FIREBASE_TESTERS=friend1@example.com,friend2@example.com
+npm run distribute:android:firebase
+```
+
+Optional overrides:
+
+```bash
+node scripts/android/distribute-firebase-app.js --apk /path/to/app-preview.apk --app your_firebase_android_app_id --testers friend@example.com --release-notes "Friend beta"
+```
 
 ---
 

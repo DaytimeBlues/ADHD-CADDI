@@ -110,6 +110,12 @@ const syncWebUrlFromNavigation = () => {
     return;
   }
 
+  // React Navigation can occasionally hand back a malformed non-relative path
+  // during auth state transitions. Guard browser history updates to safe app paths.
+  if (!targetPath.startsWith('/')) {
+    return;
+  }
+
   const currentPath = window.location.pathname;
   if (currentPath === targetPath) {
     return;

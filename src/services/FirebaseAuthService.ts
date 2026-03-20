@@ -6,7 +6,7 @@ import {
   onAuthStateChanged,
   User,
   Auth,
-} from 'firebase/auth';
+} from '@firebase/auth';
 import { auth, googleProvider } from './firebase';
 
 const firebaseAuth = auth as Auth;

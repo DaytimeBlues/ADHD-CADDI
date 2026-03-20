@@ -10,8 +10,8 @@
  * webpack.config.js.
  */
 
-const React = require('react');
-const { View } = require('react-native');
+import React from 'react';
+import { View } from 'react-native';
 
 // ---------------------------------------------------------------------------
 // Animated namespace (mirrors RN's own Animated API shape)
@@ -168,46 +168,45 @@ const Layout = createLayoutAnimationBuilder();
 // Exports
 // ---------------------------------------------------------------------------
 
-module.exports = {
-  __esModule: true,
-  default: Animated,
-  ...Animated,
-  useSharedValue,
-  useAnimatedStyle,
-  useAnimatedProps,
-  withTiming,
-  withSpring,
-  withRepeat,
-  withDelay,
-  withSequence,
-  interpolate,
-  interpolateColor: interpolate,
-  Extrapolate,
-  ReduceMotion,
+export {
+  AnimatedView,
   Easing,
-  createAnimatedComponent,
-  runOnJS,
-  runOnUI,
-  // Layout animation presets
+  Extrapolate,
   FadeIn,
-  FadeInUp,
   FadeInDown,
   FadeInLeft,
   FadeInRight,
+  FadeInUp,
   FadeOut,
-  FadeOutUp,
   FadeOutDown,
   FadeOutLeft,
   FadeOutRight,
+  FadeOutUp,
+  Layout,
+  ReduceMotion,
   SlideInDown,
-  SlideInUp,
   SlideInLeft,
   SlideInRight,
+  SlideInUp,
   SlideOutDown,
-  SlideOutUp,
   SlideOutLeft,
   SlideOutRight,
+  SlideOutUp,
   ZoomIn,
   ZoomOut,
-  Layout,
+  createAnimatedComponent,
+  interpolate,
+  runOnJS,
+  runOnUI,
+  useAnimatedProps,
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withRepeat,
+  withSequence,
+  withSpring,
+  withTiming,
 };
+
+export const interpolateColor = interpolate;
+export default Animated;

@@ -28,7 +28,7 @@
 
 ## Web Release (Primary)
 
-### GitHub Pages Deployment
+### Firebase Hosting Deployment
 
 **Current source of truth: push to `main`**
 
@@ -55,10 +55,10 @@
    git push origin main
    ```
 
-3. **Wait for the Pages workflow to finish:**
+3. **Wait for the Firebase Hosting workflow to finish:**
 
-   - Workflow: `.github/workflows/pages.yml`
-   - URL: `https://daytimeblues.github.io/ADHD-CADDI/`
+   - Workflow: `.github/workflows/firebase-hosting.yml`
+   - URL: `https://adhd-3f643.web.app`
    - Expected jobs: quality gates, web E2E smoke, build, deploy, post-deploy validation
 
 4. **Confirm the deployed site matches the latest `main` release commit.**
@@ -67,14 +67,14 @@
 
 - Open deployed URL in browser
 - Test core features (Ignite, Fog Cutter, etc.)
-- Test at least one direct route reload, such as `https://daytimeblues.github.io/ADHD-CADDI/tasks`
+- Test at least one direct route reload, such as `https://adhd-3f643.web.app/tasks`
 - Check browser console for errors
 - Confirm the deployed site still matches the current web-first, online-first stance and does not rely on service-worker-backed offline support
 
 **Rollback:**
 
 ```bash
-# Revert the bad change on main, then let Pages redeploy
+# Revert the bad change on main, then let Firebase Hosting redeploy
 git checkout main
 git log  # Find the bad commit or last good point
 git revert <commit-hash>
@@ -177,8 +177,17 @@ cd android
 
 **Internal Testing:**
 
+- direct APK sharing for fast friend testing
 - Upload APK to Firebase App Distribution
 - Share link with testers via email
+
+**Firebase App Distribution helper:**
+
+```bash
+FIREBASE_APP_ID=your_firebase_android_app_id
+FIREBASE_TESTERS=friend1@example.com,friend2@example.com
+npm run distribute:android:firebase
+```
 
 **Google Play Store:**
 
@@ -425,7 +434,7 @@ git checkout -b restore/<date> <last-good-commit-hash>
 
 ## Automation Opportunities
 
-**Current State:** Workflow-driven Pages deploys from `main`; Android artifacts are built in GitHub Actions and locally via Gradle/package scripts
+**Current State:** Firebase Hosting deploys from `main`; Android artifacts are built in GitHub Actions and locally via Gradle/package scripts
 
 **Future Enhancements:**
 

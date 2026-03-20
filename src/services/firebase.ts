@@ -1,11 +1,11 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
+import { initializeApp, getApps, getApp } from '@firebase/app';
 import {
   getAuth,
   initializeAuth,
   GoogleAuthProvider,
   EmailAuthProvider,
   Auth,
-} from 'firebase/auth';
+} from '@firebase/auth';
 import { Platform } from 'react-native';
 import { LoggerService } from './LoggerService';
 

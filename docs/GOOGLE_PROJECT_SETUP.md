@@ -1,5 +1,6 @@
 # Google & Firebase Project Setup — ADHD-CADDI
 
+> Historical setup checklist. Use `docs/GOOGLE_SETUP_GUIDE.md` and `docs/RELEASE_PROCESS.md` as the current repo-facing source of truth for Android friend testing and Firebase App Distribution.
 > **Status:** Project not yet created in Google Cloud / Firebase.
 > **Your Web Client ID (already obtained):** `474078142013-dftko9eohdbbmoeg407sr99qesm3ptlq.apps.googleusercontent.com`
 > Work through this guide top to bottom to get everything connected.
@@ -8,16 +9,16 @@
 
 ## What You Already Have
 
-| Item | Status | Value |
-|---|---|---|
-| Web Client ID | ✅ Done | `474078142013-dftko9eohdbbmoeg407sr99qesm3ptlq.apps.googleusercontent.com` |
-| Google Cloud project | ❌ Not created yet | — |
-| Firebase project | ❌ Not created yet | — |
-| `android/app/google-services.json` | ❌ Not created yet | — |
-| OAuth consent screen | ❓ Check if configured | — |
-| Tasks API enabled | ❓ Check | — |
-| Calendar API enabled | ❓ Check | — |
-| SHA fingerprints registered | ❌ Not done yet | — |
+| Item                               | Status                 | Value                                                                      |
+| ---------------------------------- | ---------------------- | -------------------------------------------------------------------------- |
+| Web Client ID                      | ✅ Done                | `474078142013-dftko9eohdbbmoeg407sr99qesm3ptlq.apps.googleusercontent.com` |
+| Google Cloud project               | ❌ Not created yet     | —                                                                          |
+| Firebase project                   | ❌ Not created yet     | —                                                                          |
+| `android/app/google-services.json` | ❌ Not created yet     | —                                                                          |
+| OAuth consent screen               | ❓ Check if configured | —                                                                          |
+| Tasks API enabled                  | ❓ Check               | —                                                                          |
+| Calendar API enabled               | ❓ Check               | —                                                                          |
+| SHA fingerprints registered        | ❌ Not done yet        | —                                                                          |
 
 > **Note:** Your Web Client ID starts with `474078142013-` which is your Google Cloud **Project Number**.
 > This means a Google Cloud project already exists with project number **474078142013**.
@@ -46,9 +47,9 @@ Once you are in the correct project:
 1. Go to **APIs & Services → Library**
 2. Search for and enable each of these:
 
-| API | Search Term | Why |
-|---|---|---|
-| Google Tasks API | `Tasks API` | Tasks sync |
+| API                 | Search Term    | Why           |
+| ------------------- | -------------- | ------------- |
+| Google Tasks API    | `Tasks API`    | Tasks sync    |
 | Google Calendar API | `Calendar API` | Calendar sync |
 
 Click **Enable** on each one. Google Sign-In (OpenID Connect) is always available and does not need a separate enable step.
@@ -195,6 +196,7 @@ npm run web
 Open [http://localhost:3000](http://localhost:3000) and try signing in with Google.
 
 If you see an error:
+
 - **`redirect_uri_mismatch`** → go back to Cloud Console → Credentials → your Web Client → add `http://localhost:3000` to Authorized redirect URIs
 - **`access_blocked`** → your OAuth consent screen is in Testing mode — add your Gmail as a test user (Step 3)
 - **`invalid_client`** → double-check the Client ID in `.env` matches exactly
@@ -210,6 +212,7 @@ npm run install:android:preview
 The app will build and install on your connected Android phone.
 
 If Google Sign-In fails on Android but works on web:
+
 - You likely need to add SHA fingerprints (Step 7) and re-download `google-services.json`
 
 ---
@@ -254,13 +257,13 @@ Once sign-in works on your own phone:
 
 ## Your Key IDs Reference
 
-| Item | Value |
-|---|---|
-| Google Cloud Project Number | `474078142013` |
-| Web Client ID | `474078142013-dftko9eohdbbmoeg407sr99qesm3ptlq.apps.googleusercontent.com` |
-| Android Package Name | `com.adhdcaddi` |
-| iOS Bundle ID (future) | `com.adhdcaddi` |
+| Item                        | Value                                                                      |
+| --------------------------- | -------------------------------------------------------------------------- |
+| Google Cloud Project Number | `474078142013`                                                             |
+| Web Client ID               | `474078142013-dftko9eohdbbmoeg407sr99qesm3ptlq.apps.googleusercontent.com` |
+| Android Package Name        | `com.adhdcaddi`                                                            |
+| iOS Bundle ID (future)      | `com.adhdcaddi`                                                            |
 
 ---
 
-*Last updated: March 2026 — ADHD-CADDI project by DaytimeBlues*
+_Last updated: March 2026 — ADHD-CADDI project by DaytimeBlues_

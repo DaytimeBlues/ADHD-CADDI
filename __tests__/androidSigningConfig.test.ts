@@ -80,4 +80,14 @@ describe('Android signing boundaries', () => {
       missing: ['KEY_ALIAS'],
     });
   });
+
+  test('app module applies Google services when google-services.json is present', () => {
+    const buildGradle = fs.readFileSync(buildGradlePath, 'utf8');
+
+    expect(buildGradle).toContain('google-services.json');
+    expect(buildGradle).toContain('com.google.gms.google-services');
+    expect(buildGradle).toContain(
+      'Firebase config is optional for core APK tests',
+    );
+  });
 });

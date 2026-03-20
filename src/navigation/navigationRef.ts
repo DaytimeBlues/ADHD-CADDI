@@ -2,6 +2,7 @@ import { createNavigationContainerRef } from '@react-navigation/native';
 import { ROUTES } from './routes';
 
 export type RootStackParamList = {
+  [ROUTES.AUTH]: undefined;
   [ROUTES.MAIN]: undefined;
   [ROUTES.HOME]: undefined;
   [ROUTES.FOCUS]: undefined;

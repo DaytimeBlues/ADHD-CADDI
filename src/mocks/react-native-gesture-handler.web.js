@@ -1,21 +1,30 @@
-const React = require('react');
-const RN = require('react-native');
+import React from 'react';
+import {
+  FlatList,
+  ScrollView,
+  Switch,
+  TextInput,
+  TouchableHighlight,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 
-const createPassthrough = (Component = RN.View) =>
+const createPassthrough = (Component = View) =>
   React.forwardRef(({ children, ...props }, ref) =>
     React.createElement(Component, { ...props, ref }, children),
   );
 
-const GestureHandlerRootView = createPassthrough(RN.View);
-const PanGestureHandler = createPassthrough(RN.View);
-const TapGestureHandler = createPassthrough(RN.View);
-const LongPressGestureHandler = createPassthrough(RN.View);
-const FlingGestureHandler = createPassthrough(RN.View);
-const ForceTouchGestureHandler = createPassthrough(RN.View);
-const PinchGestureHandler = createPassthrough(RN.View);
-const RotationGestureHandler = createPassthrough(RN.View);
-const NativeViewGestureHandler = createPassthrough(RN.View);
-const DrawerLayout = createPassthrough(RN.View);
+const GestureHandlerRootView = createPassthrough(View);
+const PanGestureHandler = createPassthrough(View);
+const TapGestureHandler = createPassthrough(View);
+const LongPressGestureHandler = createPassthrough(View);
+const FlingGestureHandler = createPassthrough(View);
+const ForceTouchGestureHandler = createPassthrough(View);
+const PinchGestureHandler = createPassthrough(View);
+const RotationGestureHandler = createPassthrough(View);
+const NativeViewGestureHandler = createPassthrough(View);
+const DrawerLayout = createPassthrough(View);
 
 const gestureHandlerRootHOC = (Component) => Component;
 const createNativeWrapper = (Component) => Component;
@@ -36,28 +45,30 @@ const Directions = {
   DOWN: 8,
 };
 
-module.exports = {
-  __esModule: true,
-  default: {},
-  GestureHandlerRootView,
-  PanGestureHandler,
-  TapGestureHandler,
-  LongPressGestureHandler,
+const gestureHandlerWeb = {};
+
+export {
+  Directions,
+  DrawerLayout,
+  FlatList,
   FlingGestureHandler,
   ForceTouchGestureHandler,
+  GestureHandlerRootView,
+  LongPressGestureHandler,
+  NativeViewGestureHandler,
+  PanGestureHandler,
   PinchGestureHandler,
   RotationGestureHandler,
-  NativeViewGestureHandler,
-  DrawerLayout,
-  TouchableOpacity: RN.TouchableOpacity,
-  TouchableHighlight: RN.TouchableHighlight,
-  TouchableWithoutFeedback: RN.TouchableWithoutFeedback,
-  ScrollView: RN.ScrollView,
-  FlatList: RN.FlatList,
-  Switch: RN.Switch,
-  TextInput: RN.TextInput,
-  gestureHandlerRootHOC,
-  createNativeWrapper,
+  ScrollView,
   State,
-  Directions,
+  Switch,
+  TapGestureHandler,
+  TextInput,
+  TouchableHighlight,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  createNativeWrapper,
+  gestureHandlerRootHOC,
 };
+
+export default gestureHandlerWeb;
