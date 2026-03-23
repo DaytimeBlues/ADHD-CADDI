@@ -97,14 +97,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         return;
       }
 
-      unsubscribe = FirebaseAuthService.subscribeToAuthChanges((firebaseUser) => {
-        if (bypassActive.current || !isMounted) {
-          return;
-        }
-        setUser(firebaseUser);
-        setSessionMode(firebaseUser ? 'account' : 'signed_out');
-        setLoading(false);
-      });
+      unsubscribe = FirebaseAuthService.subscribeToAuthChanges(
+        (firebaseUser) => {
+          if (bypassActive.current || !isMounted) {
+            return;
+          }
+          setUser(firebaseUser);
+          setSessionMode(firebaseUser ? 'account' : 'signed_out');
+          setLoading(false);
+        },
+      );
     };
 
     void initializeAuth();

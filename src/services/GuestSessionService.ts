@@ -11,9 +11,9 @@ export interface GuestSessionRecord {
   createdAt: number;
 }
 
-const buildPersistedTaskStore = (tasks: ReturnType<
-  typeof useTaskStore.getState
->['tasks']) =>
+const buildPersistedTaskStore = (
+  tasks: ReturnType<typeof useTaskStore.getState>['tasks'],
+) =>
   JSON.stringify({
     state: {
       tasks,
@@ -86,7 +86,9 @@ const seedGuestDemoData = async () => {
 
 export const GuestSessionService = {
   async restoreSession(): Promise<GuestSessionRecord | null> {
-    return StorageService.getJSON<GuestSessionRecord>(GUEST_SESSION_STORAGE_KEY);
+    return StorageService.getJSON<GuestSessionRecord>(
+      GUEST_SESSION_STORAGE_KEY,
+    );
   },
 
   createGuestUser(record?: Partial<GuestSessionRecord>): User {
@@ -118,14 +120,13 @@ export const GuestSessionService = {
   },
 
   async enableDemoData(): Promise<GuestSessionRecord> {
-    const existing =
-      (await StorageService.getJSON<GuestSessionRecord>(
-        GUEST_SESSION_STORAGE_KEY,
-      )) ?? {
-        id: `guest-${Date.now()}`,
-        seedDemoData: false,
-        createdAt: Date.now(),
-      };
+    const existing = (await StorageService.getJSON<GuestSessionRecord>(
+      GUEST_SESSION_STORAGE_KEY,
+    )) ?? {
+      id: `guest-${Date.now()}`,
+      seedDemoData: false,
+      createdAt: Date.now(),
+    };
 
     await seedGuestDemoData();
 

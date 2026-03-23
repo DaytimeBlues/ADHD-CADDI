@@ -15,7 +15,8 @@ jest.mock('../src/services/FirebaseAuthService', () => ({
   FirebaseAuthService: {
     signInWithEmail: jest.fn(),
     signUpWithEmail: jest.fn(),
-    signInWithGoogleWeb: (...args: unknown[]) => mockSignInWithGoogleWeb(...args),
+    signInWithGoogleWeb: (...args: unknown[]) =>
+      mockSignInWithGoogleWeb(...args),
   },
 }));
 
