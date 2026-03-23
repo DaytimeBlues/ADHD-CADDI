@@ -124,4 +124,13 @@ describe('CaptureBubble', () => {
 
     expect(screen.getByTestId('capture-drawer-mock')).toBeTruthy();
   });
+
+  it('opens inbox on long press as a direct quick action', () => {
+    render(<CaptureBubble />);
+
+    fireEvent(screen.getByTestId('capture-bubble'), 'longPress');
+
+    expect(mockNavigate).toHaveBeenCalledWith('Inbox');
+    expect(screen.queryByTestId('capture-drawer-mock')).toBeNull();
+  });
 });
