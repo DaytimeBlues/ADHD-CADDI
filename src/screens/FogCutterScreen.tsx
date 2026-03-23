@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useRef } from 'react';
-import { SafeAreaView, Text, TextInput, View } from 'react-native';
+import { Pressable, SafeAreaView, Text, TextInput, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import ActivationService from '../services/ActivationService';
 import { ROUTES } from '../navigation/routes';
 import { useTheme } from '../theme/useTheme';
@@ -11,6 +12,10 @@ import { getFogCutterScreenStyles } from './FogCutterScreen.styles';
 import { FogCutterTaskComposer } from './fog-cutter/FogCutterTaskComposer';
 import { FogCutterTaskList } from './fog-cutter/FogCutterTaskList';
 import { BackHeader } from '../components/ui/BackHeader';
+import { pushWebPathForRoute } from '../navigation/webPathMap';
+import { TutorialBubble } from '../components/tutorial/TutorialBubble';
+import { fogCutterOnboardingFlow } from '../store/useTutorialStore';
+import { useFeatureTutorial } from '../hooks/useFeatureTutorial';
 
 type FogCutterNavigation = {
   navigate: (route: string) => void;
@@ -21,6 +26,7 @@ interface FogCutterScreenProps {
 }
 
 const FogCutterScreen = ({ navigation }: FogCutterScreenProps) => {
+  const stackNavigation = useNavigation<FogCutterNavigation>();
   const { isCosmic, isNightAwe, t, variant } = useTheme();
   const styles = useMemo(
     () => getFogCutterScreenStyles(variant, t),
@@ -39,7 +45,7 @@ const FogCutterScreen = ({ navigation }: FogCutterScreenProps) => {
         },
       });
 
-      navigation?.navigate(ROUTES.FOCUS);
+      (navigation ?? stackNavigation).navigate(ROUTES.FOCUS);
     },
     [navigation],
   );
@@ -72,6 +78,16 @@ const FogCutterScreen = ({ navigation }: FogCutterScreenProps) => {
     ),
   });
 
+  const {
+    currentTutorialStep,
+    currentStepIndex,
+    totalSteps,
+    nextStep,
+    previousStep,
+    skipTutorial,
+    startTutorial,
+  } = useFeatureTutorial(fogCutterOnboardingFlow);
+
   const handleDismissGuide = useCallback(async () => {
     await dismissGuide();
 
@@ -84,8 +100,8 @@ const FogCutterScreen = ({ navigation }: FogCutterScreenProps) => {
       },
     });
 
-    navigation?.navigate(ROUTES.FOCUS);
-  }, [dismissGuide, latestSavedTaskId, navigation]);
+    (navigation ?? stackNavigation).navigate(ROUTES.FOCUS);
+  }, [dismissGuide, latestSavedTaskId, navigation, stackNavigation]);
 
   const content = (
     <SafeAreaView
@@ -95,11 +111,45 @@ const FogCutterScreen = ({ navigation }: FogCutterScreenProps) => {
     >
       <View style={styles.scrollContent}>
         <View style={styles.content}>
-          <BackHeader title="FOG_CUTTER" />
+          <BackHeader
+            title="FOG_CUTTER"
+            fallbackRoute="Home"
+            onBack={() => {
+              pushWebPathForRoute(ROUTES.HOME);
+              (navigation ?? stackNavigation).navigate(ROUTES.HOME);
+            }}
+          />
           <View style={styles.header}>
             <Text style={styles.title}>DECOMPOSITION</Text>
             <View style={styles.headerLine} />
+            <Pressable
+              onPress={() => startTutorial()}
+              accessibilityRole="button"
+              accessibilityLabel="Start fog cutter tutorial"
+              testID="fogcutter-tour-button"
+              style={({ pressed }) => [
+                styles.tourButton,
+                pressed && styles.tourButtonPressed,
+              ]}
+            >
+              <Text style={styles.tourButtonText}>TOUR</Text>
+            </Pressable>
           </View>
+
+          {currentTutorialStep && (
+            <View style={styles.tutorialOverlay} testID="tutorial-overlay">
+              <TutorialBubble
+                step={currentTutorialStep}
+                stepIndex={currentStepIndex}
+                totalSteps={totalSteps}
+                isFirstStep={currentStepIndex === 0}
+                isLastStep={currentStepIndex === totalSteps - 1}
+                onNext={nextStep}
+                onPrevious={previousStep}
+                onSkip={skipTutorial}
+              />
+            </View>
+          )}
 
           <FogCutterTaskComposer
             focusedInput={focusedInput}

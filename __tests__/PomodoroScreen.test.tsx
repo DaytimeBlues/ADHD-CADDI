@@ -77,6 +77,7 @@ describe('PomodoroScreen', () => {
 
     expect(screen.getByText('POMODORO')).toBeTruthy();
     expect(screen.getByText('25:00')).toBeTruthy();
+    expect(screen.queryByText('COMPLETED SESSIONS')).toBeNull();
 
     fireEvent.press(screen.getByText('Start Timer'));
     expect(mockStart).toHaveBeenCalled();

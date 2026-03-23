@@ -13,6 +13,7 @@ import { Tokens } from '../theme/tokens';
 import { useTheme } from '../theme/useTheme';
 import HapticsService from '../services/HapticsService';
 import { isWeb } from '../utils/PlatformUtils';
+import { pushWebPathForRoute } from './webPathMap';
 
 export const WebNavBar = ({ state, navigation }: BottomTabBarProps) => {
   const { width } = useWindowDimensions();
@@ -91,6 +92,7 @@ export const WebNavBar = ({ state, navigation }: BottomTabBarProps) => {
             });
 
             if (!isFocused && !event.defaultPrevented) {
+              pushWebPathForRoute(route.name);
               navigation.navigate(route.name);
             }
           };

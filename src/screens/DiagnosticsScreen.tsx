@@ -14,6 +14,7 @@ import { BackHeader } from '../components/ui/BackHeader';
 import {
   BackupSection,
   DiagnosticsStatusSection,
+  FeedbackSection,
   SetupInstructionsSection,
   ThemeSection,
 } from './diagnostics/components';
@@ -91,6 +92,7 @@ const DiagnosticsScreen = () => {
           >
             <DiagnosticsStatusSection diagnostics={diagnostics} />
             <SetupInstructionsSection />
+            <FeedbackSection />
             <BackupSection
               backupJson={backupJson}
               setBackupJson={setBackupJson}

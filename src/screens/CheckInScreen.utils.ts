@@ -36,7 +36,7 @@ export const getRecommendationAction = (
   }
 
   return {
-    route: ROUTES.TASKS,
+    route: ROUTES.BRAIN_DUMP,
     source: 'checkin_prompt',
     cta: 'OPEN BRAIN DUMP',
   };

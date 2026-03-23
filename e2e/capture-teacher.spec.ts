@@ -12,7 +12,11 @@
  */
 
 import { test, expect, Page } from '@playwright/test';
-import { enableCosmicTheme } from './helpers/seed';
+import {
+  enableCosmicTheme,
+  enableE2ETestMode,
+  enableE2EAnonymousAppShell,
+} from './helpers/seed';
 import { gotoAppRoot } from './helpers/navigation';
 
 // ============================================================================
@@ -33,6 +37,9 @@ async function seedCaptureInbox(page: Page, items: object[]): Promise<void> {
 }
 
 async function openCaptureBubble(page: Page): Promise<void> {
+  await enableE2ETestMode(page);
+  await enableE2EAnonymousAppShell(page);
+  await enableCosmicTheme(page);
   await gotoAppRoot(page);
   await page.waitForLoadState('networkidle');
   await expect(page.getByTestId('capture-bubble')).toBeVisible({
@@ -54,6 +61,8 @@ test.describe('Capture Bubble — Teacher Persona (Ms. Torres)', () => {
   // --------------------------------------------------------------------------
 
   test('bubble is visible on the home screen', async ({ page }) => {
+    await enableE2ETestMode(page);
+    await enableE2EAnonymousAppShell(page);
     await enableCosmicTheme(page);
     await gotoAppRoot(page);
     await page.waitForLoadState('networkidle');
@@ -66,6 +75,8 @@ test.describe('Capture Bubble — Teacher Persona (Ms. Torres)', () => {
   test('bubble shows badge count when unreviewed items exist', async ({
     page,
   }) => {
+    await enableE2ETestMode(page);
+    await enableE2EAnonymousAppShell(page);
     await enableCosmicTheme(page);
     await seedCaptureInbox(page, [
       {
@@ -99,7 +110,6 @@ test.describe('Capture Bubble — Teacher Persona (Ms. Torres)', () => {
   test('tapping bubble opens drawer with all 5 capture modes', async ({
     page,
   }) => {
-    await enableCosmicTheme(page);
     await openCaptureBubble(page);
 
     await expect(page.getByTestId('capture-mode-voice')).toBeVisible();
@@ -114,6 +124,8 @@ test.describe('Capture Bubble — Teacher Persona (Ms. Torres)', () => {
   // --------------------------------------------------------------------------
 
   test('teacher captures a text note in ≤ 3 interactions', async ({ page }) => {
+    await enableE2ETestMode(page);
+    await enableE2EAnonymousAppShell(page);
     await enableCosmicTheme(page);
     await gotoAppRoot(page);
     await page.waitForLoadState('networkidle');
@@ -133,7 +145,7 @@ test.describe('Capture Bubble — Teacher Persona (Ms. Torres)', () => {
     await textInput.fill("Email Maria's parents re: missing homework x3");
 
     // Interaction 3: submit
-    await page.getByTestId('capture-confirm').click();
+    await page.getByRole('button', { name: 'SAVE TO INBOX' }).click();
 
     // Drawer should close after submit
     await expect(page.getByTestId('capture-drawer')).not.toBeVisible({
@@ -148,7 +160,6 @@ test.describe('Capture Bubble — Teacher Persona (Ms. Torres)', () => {
   test('meeting mode accepts multi-line notes and submits', async ({
     page,
   }) => {
-    await enableCosmicTheme(page);
     await openCaptureBubble(page);
 
     await page.getByTestId('capture-mode-meeting').click();
@@ -160,7 +171,7 @@ test.describe('Capture Bubble — Teacher Persona (Ms. Torres)', () => {
       'Staff meeting:\n- New tardy policy from admin\n- PD day moved to March 5';
     await input.fill(meetingNote);
 
-    await page.getByTestId('capture-confirm').click();
+    await page.getByRole('button', { name: 'SAVE MEETING NOTES' }).click();
 
     await expect(page.getByTestId('capture-drawer')).not.toBeVisible({
       timeout: 5_000,
@@ -172,7 +183,6 @@ test.describe('Capture Bubble — Teacher Persona (Ms. Torres)', () => {
   // --------------------------------------------------------------------------
 
   test('drawer closes on cancel without saving', async ({ page }) => {
-    await enableCosmicTheme(page);
     await openCaptureBubble(page);
 
     await page.getByTestId('capture-cancel').click();
@@ -189,6 +199,8 @@ test.describe('Capture Bubble — Teacher Persona (Ms. Torres)', () => {
   test('inbox shows unreviewed captures and allows promote to task', async ({
     page,
   }) => {
+    await enableE2ETestMode(page);
+    await enableE2EAnonymousAppShell(page);
     await enableCosmicTheme(page);
     await seedCaptureInbox(page, [
       {
@@ -242,6 +254,8 @@ test.describe('Capture Bubble — Teacher Persona (Ms. Torres)', () => {
   test('inbox discard removes item from unreviewed filter', async ({
     page,
   }) => {
+    await enableE2ETestMode(page);
+    await enableE2EAnonymousAppShell(page);
     await enableCosmicTheme(page);
     await seedCaptureInbox(page, [
       {
@@ -281,6 +295,8 @@ test.describe('Capture Bubble — Teacher Persona (Ms. Torres)', () => {
   });
 
   test('inbox filter tabs change displayed items', async ({ page }) => {
+    await enableE2ETestMode(page);
+    await enableE2EAnonymousAppShell(page);
     await enableCosmicTheme(page);
     await seedCaptureInbox(page, [
       {
@@ -339,6 +355,8 @@ test.describe('Capture Bubble — Teacher Persona (Ms. Torres)', () => {
   // --------------------------------------------------------------------------
 
   test('bubble is not visible inside Pomodoro modal', async ({ page }) => {
+    await enableE2ETestMode(page);
+    await enableE2EAnonymousAppShell(page);
     await enableCosmicTheme(page);
     await gotoAppRoot(page);
     await page.waitForLoadState('networkidle');

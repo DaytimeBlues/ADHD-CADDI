@@ -58,6 +58,7 @@ describe('AnchorScreen', () => {
     render(<AnchorScreen />);
 
     expect(screen.getByText('ANCHOR')).toBeTruthy();
+    expect(screen.getByLabelText('Go back')).toBeTruthy();
     expect(screen.getByText('4-7-8 RELAX')).toBeTruthy();
     expect(screen.getByText('BOX BREATHING')).toBeTruthy();
     expect(screen.getByText('ENERGIZE')).toBeTruthy();

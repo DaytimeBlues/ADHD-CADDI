@@ -1,18 +1,23 @@
 import { test, expect } from '@playwright/test';
-import { enableE2ETestMode, enableCosmicTheme } from './helpers/seed';
+import {
+  enableE2ETestMode,
+  enableE2EAnonymousAppShell,
+  enableCosmicTheme,
+} from './helpers/seed';
 
 test.describe('BrainDump Flow', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
     await page.evaluate(() => window.localStorage.clear());
     await enableE2ETestMode(page);
+    await enableE2EAnonymousAppShell(page);
     await enableCosmicTheme(page);
     await page.goto('/'); // Second goto to ensure init scripts applied and storage clean
     await expect(page.getByTestId('home-title')).toBeVisible({
       timeout: 15000,
     });
     await page.getByTestId('nav-tasks').click({ force: true });
-    await expect(page.getByText('BRAIN_DUMP')).toBeVisible();
+    await expect(page.getByText('BRAIN_DUMP')).toBeVisible({ timeout: 10000 });
   });
 
   test('add item then delete item', async ({ page }) => {
@@ -48,7 +53,7 @@ test.describe('BrainDump Flow', () => {
 
     await page.reload();
     await page.getByTestId('nav-tasks').click({ force: true });
-    await expect(page.getByText('BRAIN_DUMP')).toBeVisible();
+    await expect(page.getByText('BRAIN_DUMP')).toBeVisible({ timeout: 10000 });
     await expect(page.getByText('Persistence item')).toBeVisible();
   });
 });

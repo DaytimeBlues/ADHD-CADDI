@@ -1,6 +1,7 @@
 import { test, expect, Page } from '@playwright/test';
 import {
   enableE2ETestMode,
+  enableE2EAnonymousAppShell,
   enableRecordingMock,
   seedAlexPersona,
 } from './helpers/seed';
@@ -24,6 +25,7 @@ test.describe('Alex Persona - E2E Scenarios', () => {
     });
 
     await enableE2ETestMode(page);
+    await enableE2EAnonymousAppShell(page);
     await enableRecordingMock(page);
     await seedAlexPersona(page);
     await page.goto('/');

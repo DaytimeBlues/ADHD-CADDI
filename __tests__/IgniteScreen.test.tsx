@@ -128,12 +128,12 @@ describe('IgniteScreen', () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText('NOISE: OFF')).toBeTruthy();
+      expect(screen.getByText('BROWN NOISE: OFF')).toBeTruthy();
     });
 
-    fireEvent.press(screen.getByText('NOISE: OFF'));
+    fireEvent.press(screen.getByText('BROWN NOISE: OFF'));
 
-    expect(screen.getByText('NOISE: OFF')).toBeTruthy();
-    expect(screen.queryByText('NOISE: ON')).toBeNull();
+    expect(screen.getByText('BROWN NOISE: OFF')).toBeTruthy();
+    expect(screen.queryByText('BROWN NOISE: ON')).toBeNull();
   });
 });

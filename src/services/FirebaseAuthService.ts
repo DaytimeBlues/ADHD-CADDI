@@ -3,6 +3,7 @@ import {
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
   signInWithPopup,
+  signInAnonymously,
   onAuthStateChanged,
   User,
   Auth,
@@ -65,6 +66,19 @@ export const FirebaseAuthService = {
   signInWithGoogleWeb: async () => {
     try {
       const result = await signInWithPopup(firebaseAuth, googleProvider);
+      return { user: result.user, error: null };
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      return { user: null, error: message };
+    }
+  },
+
+  /**
+   * Sign in anonymously (Guest Mode)
+   */
+  signInAnonymously: async () => {
+    try {
+      const result = await signInAnonymously(firebaseAuth);
       return { user: result.user, error: null };
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : String(error);

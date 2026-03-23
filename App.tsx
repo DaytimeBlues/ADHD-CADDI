@@ -34,6 +34,13 @@ import ErrorBoundary from './src/components/ErrorBoundary';
 import { appLinking } from './src/navigation/linking';
 import { WEB_APP_BASE_PATH } from './src/config/paths';
 import { AppLifecycleService } from './src/services/AppLifecycleService';
+import {
+  getHistoryUpdateMode,
+  type WebHistorySyncReason,
+} from './src/navigation/webHistory';
+import { getDocumentTitleForState } from './src/navigation/webDocumentTitle';
+
+let suppressNextWebHistorySync = false;
 
 if (config.environment === 'production') {
   import('@sentry/react-native')
@@ -95,12 +102,19 @@ export const useAppBootstrap = () => {
   return isReady;
 };
 
-const syncWebUrlFromNavigation = () => {
+const syncWebUrlFromNavigation = (reason: WebHistorySyncReason) => {
   if (!isWeb || !navigationRef.isReady()) {
     return;
   }
 
   const rootState = navigationRef.getRootState();
+  document.title = getDocumentTitleForState(rootState);
+
+  if (suppressNextWebHistorySync) {
+    suppressNextWebHistorySync = false;
+    return;
+  }
+
   const targetPath = appLinking.getPathFromState?.(
     rootState,
     appLinking.config,
@@ -117,15 +131,14 @@ const syncWebUrlFromNavigation = () => {
   }
 
   const currentPath = window.location.pathname;
-  if (currentPath === targetPath) {
-    return;
-  }
+  const updateMode = getHistoryUpdateMode(currentPath, targetPath, reason);
 
   if (
-    currentPath.startsWith(WEB_APP_BASE_PATH) ||
-    targetPath.startsWith(WEB_APP_BASE_PATH)
+    updateMode &&
+    (currentPath.startsWith(WEB_APP_BASE_PATH) ||
+      targetPath.startsWith(WEB_APP_BASE_PATH))
   ) {
-    window.history.replaceState(null, '', targetPath);
+    window.history[`${updateMode}State`](null, '', targetPath);
   }
 };
 
@@ -180,6 +193,40 @@ const App = () => {
   }, [isReady]);
 
   useEffect(() => {
+    if (!isWeb) {
+      return;
+    }
+
+    const originalPushState = window.history.pushState.bind(window.history);
+    const handlePopState = () => {
+      suppressNextWebHistorySync = true;
+    };
+
+    window.history.pushState = function (state, unused, url) {
+      if (typeof url === 'string') {
+        const nextUrl = new URL(url, window.location.origin);
+        const currentUrl = new URL(window.location.href);
+        if (
+          nextUrl.pathname === currentUrl.pathname &&
+          nextUrl.search === currentUrl.search &&
+          nextUrl.hash === currentUrl.hash
+        ) {
+          return;
+        }
+      }
+
+      return originalPushState(state, unused, url);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.history.pushState = originalPushState;
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
+  useEffect(() => {
     const subscription = DeviceEventEmitter.addListener(
       'overlayRouteIntent',
       (payload) => {
@@ -226,7 +273,7 @@ const App = () => {
           onReady={() => {
             // Flush any overlay intents that were queued before navigation was ready
             flushOverlayIntentQueue();
-            syncWebUrlFromNavigation();
+            syncWebUrlFromNavigation('ready');
             if (Platform.OS === 'android') {
               LoggerService.info({
                 service: 'AndroidReleaseSmoke',
@@ -236,7 +283,7 @@ const App = () => {
               });
             }
           }}
-          onStateChange={syncWebUrlFromNavigation}
+          onStateChange={() => syncWebUrlFromNavigation('state-change')}
         >
           <StatusBar
             barStyle="light-content"

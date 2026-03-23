@@ -44,9 +44,10 @@ export const FogCutterTaskList = ({
       {showGuide && (
         <View style={styles.guideBanner}>
           <View style={styles.guideContent}>
-            <Text style={styles.guideTitle}>CLARITY_ACHIEVED</Text>
+            <Text style={styles.guideTitle}>PLAN READY</Text>
             <Text style={styles.guideText}>
-              READY. INITIATE_IGNITE_PROTOCOL.
+              Your first step is defined. Move into Ignite when you want a short
+              focus block.
             </Text>
           </View>
           <Pressable
@@ -58,12 +59,12 @@ export const FogCutterTaskList = ({
             accessibilityRole="button"
             accessibilityLabel="Dismiss guidance"
           >
-            <Text style={styles.guideButtonText}>ACK</Text>
+            <Text style={styles.guideButtonText}>GO TO IGNITE</Text>
           </Pressable>
         </View>
       )}
 
-      <Text style={styles.sectionHeader}>ACTIVE_OPERATIONS</Text>
+      <Text style={styles.sectionHeader}>SAVED BREAKDOWNS</Text>
 
       {isLoading ? (
         <View style={styles.loadingContainer}>
@@ -97,7 +98,7 @@ export const FogCutterTaskList = ({
                     {item.text}
                   </Text>
                   {item.completed ? (
-                    <Text style={styles.doneBadge}>CMPLTD</Text>
+                    <Text style={styles.doneBadge}>DONE</Text>
                   ) : (
                     <Text style={styles.stepCountText}>
                       {getTaskProgressSummary(item.microSteps)}
@@ -122,8 +123,8 @@ export const FogCutterTaskList = ({
                         {item.microSteps.find(
                           (step) => step.status === 'in_progress',
                         )
-                          ? 'CURRENT_STEP >>'
-                          : 'NEXT_STEP >>'}
+                          ? 'CURRENT STEP'
+                          : 'NEXT STEP'}
                       </Text>
                       <Text style={styles.activeStepText} numberOfLines={1}>
                         {
@@ -149,8 +150,8 @@ export const FogCutterTaskList = ({
               <View>
                 <EmptyState
                   icon="*"
-                  title="NO_ACTIVE_TASKS."
-                  primaryActionLabel="CREATE FIRST TASK"
+                  title="NO BREAKDOWNS YET."
+                  primaryActionLabel="START FIRST BREAKDOWN"
                   onPrimaryAction={onFocusTaskInput}
                   primaryVariant="secondary"
                   style={styles.emptyState}

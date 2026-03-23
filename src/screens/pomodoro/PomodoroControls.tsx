@@ -30,7 +30,7 @@ export const PomodoroControls = ({
           <RuneButton
             variant="primary"
             size="lg"
-            glow="medium"
+            glow="soft"
             onPress={onStart}
             style={styles.controlBtn}
           >

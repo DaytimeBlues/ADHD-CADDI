@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "adhd-3f643"
+    "default": "adhd-3f643",
+    "staging": "adhd-caddi-staging"
   }
 }

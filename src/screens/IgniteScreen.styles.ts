@@ -141,11 +141,11 @@ export const getIgniteScreenStyles = (
       letterSpacing: 1,
     },
     rationaleCard: {
-      marginTop: Tokens.spacing[4],
+      marginTop: Tokens.spacing[2],
       marginBottom: Tokens.spacing[2],
     },
     rationaleCardSurface: {
-      marginTop: Tokens.spacing[4],
+      marginTop: Tokens.spacing[2],
       marginBottom: Tokens.spacing[2],
       borderRadius: 24,
       padding: Tokens.spacing[4],
@@ -367,6 +367,16 @@ export const getIgniteScreenStyles = (
       color: textSecondary,
       letterSpacing: 1,
       fontWeight: '700',
+    },
+    brownNoiseNote: {
+      marginTop: Tokens.spacing[3],
+      fontFamily: Tokens.type.fontFamily.body,
+      fontSize: Tokens.type.sm,
+      lineHeight: 20,
+      color: textSecondary,
+      textAlign: 'center',
+      maxWidth: 360,
+      alignSelf: 'center',
     },
     textActive: {
       color: titleColor,

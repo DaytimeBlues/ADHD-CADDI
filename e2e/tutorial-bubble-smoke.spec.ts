@@ -1,6 +1,10 @@
 import { expect, test } from '@playwright/test';
 import { gotoAppRoot } from './helpers/navigation';
-import { enableCosmicTheme, enableE2ETestMode } from './helpers/seed';
+import {
+  enableCosmicTheme,
+  enableE2ETestMode,
+  enableE2EAnonymousAppShell,
+} from './helpers/seed';
 
 test.describe('Tutorial And Bubble Smoke', () => {
   test.beforeEach(async ({ page }) => {
@@ -8,6 +12,7 @@ test.describe('Tutorial And Bubble Smoke', () => {
       window.localStorage.clear();
     });
     await enableE2ETestMode(page);
+    await enableE2EAnonymousAppShell(page);
     await enableCosmicTheme(page);
     await gotoAppRoot(page);
     await page.waitForLoadState('networkidle');
@@ -17,7 +22,9 @@ test.describe('Tutorial And Bubble Smoke', () => {
     page,
   }) => {
     await page.getByTestId('nav-tasks').click({ force: true });
-    await expect(page.getByText('NEBULA QUEUE')).toBeVisible();
+    await expect(
+      page.getByLabel('Tasks screen').getByText('TASKS'),
+    ).toBeVisible();
     await page.getByTestId('open-brain-dump').click();
     await expect(
       page.getByLabel('Brain dump screen').getByText('BRAIN_DUMP'),

@@ -12,21 +12,22 @@ const baseURL = process.env.PLAYWRIGHT_BASE_URL || DEFAULT_WEB_BASE_URL;
 
 export default defineConfig({
   testDir: './e2e',
+  outputDir: './output/playwright/test-results',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   reporter: [
-    ['html', { open: 'never' }],
-    ['junit', { outputFile: 'playwright-junit.xml' }],
+    ['html', { open: 'never', outputFolder: 'output/playwright/report' }],
+    ['junit', { outputFile: 'output/playwright/playwright-junit.xml' }],
     ['list'],
   ],
 
   use: {
     baseURL,
-    trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
-    video: 'on-first-retry',
+    trace: 'off',
+    screenshot: 'off',
+    video: 'retain-on-failure',
     // Capture console logs and page errors
     launchOptions: {
       logger: {

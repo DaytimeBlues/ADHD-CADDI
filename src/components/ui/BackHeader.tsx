@@ -3,17 +3,20 @@ import { Pressable, Text, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../theme/useTheme';
 import AppIcon from '../AppIcon';
+import { ROUTES } from '../../navigation/routes';
 
 type BackHeaderProps = {
   title?: string;
   onBack?: () => void;
   showIcon?: boolean;
+  fallbackRoute?: string;
 };
 
 export const BackHeader = ({
   title,
   onBack,
   showIcon = true,
+  fallbackRoute = ROUTES.HOME,
 }: BackHeaderProps) => {
   const navigation = useNavigation();
   const { isCosmic, isNightAwe, t } = useTheme();
@@ -21,6 +24,13 @@ export const BackHeader = ({
   const handleBack = () => {
     if (onBack) {
       onBack();
+    } else if (
+      typeof navigation.canGoBack === 'function' &&
+      navigation.canGoBack()
+    ) {
+      navigation.goBack();
+    } else if (typeof navigation.navigate === 'function') {
+      navigation.navigate(fallbackRoute as never);
     } else {
       navigation.goBack();
     }

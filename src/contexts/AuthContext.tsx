@@ -109,7 +109,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       );
     };
 
-    void initializeAuth();
+    initializeAuth().catch(() => undefined);
 
     return () => {
       isMounted = false;

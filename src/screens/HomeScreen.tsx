@@ -385,12 +385,8 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
                 debugButton: styles.debugButton,
                 debugButtonText: styles.debugButtonText,
               }}
-              onLoadDemoData={() => {
-                void loadDemoData();
-              }}
-              onExitGuest={() => {
-                void signOut();
-              }}
+              onLoadDemoData={loadDemoData}
+              onExitGuest={signOut}
             />
           )}
 

@@ -440,5 +440,27 @@ export const getFogCutterScreenStyles = (
       color: textPrimary,
       textTransform: 'uppercase',
     },
+    tourButton: {
+      paddingHorizontal: Tokens.spacing[3],
+      paddingVertical: Tokens.spacing[2],
+      borderRadius: Tokens.radii.md,
+      backgroundColor: 'rgba(139, 92, 246, 0.15)',
+      borderWidth: 1,
+      borderColor: 'rgba(139, 92, 246, 0.3)',
+    },
+    tourButtonPressed: {
+      opacity: 0.7,
+    },
+    tourButtonText: {
+      fontFamily: Tokens.type.fontFamily.mono,
+      fontSize: Tokens.type.xs,
+      fontWeight: '700',
+      color: '#8B5CF6',
+      letterSpacing: 1,
+    },
+    tutorialOverlay: {
+      width: '100%',
+      marginBottom: Tokens.spacing[4],
+    },
   });
 };

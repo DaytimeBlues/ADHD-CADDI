@@ -4,6 +4,7 @@ import {
   GoogleAuthProvider,
   EmailAuthProvider,
   browserLocalPersistence,
+  browserPopupRedirectResolver,
 } from '@firebase/auth';
 
 /**
@@ -37,6 +38,7 @@ const firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 const auth = initializeAuth(firebaseApp, {
   persistence: browserLocalPersistence,
+  popupRedirectResolver: browserPopupRedirectResolver,
 });
 
 export const googleProvider = new GoogleAuthProvider();
