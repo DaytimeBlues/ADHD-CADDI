@@ -11,6 +11,8 @@ const mockSetImportMode = jest.fn((_mode: 'overwrite' | 'merge') => undefined);
 const mockSelectTheme = jest.fn(
   async (_variant: 'linear' | 'cosmic') => undefined,
 );
+const mockSetTutorialsEnabled = jest.fn((_enabled: boolean) => undefined);
+const mockResetTutorialProgress = jest.fn(() => undefined);
 
 jest.mock('../diagnostics/hooks/useDiagnosticsData', () => ({
   useDiagnosticsData: () => ({
@@ -55,6 +57,14 @@ jest.mock('../diagnostics/hooks/useThemeSwitcher', () => ({
       },
     ],
     selectTheme: mockSelectTheme,
+  }),
+}));
+
+jest.mock('../diagnostics/hooks/useTutorialSettings', () => ({
+  useTutorialSettings: () => ({
+    tutorialsEnabled: true,
+    setTutorialsEnabled: mockSetTutorialsEnabled,
+    resetTutorialProgress: mockResetTutorialProgress,
   }),
 }));
 
@@ -111,11 +121,18 @@ describe('DiagnosticsScreen', () => {
 
     expect(view.getByText('SYSTEM STATUS')).toBeTruthy();
     expect(view.getByText('SETUP INSTRUCTIONS')).toBeTruthy();
+    expect(view.getByText('GUIDED HELP')).toBeTruthy();
     expect(view.getByText('DATA BACKUP')).toBeTruthy();
     expect(view.getByText('APPEARANCE')).toBeTruthy();
 
     fireEvent.press(view.getByLabelText('Go back'));
     fireEvent.press(view.getByLabelText('Refresh diagnostics'));
+    fireEvent(
+      view.getByTestId('tutorials-enabled-toggle'),
+      'valueChange',
+      false,
+    );
+    fireEvent.press(view.getByTestId('tutorials-reset-progress'));
     fireEvent.press(view.getByTestId('diagnostics-export-backup'));
     fireEvent.press(view.getByTestId('diagnostics-import-backup'));
     fireEvent.press(view.getByLabelText('Select Linear theme'));
@@ -125,6 +142,8 @@ describe('DiagnosticsScreen', () => {
     expect(mockNavigation.goBack).toHaveBeenCalledTimes(1);
 
     expect(mockRefreshDiagnostics).toHaveBeenCalledTimes(1);
+    expect(mockSetTutorialsEnabled).toHaveBeenCalledWith(false);
+    expect(mockResetTutorialProgress).toHaveBeenCalledTimes(1);
     expect(mockExportBackup).toHaveBeenCalledTimes(1);
     expect(mockImportBackup).toHaveBeenCalledTimes(1);
     expect(mockSelectTheme).toHaveBeenCalledWith('linear');

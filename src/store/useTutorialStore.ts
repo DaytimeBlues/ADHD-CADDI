@@ -258,6 +258,8 @@ export const checkInOnboardingFlow: TutorialFlow = {
 };
 
 interface TutorialState {
+  /** Global setting for whether first-run guided tutorials should auto-show */
+  tutorialsEnabled: boolean;
   // Persistence state
   /** Whether the user has completed or skipped the onboarding */
   onboardingCompleted: boolean;
@@ -276,6 +278,7 @@ interface TutorialState {
 
   // Actions
   startTutorial: (flow: TutorialFlow) => void;
+  setTutorialsEnabled: (enabled: boolean) => void;
   nextStep: () => void;
   previousStep: () => void;
   skipTutorial: () => void;
@@ -288,6 +291,7 @@ export const useTutorialStore = create<TutorialState>()(
   persist(
     (set, get) => ({
       // Persistence defaults
+      tutorialsEnabled: true,
       onboardingCompleted: false,
       completedFlows: [],
       lastTutorialAt: null,
@@ -309,6 +313,10 @@ export const useTutorialStore = create<TutorialState>()(
           currentStepIndex: 0,
           isVisible: true,
         });
+      },
+
+      setTutorialsEnabled: (enabled: boolean) => {
+        set({ tutorialsEnabled: enabled });
       },
 
       nextStep: () => {
@@ -397,6 +405,7 @@ export const useTutorialStore = create<TutorialState>()(
         UXMetricsService.track('tutorial_reset', {});
 
         set({
+          tutorialsEnabled: true,
           onboardingCompleted: false,
           completedFlows: [],
           lastTutorialAt: null,
@@ -415,6 +424,7 @@ export const useTutorialStore = create<TutorialState>()(
       storage: createJSONStorage(() => zustandStorage),
       // Only persist these fields
       partialize: (state) => ({
+        tutorialsEnabled: state.tutorialsEnabled,
         onboardingCompleted: state.onboardingCompleted,
         completedFlows: state.completedFlows,
         lastTutorialAt: state.lastTutorialAt,

@@ -17,11 +17,13 @@ import {
   FeedbackSection,
   SetupInstructionsSection,
   ThemeSection,
+  TutorialSection,
 } from './diagnostics/components';
 import {
   useBackupManager,
   useDiagnosticsData,
   useThemeSwitcher,
+  useTutorialSettings,
 } from './diagnostics/hooks';
 
 type DiagnosticsPressableState = {
@@ -54,6 +56,8 @@ const DiagnosticsScreen = () => {
     importBackup,
   } = useBackupManager({ onImported: refreshDiagnostics });
   const { themeOptions, selectTheme } = useThemeSwitcher();
+  const { tutorialsEnabled, setTutorialsEnabled, resetTutorialProgress } =
+    useTutorialSettings();
 
   return (
     <CosmicBackground variant="ridge" dimmer>
@@ -93,6 +97,11 @@ const DiagnosticsScreen = () => {
             <DiagnosticsStatusSection diagnostics={diagnostics} />
             <SetupInstructionsSection />
             <FeedbackSection />
+            <TutorialSection
+              tutorialsEnabled={tutorialsEnabled}
+              onToggleTutorials={setTutorialsEnabled}
+              onResetTutorialProgress={resetTutorialProgress}
+            />
             <BackupSection
               backupJson={backupJson}
               setBackupJson={setBackupJson}

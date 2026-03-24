@@ -9,13 +9,19 @@ export const useFeatureTutorial = (flow?: TutorialFlow | null) => {
   const onboardingCompleted = useTutorialStore(
     (state) => state.onboardingCompleted,
   );
+  const tutorialsEnabled = useTutorialStore((state) => state.tutorialsEnabled);
   const startTutorial = useTutorialStore((state) => state.startTutorial);
   const nextStep = useTutorialStore((state) => state.nextStep);
   const previousStep = useTutorialStore((state) => state.previousStep);
   const skipTutorial = useTutorialStore((state) => state.skipTutorial);
 
   useEffect(() => {
-    if (!flow || hasAutoStartedTutorial.current || onboardingCompleted) {
+    if (
+      !flow ||
+      !tutorialsEnabled ||
+      hasAutoStartedTutorial.current ||
+      onboardingCompleted
+    ) {
       return;
     }
 
@@ -23,7 +29,14 @@ export const useFeatureTutorial = (flow?: TutorialFlow | null) => {
       hasAutoStartedTutorial.current = true;
       startTutorial(flow);
     }
-  }, [activeFlow, isTutorialVisible, onboardingCompleted, startTutorial, flow]);
+  }, [
+    activeFlow,
+    isTutorialVisible,
+    onboardingCompleted,
+    startTutorial,
+    flow,
+    tutorialsEnabled,
+  ]);
 
   const currentTutorialStep =
     flow && isTutorialVisible && activeFlow?.id === flow.id
