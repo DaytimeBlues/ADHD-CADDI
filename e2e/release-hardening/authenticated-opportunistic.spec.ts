@@ -47,7 +47,7 @@ test.describe('Release hardening authenticated opportunistic @release @auth', ()
     await expect(page).toHaveTitle(/ADHD-CADDI \| Home/);
 
     await page.getByTestId('nav-tasks').click();
-    await expect(page.getByText('TASKS')).toBeVisible();
+    await expect(page.getByLabel('Tasks screen')).toBeVisible();
     await page.getByTestId('open-brain-dump').click();
     await expect(page.getByText('BRAIN_DUMP')).toBeVisible();
 
