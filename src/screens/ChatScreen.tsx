@@ -18,6 +18,7 @@ import { ROUTES } from '../navigation/routes';
 import { pushWebPathForRoute } from '../navigation/webPathMap';
 import { FeatureGuideButton } from '../components/tutorial/FeatureGuideButton';
 import { FeatureTutorialOverlay } from '../components/tutorial/FeatureTutorialOverlay';
+import { TutorialTarget } from '../components/tutorial/TutorialTarget';
 import { chatOnboardingFlow } from '../store/useTutorialStore';
 import { useFeatureTutorial } from '../hooks/useFeatureTutorial';
 
@@ -81,13 +82,15 @@ const ChatScreen = () => {
         />
         <View style={styles.header}>
           <Text style={styles.title}>CADDI_ASSISTANT</Text>
-          <FeatureGuideButton
-            onPress={() => startTutorial()}
-            accessibilityLabel="Open tutorial for chat"
-            testID="chat-guide-button"
-            label={guideButtonLabel}
-            isSecondary={isReplayTutorial}
-          />
+          <TutorialTarget targetId="chat-replay">
+            <FeatureGuideButton
+              onPress={() => startTutorial()}
+              accessibilityLabel="Open tutorial for chat"
+              testID="chat-guide-button"
+              label={guideButtonLabel}
+              isSecondary={isReplayTutorial}
+            />
+          </TutorialTarget>
         </View>
 
         <FeatureTutorialOverlay
@@ -100,61 +103,65 @@ const ChatScreen = () => {
           style={styles.tutorialOverlay}
         />
 
-        <ScrollView
-          ref={scrollViewRef}
-          style={styles.messageList}
-          contentContainerStyle={styles.messageContent}
-        >
-          {messages.map((msg) => (
-            <View
-              key={msg.id}
-              style={[
-                styles.messageRow,
-                msg.role === 'user' ? styles.userRow : styles.assistantRow,
-              ]}
-            >
-              <GlowCard
-                glow={msg.role === 'assistant' ? 'soft' : 'none'}
-                padding="sm"
+        <TutorialTarget targetId="chat-thread">
+          <ScrollView
+            ref={scrollViewRef}
+            style={styles.messageList}
+            contentContainerStyle={styles.messageContent}
+          >
+            {messages.map((msg) => (
+              <View
+                key={msg.id}
                 style={[
-                  styles.bubble,
-                  msg.role === 'user'
-                    ? styles.userBubble
-                    : styles.assistantBubble,
+                  styles.messageRow,
+                  msg.role === 'user' ? styles.userRow : styles.assistantRow,
                 ]}
               >
-                <Text style={styles.messageText}>{msg.content}</Text>
-              </GlowCard>
-            </View>
-          ))}
-          {messages.length === 0 && (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>
-                HOW CAN I HELP YOU FOCUS TODAY?
-              </Text>
-            </View>
-          )}
-        </ScrollView>
+                <GlowCard
+                  glow={msg.role === 'assistant' ? 'soft' : 'none'}
+                  padding="sm"
+                  style={[
+                    styles.bubble,
+                    msg.role === 'user'
+                      ? styles.userBubble
+                      : styles.assistantBubble,
+                  ]}
+                >
+                  <Text style={styles.messageText}>{msg.content}</Text>
+                </GlowCard>
+              </View>
+            ))}
+            {messages.length === 0 && (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>
+                  HOW CAN I HELP YOU FOCUS TODAY?
+                </Text>
+              </View>
+            )}
+          </ScrollView>
+        </TutorialTarget>
 
-        <View style={styles.inputArea}>
-          <TextInput
-            style={styles.input}
-            placeholder="TYPE_YOUR_THOUGHTS..."
-            placeholderTextColor={Tokens.colors.text.placeholder}
-            value={inputText}
-            onChangeText={setInputText}
-            onSubmitEditing={handleSend}
-            multiline
-          />
-          <RuneButton
-            variant="primary"
-            size="sm"
-            onPress={handleSend}
-            disabled={!inputText.trim()}
-          >
-            SEND
-          </RuneButton>
-        </View>
+        <TutorialTarget targetId="chat-compose">
+          <View style={styles.inputArea}>
+            <TextInput
+              style={styles.input}
+              placeholder="TYPE_YOUR_THOUGHTS..."
+              placeholderTextColor={Tokens.colors.text.placeholder}
+              value={inputText}
+              onChangeText={setInputText}
+              onSubmitEditing={handleSend}
+              multiline
+            />
+            <RuneButton
+              variant="primary"
+              size="sm"
+              onPress={handleSend}
+              disabled={!inputText.trim()}
+            >
+              SEND
+            </RuneButton>
+          </View>
+        </TutorialTarget>
       </KeyboardAvoidingView>
     </CosmicBackground>
   );

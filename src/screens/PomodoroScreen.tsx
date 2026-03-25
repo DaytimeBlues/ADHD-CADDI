@@ -13,6 +13,7 @@ import { BackHeader } from '../components/ui/BackHeader';
 import { pushWebPathForRoute } from '../navigation/webPathMap';
 import { FeatureGuideButton } from '../components/tutorial/FeatureGuideButton';
 import { FeatureTutorialOverlay } from '../components/tutorial/FeatureTutorialOverlay';
+import { TutorialTarget } from '../components/tutorial/TutorialTarget';
 import { pomodoroOnboardingFlow } from '../store/useTutorialStore';
 import { useFeatureTutorial } from '../hooks/useFeatureTutorial';
 
@@ -60,13 +61,15 @@ const PomodoroScreen = () => {
           />
           <View style={styles.headerRow}>
             <PomodoroHeader isCosmic={isCosmic} isWorking={isWorking} />
-            <FeatureGuideButton
-              onPress={() => startTutorial()}
-              accessibilityLabel="Open tutorial for pomodoro"
-              testID="pomodoro-tour-button"
-              label={guideButtonLabel}
-              isSecondary={isReplayTutorial}
-            />
+            <TutorialTarget targetId="pomodoro-replay">
+              <FeatureGuideButton
+                onPress={() => startTutorial()}
+                accessibilityLabel="Open tutorial for pomodoro"
+                testID="pomodoro-tour-button"
+                label={guideButtonLabel}
+                isSecondary={isReplayTutorial}
+              />
+            </TutorialTarget>
           </View>
 
           <FeatureTutorialOverlay
@@ -78,22 +81,26 @@ const PomodoroScreen = () => {
             onSkip={skipTutorial}
             style={styles.tutorialOverlay}
           />
-          <PomodoroTimerCard
-            isCosmic={isCosmic}
-            isWorking={isWorking}
-            isRunning={isRunning}
-            timeLeft={timeLeft}
-            formattedTime={formattedTime}
-            totalDuration={getTotalDuration()}
-          />
-          <PomodoroControls
-            isCosmic={isCosmic}
-            isRunning={isRunning}
-            isWorking={isWorking}
-            onStart={start}
-            onPause={pause}
-            onReset={reset}
-          />
+          <TutorialTarget targetId="pomodoro-timer">
+            <PomodoroTimerCard
+              isCosmic={isCosmic}
+              isWorking={isWorking}
+              isRunning={isRunning}
+              timeLeft={timeLeft}
+              formattedTime={formattedTime}
+              totalDuration={getTotalDuration()}
+            />
+          </TutorialTarget>
+          <TutorialTarget targetId="pomodoro-controls">
+            <PomodoroControls
+              isCosmic={isCosmic}
+              isRunning={isRunning}
+              isWorking={isWorking}
+              onStart={start}
+              onPause={pause}
+              onReset={reset}
+            />
+          </TutorialTarget>
         </View>
       </SafeAreaView>
     </CosmicBackground>

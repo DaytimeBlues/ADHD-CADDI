@@ -20,6 +20,7 @@ import {
 import { CheckInOptionGroup } from './check-in/CheckInOptionGroup';
 import { FeatureGuideButton } from '../components/tutorial/FeatureGuideButton';
 import { FeatureTutorialOverlay } from '../components/tutorial/FeatureTutorialOverlay';
+import { TutorialTarget } from '../components/tutorial/TutorialTarget';
 import { checkInOnboardingFlow } from '../store/useTutorialStore';
 import { useFeatureTutorial } from '../hooks/useFeatureTutorial';
 
@@ -147,13 +148,15 @@ const CheckInScreen = ({ navigation }: { navigation?: CheckInNavigation }) => {
               <Text style={styles.subtitle} testID="checkin-subtitle">
                 HOW ARE YOU FEELING RIGHT NOW?
               </Text>
-              <FeatureGuideButton
-                onPress={() => startTutorial()}
-                accessibilityLabel="Open tutorial for check-in"
-                testID="checkin-tour-button"
-                label={guideButtonLabel}
-                isSecondary={isReplayTutorial}
-              />
+              <TutorialTarget targetId="checkin-replay">
+                <FeatureGuideButton
+                  onPress={() => startTutorial()}
+                  accessibilityLabel="Open tutorial for check-in"
+                  testID="checkin-tour-button"
+                  label={guideButtonLabel}
+                  isSecondary={isReplayTutorial}
+                />
+              </TutorialTarget>
             </View>
 
             <FeatureTutorialOverlay
@@ -185,23 +188,27 @@ const CheckInScreen = ({ navigation }: { navigation?: CheckInNavigation }) => {
               </Text>
             </GlowCard>
 
-            <CheckInOptionGroup
-              isCosmic={isCosmic}
-              title="MOOD"
-              options={CHECK_IN_MOODS}
-              selectedValue={mood}
-              testIdPrefix="mood-option"
-              onSelect={setMood}
-            />
+            <TutorialTarget targetId="checkin-mood">
+              <CheckInOptionGroup
+                isCosmic={isCosmic}
+                title="MOOD"
+                options={CHECK_IN_MOODS}
+                selectedValue={mood}
+                testIdPrefix="mood-option"
+                onSelect={setMood}
+              />
+            </TutorialTarget>
 
-            <CheckInOptionGroup
-              isCosmic={isCosmic}
-              title="ENERGY"
-              options={CHECK_IN_ENERGY_LEVELS}
-              selectedValue={energy}
-              testIdPrefix="energy-option"
-              onSelect={setEnergy}
-            />
+            <TutorialTarget targetId="checkin-energy">
+              <CheckInOptionGroup
+                isCosmic={isCosmic}
+                title="ENERGY"
+                options={CHECK_IN_ENERGY_LEVELS}
+                selectedValue={energy}
+                testIdPrefix="energy-option"
+                onSelect={setEnergy}
+              />
+            </TutorialTarget>
 
             {selectedMoodLabel && selectedEnergyLabel && (
               <View style={styles.selectionSummary}>
@@ -213,47 +220,49 @@ const CheckInScreen = ({ navigation }: { navigation?: CheckInNavigation }) => {
             )}
 
             {recommendation && (
-              <GlowCard
-                glow="medium"
-                tone="raised"
-                padding="lg"
-                style={styles.recommendation}
-              >
-                <Text style={styles.recommendationTitle}>
-                  {recommendation.title}
-                </Text>
-                <Text
-                  style={styles.recommendationSubtitle}
-                  testID="recommendation-subtitle"
-                >
-                  RECOMMENDED FOR YOU
-                </Text>
-                <Text style={styles.recommendationText}>
-                  {recommendation.desc}
-                </Text>
-                {insight && (
-                  <View style={styles.insightBox}>
-                    <Text style={styles.insightLabel}>Pattern note</Text>
-                    <Text style={styles.insightText}>{insight}</Text>
-                  </View>
-                )}
-                <EvidenceBadge
-                  tier="heuristic"
-                  label="Guided next step"
-                  style={styles.evidenceBadge}
-                />
-                <RuneButton
-                  variant="primary"
-                  size="md"
+              <TutorialTarget targetId="checkin-recommendation">
+                <GlowCard
                   glow="medium"
-                  onPress={handleRecommendationAction}
-                  testID="recommendation-action-button"
+                  tone="raised"
+                  padding="lg"
+                  style={styles.recommendation}
                 >
-                  {mood !== null && energy !== null
-                    ? getRecommendationAction(mood, energy).cta
-                    : 'CONTINUE'}
-                </RuneButton>
-              </GlowCard>
+                  <Text style={styles.recommendationTitle}>
+                    {recommendation.title}
+                  </Text>
+                  <Text
+                    style={styles.recommendationSubtitle}
+                    testID="recommendation-subtitle"
+                  >
+                    RECOMMENDED FOR YOU
+                  </Text>
+                  <Text style={styles.recommendationText}>
+                    {recommendation.desc}
+                  </Text>
+                  {insight && (
+                    <View style={styles.insightBox}>
+                      <Text style={styles.insightLabel}>Pattern note</Text>
+                      <Text style={styles.insightText}>{insight}</Text>
+                    </View>
+                  )}
+                  <EvidenceBadge
+                    tier="heuristic"
+                    label="Guided next step"
+                    style={styles.evidenceBadge}
+                  />
+                  <RuneButton
+                    variant="primary"
+                    size="md"
+                    glow="medium"
+                    onPress={handleRecommendationAction}
+                    testID="recommendation-action-button"
+                  >
+                    {mood !== null && energy !== null
+                      ? getRecommendationAction(mood, energy).cta
+                      : 'CONTINUE'}
+                  </RuneButton>
+                </GlowCard>
+              </TutorialTarget>
             )}
           </ScrollView>
         </View>

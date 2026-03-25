@@ -15,6 +15,7 @@ import { BackHeader } from '../components/ui/BackHeader';
 import { pushWebPathForRoute } from '../navigation/webPathMap';
 import { FeatureGuideButton } from '../components/tutorial/FeatureGuideButton';
 import { FeatureTutorialOverlay } from '../components/tutorial/FeatureTutorialOverlay';
+import { TutorialTarget } from '../components/tutorial/TutorialTarget';
 import { fogCutterOnboardingFlow } from '../store/useTutorialStore';
 import { useFeatureTutorial } from '../hooks/useFeatureTutorial';
 
@@ -125,13 +126,15 @@ const FogCutterScreen = ({ navigation }: FogCutterScreenProps) => {
           <View style={styles.header}>
             <Text style={styles.title}>DECOMPOSITION</Text>
             <View style={styles.headerLine} />
-            <FeatureGuideButton
-              onPress={() => startTutorial()}
-              accessibilityLabel="Open tutorial for fog cutter"
-              testID="fogcutter-tour-button"
-              label={guideButtonLabel}
-              isSecondary={isReplayTutorial}
-            />
+            <TutorialTarget targetId="fogcutter-replay">
+              <FeatureGuideButton
+                onPress={() => startTutorial()}
+                accessibilityLabel="Open tutorial for fog cutter"
+                testID="fogcutter-tour-button"
+                label={guideButtonLabel}
+                isSecondary={isReplayTutorial}
+              />
+            </TutorialTarget>
           </View>
 
           <FeatureTutorialOverlay
@@ -144,38 +147,42 @@ const FogCutterScreen = ({ navigation }: FogCutterScreenProps) => {
             style={styles.tutorialOverlay}
           />
 
-          <FogCutterTaskComposer
-            focusedInput={focusedInput}
-            isAiLoading={isAiLoading}
-            isCosmic={isCosmic}
-            isNightAwe={isNightAwe}
-            microSteps={microSteps}
-            newStep={newStep}
-            onAddMicroStep={addMicroStep}
-            onAddTask={addTask}
-            onAiBreakdownPress={() => handleAiBreakdown(task)}
-            onFocusInput={setFocusedInput}
-            onNewStepChange={setNewStep}
-            onTaskChange={setTask}
-            saveDisabled={microSteps.length === 0}
-            setTaskInputRef={taskInputRef}
-            task={task}
-          />
+          <TutorialTarget targetId="fogcutter-task-composer">
+            <FogCutterTaskComposer
+              focusedInput={focusedInput}
+              isAiLoading={isAiLoading}
+              isCosmic={isCosmic}
+              isNightAwe={isNightAwe}
+              microSteps={microSteps}
+              newStep={newStep}
+              onAddMicroStep={addMicroStep}
+              onAddTask={addTask}
+              onAiBreakdownPress={() => handleAiBreakdown(task)}
+              onFocusInput={setFocusedInput}
+              onNewStepChange={setNewStep}
+              onTaskChange={setTask}
+              saveDisabled={microSteps.length === 0}
+              setTaskInputRef={taskInputRef}
+              task={task}
+            />
+          </TutorialTarget>
 
-          <FogCutterTaskList
-            isCosmic={isCosmic}
-            isLoading={isLoading}
-            isNightAwe={isNightAwe}
-            onDismissGuide={handleDismissGuide}
-            onExamplePress={(example) => {
-              setTask(example);
-              taskInputRef.current?.focus();
-            }}
-            onFocusTaskInput={() => taskInputRef.current?.focus()}
-            onToggleTask={toggleTask}
-            showGuide={showGuide}
-            tasks={tasks}
-          />
+          <TutorialTarget targetId="fogcutter-task-list">
+            <FogCutterTaskList
+              isCosmic={isCosmic}
+              isLoading={isLoading}
+              isNightAwe={isNightAwe}
+              onDismissGuide={handleDismissGuide}
+              onExamplePress={(example) => {
+                setTask(example);
+                taskInputRef.current?.focus();
+              }}
+              onFocusTaskInput={() => taskInputRef.current?.focus()}
+              onToggleTask={toggleTask}
+              showGuide={showGuide}
+              tasks={tasks}
+            />
+          </TutorialTarget>
         </View>
       </View>
     </SafeAreaView>

@@ -59,6 +59,8 @@ export const brainDumpOnboardingFlow: TutorialFlow = {
       howText:
         "Type freely. Don't organize yet - just get it all out. You'll sort later.",
       iconName: 'microphone',
+      targetId: 'brain-dump-input',
+      placement: 'bottom',
     },
     {
       id: 'brain-dump-sort',
@@ -68,6 +70,8 @@ export const brainDumpOnboardingFlow: TutorialFlow = {
       howText:
         'When you\'re done dumping, tap "Sort" and AI will organize your thoughts into actionable tasks.',
       iconName: 'sort-variant',
+      targetId: 'brain-dump-sort',
+      placement: 'top',
     },
     {
       id: 'brain-dump-complete',
@@ -76,6 +80,8 @@ export const brainDumpOnboardingFlow: TutorialFlow = {
       howText:
         'Start dumping whenever your mind feels cluttered. Use Replay Guide here anytime you want to see this guide again.',
       iconName: 'check-circle',
+      targetId: 'brain-dump-replay',
+      placement: 'bottom',
     },
   ],
 };
@@ -95,6 +101,8 @@ export const anchorOnboardingFlow: TutorialFlow = {
       howText:
         'Choose a breathing pattern, press Start, and follow the circle. Your attention follows the rhythm.',
       iconName: 'anchor',
+      targetId: 'anchor-patterns',
+      placement: 'bottom',
     },
     {
       id: 'anchor-patterns',
@@ -104,6 +112,8 @@ export const anchorOnboardingFlow: TutorialFlow = {
       howText:
         'Box (4-4-4-4): Great for focus. 4-7-8: Best before sleep. Pick whichever feels right.',
       iconName: 'grid',
+      targetId: 'anchor-patterns',
+      placement: 'bottom',
     },
     {
       id: 'anchor-attention',
@@ -113,6 +123,8 @@ export const anchorOnboardingFlow: TutorialFlow = {
       howText:
         'Inhale as the circle grows. Hold when full. Exhale as it shrinks. Let thoughts pass without chasing them.',
       iconName: 'circle-outline',
+      targetId: 'anchor-session',
+      placement: 'top',
     },
     {
       id: 'anchor-complete',
@@ -122,6 +134,8 @@ export const anchorOnboardingFlow: TutorialFlow = {
       howText:
         'Use Anchor whenever you feel scattered or overwhelmed. Use Replay Guide whenever you want to review these steps again.',
       iconName: 'check-circle',
+      targetId: 'anchor-replay',
+      placement: 'bottom',
     },
   ],
 };
@@ -141,6 +155,8 @@ export const pomodoroOnboardingFlow: TutorialFlow = {
       howText:
         'Work for 25 minutes, then take a 5-minute break. After 4 pomodoros, take a longer 15-30 minute break.',
       iconName: 'timer-sand',
+      targetId: 'pomodoro-timer',
+      placement: 'bottom',
     },
     {
       id: 'pomodoro-start',
@@ -150,6 +166,8 @@ export const pomodoroOnboardingFlow: TutorialFlow = {
       howText:
         'Press START. Commit to focusing until the timer rings. If a thought intrudes, jot it and return.',
       iconName: 'play-circle',
+      targetId: 'pomodoro-controls',
+      placement: 'top',
     },
     {
       id: 'pomodoro-break',
@@ -159,6 +177,8 @@ export const pomodoroOnboardingFlow: TutorialFlow = {
       howText:
         'When the timer rings, stop immediately. Stand up, move for 5 minutes. The break is not optional.',
       iconName: 'coffee',
+      targetId: 'pomodoro-controls',
+      placement: 'top',
     },
     {
       id: 'pomodoro-complete',
@@ -168,6 +188,8 @@ export const pomodoroOnboardingFlow: TutorialFlow = {
       howText:
         'Use Replay Guide anytime you want to review how this screen works. Track your sessions in your weekly metrics.',
       iconName: 'check-circle',
+      targetId: 'pomodoro-replay',
+      placement: 'bottom',
     },
   ],
 };
@@ -187,6 +209,8 @@ export const fogCutterOnboardingFlow: TutorialFlow = {
       howText:
         'Enter the overwhelming task at the top. Then add micro-steps — tiny actions you can do right now.',
       iconName: 'weather-windy',
+      targetId: 'fogcutter-task-composer',
+      placement: 'bottom',
     },
     {
       id: 'fogcutter-microsteps',
@@ -196,6 +220,8 @@ export const fogCutterOnboardingFlow: TutorialFlow = {
       howText:
         'Each micro-step should take 1-5 minutes. "Open the essay template" beats "Start the essay."',
       iconName: 'format-list-numbered',
+      targetId: 'fogcutter-task-composer',
+      placement: 'bottom',
     },
     {
       id: 'fogcutter-ai',
@@ -205,6 +231,8 @@ export const fogCutterOnboardingFlow: TutorialFlow = {
       howText:
         'Tap "Get Help" to let AI suggest micro-steps for your task. Edit or accept — you\'re in control.',
       iconName: 'robot',
+      targetId: 'fogcutter-task-composer',
+      placement: 'top',
     },
     {
       id: 'fogcutter-complete',
@@ -214,6 +242,8 @@ export const fogCutterOnboardingFlow: TutorialFlow = {
       howText:
         'Use Fog Cutter whenever a task feels too big. Use Replay Guide if you want to walk through this screen again.',
       iconName: 'check-circle',
+      targetId: 'fogcutter-replay',
+      placement: 'bottom',
     },
   ],
 };
@@ -233,6 +263,8 @@ export const checkInOnboardingFlow: TutorialFlow = {
       howText:
         "Rate how you're feeling and your energy level right now. It takes 20 seconds.",
       iconName: 'chart-bar',
+      targetId: 'checkin-mood',
+      placement: 'bottom',
     },
     {
       id: 'checkin-mood',
@@ -242,6 +274,8 @@ export const checkInOnboardingFlow: TutorialFlow = {
       howText:
         "Select the word that best describes your current state. Don't overthink — go with your first instinct.",
       iconName: 'emoticon-outline',
+      targetId: 'checkin-mood',
+      placement: 'bottom',
     },
     {
       id: 'checkin-energy',
@@ -251,6 +285,8 @@ export const checkInOnboardingFlow: TutorialFlow = {
       howText:
         "Scale is 1 (depleted) to 5 (energized). A 2 trying to do a 5's worth of work leads to burnout.",
       iconName: 'lightning-bolt',
+      targetId: 'checkin-energy',
+      placement: 'bottom',
     },
     {
       id: 'checkin-complete',
@@ -260,6 +296,8 @@ export const checkInOnboardingFlow: TutorialFlow = {
       howText:
         'Check in daily for best results. Your history is private and stored on this device only.',
       iconName: 'check-circle',
+      targetId: 'checkin-recommendation',
+      placement: 'top',
     },
   ],
 };
@@ -277,6 +315,8 @@ export const inboxOnboardingFlow: TutorialFlow = {
       howText:
         'This screen holds captured notes until you decide whether each one should become a task, note, or be discarded.',
       iconName: 'inbox-arrow-down',
+      targetId: 'inbox-list',
+      placement: 'top',
     },
     {
       id: 'inbox-filters',
@@ -286,6 +326,8 @@ export const inboxOnboardingFlow: TutorialFlow = {
       howText:
         'Use the tabs to narrow the list when you only want to review fresh captures or check what you already processed.',
       iconName: 'filter-variant',
+      targetId: 'inbox-filters',
+      placement: 'bottom',
     },
     {
       id: 'inbox-actions',
@@ -295,6 +337,8 @@ export const inboxOnboardingFlow: TutorialFlow = {
       howText:
         'For each item, send it to Task, keep it as a Note, or discard it if it is no longer useful.',
       iconName: 'check-circle',
+      targetId: 'inbox-list',
+      placement: 'top',
     },
   ],
 };
@@ -312,6 +356,8 @@ export const chatOnboardingFlow: TutorialFlow = {
       howText:
         'Use this screen to ask for help reframing, clarifying, or reducing a task into something more doable.',
       iconName: 'message-text-outline',
+      targetId: 'chat-thread',
+      placement: 'top',
     },
     {
       id: 'chat-thread',
@@ -321,6 +367,8 @@ export const chatOnboardingFlow: TutorialFlow = {
       howText:
         'Read the conversation area from top to bottom. Keep each question narrow so the answer stays useful.',
       iconName: 'format-list-bulleted',
+      targetId: 'chat-thread',
+      placement: 'top',
     },
     {
       id: 'chat-compose',
@@ -330,6 +378,8 @@ export const chatOnboardingFlow: TutorialFlow = {
       howText:
         'Type what you are stuck on, then press Send. If needed, follow up with one more question rather than rewriting everything.',
       iconName: 'send',
+      targetId: 'chat-compose',
+      placement: 'top',
     },
   ],
 };
@@ -347,6 +397,8 @@ export const tasksOnboardingFlow: TutorialFlow = {
       howText:
         'Use this screen to capture tasks, review active work, and keep completed items from mixing with what still needs attention.',
       iconName: 'text-box-outline',
+      targetId: 'tasks-capture',
+      placement: 'bottom',
     },
     {
       id: 'tasks-add',
@@ -356,6 +408,8 @@ export const tasksOnboardingFlow: TutorialFlow = {
       howText:
         'Type a short task into the input and add it immediately. Keep it concrete enough that you can imagine starting it.',
       iconName: 'plus-circle',
+      targetId: 'tasks-add',
+      placement: 'bottom',
     },
     {
       id: 'tasks-review',
@@ -365,6 +419,8 @@ export const tasksOnboardingFlow: TutorialFlow = {
       howText:
         'Use the stats and filter tabs to scan the list, then complete or delete items to keep the queue current.',
       iconName: 'check-circle',
+      targetId: 'tasks-filters',
+      placement: 'top',
     },
   ],
 };

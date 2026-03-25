@@ -304,6 +304,8 @@ describe('BrainDumpScreen', () => {
       { timeout: 10000 },
     );
     expect(screen.getByText('_AWAITING_INPUT')).toBeTruthy();
+    expect(screen.getByTestId('tutorial-target-brain-dump-input')).toBeTruthy();
+    expect(screen.getByTestId('tutorial-target-brain-dump-sort')).toBeTruthy();
   }, 10000);
 
   it('renders tutorial state and advances through the mocked flow', async () => {

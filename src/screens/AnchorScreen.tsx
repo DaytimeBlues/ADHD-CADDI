@@ -14,6 +14,7 @@ import { useTheme } from '../theme/useTheme';
 import { CosmicBackground } from '../ui/cosmic';
 import { FeatureGuideButton } from '../components/tutorial/FeatureGuideButton';
 import { FeatureTutorialOverlay } from '../components/tutorial/FeatureTutorialOverlay';
+import { TutorialTarget } from '../components/tutorial/TutorialTarget';
 import { anchorOnboardingFlow } from '../store/useTutorialStore';
 import { useFeatureTutorial } from '../hooks/useFeatureTutorial';
 
@@ -60,13 +61,15 @@ const AnchorScreen = () => {
           />
           <View style={styles.headerRow}>
             <AnchorHeader />
-            <FeatureGuideButton
-              onPress={() => startTutorial()}
-              accessibilityLabel="Open tutorial for anchor"
-              testID="anchor-tour-button"
-              label={guideButtonLabel}
-              isSecondary={isReplayTutorial}
-            />
+            <TutorialTarget targetId="anchor-replay">
+              <FeatureGuideButton
+                onPress={() => startTutorial()}
+                accessibilityLabel="Open tutorial for anchor"
+                testID="anchor-tour-button"
+                label={guideButtonLabel}
+                isSecondary={isReplayTutorial}
+              />
+            </TutorialTarget>
           </View>
 
           <FeatureTutorialOverlay
@@ -79,20 +82,26 @@ const AnchorScreen = () => {
             style={styles.tutorialOverlay}
           />
 
-          <AnchorRationale />
+          <TutorialTarget targetId="anchor-patterns">
+            <AnchorRationale />
+          </TutorialTarget>
           {isActive && pattern ? (
-            <AnchorActiveSession
-              patternConfig={PATTERNS[pattern]}
-              phaseText={getPhaseText()}
-              circleScale={getCircleScale()}
-              count={count}
-              onStop={stopPattern}
-            />
+            <TutorialTarget targetId="anchor-session">
+              <AnchorActiveSession
+                patternConfig={PATTERNS[pattern]}
+                phaseText={getPhaseText()}
+                circleScale={getCircleScale()}
+                count={count}
+                onStop={stopPattern}
+              />
+            </TutorialTarget>
           ) : (
-            <AnchorPatternSelector
-              patterns={PATTERNS}
-              onSelectPattern={startPattern}
-            />
+            <TutorialTarget targetId="anchor-patterns">
+              <AnchorPatternSelector
+                patterns={PATTERNS}
+                onSelectPattern={startPattern}
+              />
+            </TutorialTarget>
           )}
         </View>
       </View>

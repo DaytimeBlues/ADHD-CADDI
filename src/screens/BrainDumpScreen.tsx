@@ -25,6 +25,7 @@ import {
 } from '../components/brain-dump';
 import { FeatureGuideButton } from '../components/tutorial/FeatureGuideButton';
 import { FeatureTutorialOverlay } from '../components/tutorial/FeatureTutorialOverlay';
+import { TutorialTarget } from '../components/tutorial/TutorialTarget';
 import { BackHeader } from '../components/ui/BackHeader';
 import useBrainDump from '../hooks/useBrainDump';
 import { brainDumpOnboardingFlow } from '../store/useTutorialStore';
@@ -100,13 +101,15 @@ const BrainDumpScreen = () => {
           <View style={styles.header}>
             <Text style={styles.title}>CAPTURE_SYSTEM</Text>
             <View style={styles.headerLine} />
-            <FeatureGuideButton
-              onPress={() => startTutorial()}
-              accessibilityLabel="Open tutorial for brain dump"
-              testID="brain-dump-tour-button"
-              label={guideButtonLabel}
-              isSecondary={isReplayTutorial}
-            />
+            <TutorialTarget targetId="brain-dump-replay">
+              <FeatureGuideButton
+                onPress={() => startTutorial()}
+                accessibilityLabel="Open tutorial for brain dump"
+                testID="brain-dump-tour-button"
+                label={guideButtonLabel}
+                isSecondary={isReplayTutorial}
+              />
+            </TutorialTarget>
           </View>
 
           <FeatureTutorialOverlay
@@ -121,7 +124,9 @@ const BrainDumpScreen = () => {
 
           <BrainDumpRationale />
 
-          <BrainDumpInput onAdd={addItem} />
+          <TutorialTarget targetId="brain-dump-input">
+            <BrainDumpInput onAdd={addItem} />
+          </TutorialTarget>
 
           <BrainDumpGuide showGuide={showGuide} onDismiss={dismissGuide} />
 
@@ -137,12 +142,14 @@ const BrainDumpScreen = () => {
               <Text style={styles.loadingText}>LOADING...</Text>
             </View>
           ) : (
-            <BrainDumpActionBar
-              itemCount={items.length}
-              isSorting={isSorting}
-              onSort={handleAISort}
-              onClear={clearAll}
-            />
+            <TutorialTarget targetId="brain-dump-sort">
+              <BrainDumpActionBar
+                itemCount={items.length}
+                isSorting={isSorting}
+                onSort={handleAISort}
+                onClear={clearAll}
+              />
+            </TutorialTarget>
           )}
 
           {sortingError && (

@@ -143,6 +143,8 @@ describe('TasksScreen', () => {
     render(<TasksScreen />);
 
     expect(screen.getByText('TUTORIAL')).toBeTruthy();
+    expect(screen.getByTestId('tutorial-target-tasks-capture')).toBeTruthy();
+    expect(screen.getByTestId('tutorial-target-tasks-filters')).toBeTruthy();
 
     fireEvent.press(screen.getByTestId('tasks-guide-button'));
 
