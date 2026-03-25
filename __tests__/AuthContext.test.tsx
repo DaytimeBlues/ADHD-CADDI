@@ -1,6 +1,12 @@
 import React from 'react';
 import { Text } from 'react-native';
-import { act, render, screen, waitFor } from '@testing-library/react-native';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react-native';
 import {
   AuthProvider,
   useAuth,
@@ -56,24 +62,24 @@ const AuthProbe = () => {
       <Text testID="auth-is-demo">{String(isDemoSession)}</Text>
       <Text
         testID="auth-enter-guest"
-        onPress={() => {
-          void enterGuestMode();
+        onPress={async () => {
+          await enterGuestMode();
         }}
       >
         ENTER_GUEST
       </Text>
       <Text
         testID="auth-enter-demo"
-        onPress={() => {
-          void enterGuestMode({ seedDemoData: true });
+        onPress={async () => {
+          await enterGuestMode({ seedDemoData: true });
         }}
       >
         ENTER_DEMO
       </Text>
       <Text
         testID="auth-sign-out"
-        onPress={() => {
-          void signOut();
+        onPress={async () => {
+          await signOut();
         }}
       >
         SIGN_OUT
@@ -132,7 +138,7 @@ describe('AuthContext guest session support', () => {
     });
 
     await act(async () => {
-      screen.getByTestId('auth-enter-demo').props.onPress();
+      fireEvent.press(screen.getByTestId('auth-enter-demo'));
     });
 
     expect(mockStartGuestSession).toHaveBeenCalledWith({ seedDemoData: true });
@@ -156,7 +162,7 @@ describe('AuthContext guest session support', () => {
     });
 
     await act(async () => {
-      screen.getByTestId('auth-sign-out').props.onPress();
+      fireEvent.press(screen.getByTestId('auth-sign-out'));
     });
 
     expect(mockClearGuestSession).toHaveBeenCalledTimes(1);
