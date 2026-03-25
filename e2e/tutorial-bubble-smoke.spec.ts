@@ -30,18 +30,34 @@ test.describe('Tutorial And Bubble Smoke', () => {
       page.getByLabel('Brain dump screen').getByText('BRAIN_DUMP'),
     ).toBeVisible();
 
-    await expect(page.getByTestId('tutorial-overlay')).toBeVisible();
-    await expect(page.getByText('Brain Dump: Clear the Noise')).toBeVisible();
+    await expect(
+      page.getByLabel('Brain dump screen').getByTestId('tutorial-overlay'),
+    ).toBeVisible();
+    await expect(
+      page
+        .getByLabel('Brain dump screen')
+        .getByText('Brain Dump: Clear the Noise'),
+    ).toBeVisible();
 
     await page.getByTestId('tutorial-next-button').click();
-    await expect(page.getByText('Capture Everything')).toBeVisible();
+    await expect(
+      page.getByLabel('Brain dump screen').getByText('Capture Everything'),
+    ).toBeVisible();
 
     await page.getByTestId('tutorial-skip-button').click();
-    await expect(page.getByTestId('tutorial-overlay')).not.toBeVisible();
+    await expect(
+      page.getByLabel('Brain dump screen').getByTestId('tutorial-overlay'),
+    ).not.toBeVisible();
 
     await page.getByTestId('brain-dump-tour-button').click();
-    await expect(page.getByTestId('tutorial-overlay')).toBeVisible();
-    await expect(page.getByText('Brain Dump: Clear the Noise')).toBeVisible();
+    await expect(
+      page.getByLabel('Brain dump screen').getByTestId('tutorial-overlay'),
+    ).toBeVisible();
+    await expect(
+      page
+        .getByLabel('Brain dump screen')
+        .getByText('Brain Dump: Clear the Noise'),
+    ).toBeVisible();
   });
 
   test('capture bubble saves a text note and routes into inbox', async ({
@@ -64,5 +80,23 @@ test.describe('Tutorial And Bubble Smoke', () => {
     await page.getByTestId('capture-bubble-badge').click();
     await expect(page.getByTestId('inbox-screen')).toBeVisible();
     await expect(page.getByText('Playwright bubble smoke note')).toBeVisible();
+  });
+
+  test('home replay guide launches tasks guide and keeps bubble out of the way', async ({
+    page,
+  }) => {
+    await expect(page.getByText('REPLAY GUIDE')).toBeVisible();
+    await page.getByTestId('home-tour-button').click();
+
+    await expect(
+      page.getByText('Choose a screen guide to replay.'),
+    ).toBeVisible();
+    await expect(page.getByTestId('capture-bubble')).not.toBeVisible();
+
+    await page.getByTestId('home-guide-option-tasks-onboarding').click();
+    await expect(page.getByLabel('Tasks screen')).toBeVisible();
+    await expect(page.getByTestId('tutorial-overlay')).toBeVisible();
+    await expect(page.getByText('Tasks: See the Work Clearly')).toBeVisible();
+    await expect(page.getByTestId('capture-bubble')).not.toBeVisible();
   });
 });

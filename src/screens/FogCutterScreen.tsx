@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef } from 'react';
-import { Pressable, SafeAreaView, Text, TextInput, View } from 'react-native';
+import { SafeAreaView, Text, TextInput, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import ActivationService from '../services/ActivationService';
 import { ROUTES } from '../navigation/routes';
@@ -14,6 +14,7 @@ import { FogCutterTaskList } from './fog-cutter/FogCutterTaskList';
 import { BackHeader } from '../components/ui/BackHeader';
 import { pushWebPathForRoute } from '../navigation/webPathMap';
 import { TutorialBubble } from '../components/tutorial/TutorialBubble';
+import { FeatureGuideButton } from '../components/tutorial/FeatureGuideButton';
 import { fogCutterOnboardingFlow } from '../store/useTutorialStore';
 import { useFeatureTutorial } from '../hooks/useFeatureTutorial';
 
@@ -47,7 +48,7 @@ const FogCutterScreen = ({ navigation }: FogCutterScreenProps) => {
 
       (navigation ?? stackNavigation).navigate(ROUTES.FOCUS);
     },
-    [navigation],
+    [navigation, stackNavigation],
   );
 
   const {
@@ -122,18 +123,11 @@ const FogCutterScreen = ({ navigation }: FogCutterScreenProps) => {
           <View style={styles.header}>
             <Text style={styles.title}>DECOMPOSITION</Text>
             <View style={styles.headerLine} />
-            <Pressable
+            <FeatureGuideButton
               onPress={() => startTutorial()}
-              accessibilityRole="button"
-              accessibilityLabel="Start fog cutter tutorial"
+              accessibilityLabel="Replay guide for fog cutter"
               testID="fogcutter-tour-button"
-              style={({ pressed }) => [
-                styles.tourButton,
-                pressed && styles.tourButtonPressed,
-              ]}
-            >
-              <Text style={styles.tourButtonText}>TOUR</Text>
-            </Pressable>
+            />
           </View>
 
           {currentTutorialStep && (

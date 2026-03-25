@@ -12,8 +12,13 @@ import React, { memo } from 'react';
 import { CaptureDrawer } from './CaptureDrawer';
 import { CaptureBubbleFab } from './CaptureBubbleFab';
 import { useCaptureBubbleState } from './useCaptureBubbleState';
+import { useTutorialStore } from '../../store/useTutorialStore';
 
 export const CaptureBubble = memo(function CaptureBubble() {
+  const isTutorialVisible = useTutorialStore((state) => state.isVisible);
+  const isGuideMenuVisible = useTutorialStore(
+    (state) => state.isGuideMenuVisible,
+  );
   const {
     drawerOpen,
     bubbleState,
@@ -26,6 +31,10 @@ export const CaptureBubble = memo(function CaptureBubble() {
     handleDrawerClose,
     handleStateChange,
   } = useCaptureBubbleState();
+
+  if (isTutorialVisible || isGuideMenuVisible) {
+    return null;
+  }
 
   return (
     <>

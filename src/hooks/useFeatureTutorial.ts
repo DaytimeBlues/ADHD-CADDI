@@ -18,6 +18,7 @@ export const useFeatureTutorial = (flow?: TutorialFlow | null) => {
   useEffect(() => {
     if (
       !flow ||
+      flow.autoStart === false ||
       !tutorialsEnabled ||
       hasAutoStartedTutorial.current ||
       onboardingCompleted

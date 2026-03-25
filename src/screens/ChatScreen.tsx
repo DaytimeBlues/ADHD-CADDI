@@ -7,17 +7,35 @@ import {
   ScrollView,
   KeyboardAvoidingView,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { CosmicBackground, GlowCard, RuneButton } from '../ui/cosmic';
 import ChatService, { ChatMessage } from '../services/ChatService';
 import { Tokens } from '../theme/tokens';
 import { useTheme } from '../theme/useTheme';
 import { isIOS } from '../utils/PlatformUtils';
+import { BackHeader } from '../components/ui/BackHeader';
+import { ROUTES } from '../navigation/routes';
+import { pushWebPathForRoute } from '../navigation/webPathMap';
+import { TutorialBubble } from '../components/tutorial/TutorialBubble';
+import { FeatureGuideButton } from '../components/tutorial/FeatureGuideButton';
+import { chatOnboardingFlow } from '../store/useTutorialStore';
+import { useFeatureTutorial } from '../hooks/useFeatureTutorial';
 
 const ChatScreen = () => {
+  const navigation = useNavigation();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const scrollViewRef = useRef<ScrollView>(null);
   const { isCosmic } = useTheme();
+  const {
+    currentTutorialStep,
+    currentStepIndex,
+    totalSteps,
+    nextStep,
+    previousStep,
+    skipTutorial,
+    startTutorial,
+  } = useFeatureTutorial(chatOnboardingFlow);
 
   useEffect(() => {
     return ChatService.subscribe((msgs) => {
@@ -51,9 +69,37 @@ const ChatScreen = () => {
         accessibilityLabel="Chat screen"
         accessibilityRole="summary"
       >
+        <BackHeader
+          title="CHAT"
+          fallbackRoute={ROUTES.HOME}
+          onBack={() => {
+            pushWebPathForRoute(ROUTES.HOME);
+            navigation.navigate(ROUTES.HOME as never);
+          }}
+        />
         <View style={styles.header}>
           <Text style={styles.title}>CADDI_ASSISTANT</Text>
+          <FeatureGuideButton
+            onPress={() => startTutorial()}
+            accessibilityLabel="Replay guide for chat"
+            testID="chat-guide-button"
+          />
         </View>
+
+        {currentTutorialStep && (
+          <View style={styles.tutorialOverlay} testID="tutorial-overlay">
+            <TutorialBubble
+              step={currentTutorialStep}
+              stepIndex={currentStepIndex}
+              totalSteps={totalSteps}
+              isFirstStep={currentStepIndex === 0}
+              isLastStep={currentStepIndex === totalSteps - 1}
+              onNext={nextStep}
+              onPrevious={previousStep}
+              onSkip={skipTutorial}
+            />
+          </View>
+        )}
 
         <ScrollView
           ref={scrollViewRef}
@@ -121,12 +167,19 @@ const getStyles = (isCosmic: boolean) =>
       flex: 1,
     },
     header: {
+      paddingHorizontal: Tokens.spacing[4],
       padding: Tokens.spacing[4],
+      flexDirection: 'row',
       alignItems: 'center',
+      justifyContent: 'space-between',
       borderBottomWidth: 1,
       borderBottomColor: isCosmic
         ? 'rgba(139, 92, 246, 0.2)'
         : Tokens.colors.neutral.borderSubtle,
+    },
+    tutorialOverlay: {
+      paddingHorizontal: Tokens.spacing[4],
+      paddingTop: Tokens.spacing[3],
     },
     title: {
       fontFamily: Tokens.type.fontFamily.mono,

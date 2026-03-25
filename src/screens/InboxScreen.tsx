@@ -15,6 +15,8 @@ import CaptureService, {
 } from '../services/CaptureService';
 import { LoggerService } from '../services/LoggerService';
 import { CosmicBackground } from '../ui/cosmic';
+import { TutorialBubble } from '../components/tutorial/TutorialBubble';
+import { FeatureGuideButton } from '../components/tutorial/FeatureGuideButton';
 import {
   CaptureRow,
   CaptureSkeleton,
@@ -23,6 +25,8 @@ import {
 } from './inbox/inboxParts';
 import { styles } from './inbox/inboxStyles';
 import { BackHeader } from '../components/ui/BackHeader';
+import { inboxOnboardingFlow } from '../store/useTutorialStore';
+import { useFeatureTutorial } from '../hooks/useFeatureTutorial';
 
 // ============================================================================
 // SCREEN
@@ -30,6 +34,15 @@ import { BackHeader } from '../components/ui/BackHeader';
 
 const InboxScreen = (): JSX.Element => {
   const { isCosmic } = useTheme();
+  const {
+    currentTutorialStep,
+    currentStepIndex,
+    totalSteps,
+    nextStep,
+    previousStep,
+    skipTutorial,
+    startTutorial,
+  } = useFeatureTutorial(inboxOnboardingFlow);
 
   const [items, setItems] = useState<CaptureItem[]>([]);
   const [activeFilter, setActiveFilter] = useState<FilterTab>('all');
@@ -145,6 +158,31 @@ const InboxScreen = (): JSX.Element => {
       >
         {/* Header */}
         <BackHeader title="CAPTURE INBOX" />
+        <View style={styles.guideRow}>
+          <Text style={[styles.title, isCosmic && styles.titleCosmic]}>
+            REVIEW
+          </Text>
+          <FeatureGuideButton
+            onPress={() => startTutorial()}
+            accessibilityLabel="Replay guide for inbox"
+            testID="inbox-guide-button"
+          />
+        </View>
+
+        {currentTutorialStep && (
+          <View style={styles.tutorialOverlay} testID="tutorial-overlay">
+            <TutorialBubble
+              step={currentTutorialStep}
+              stepIndex={currentStepIndex}
+              totalSteps={totalSteps}
+              isFirstStep={currentStepIndex === 0}
+              isLastStep={currentStepIndex === totalSteps - 1}
+              onNext={nextStep}
+              onPrevious={previousStep}
+              onSkip={skipTutorial}
+            />
+          </View>
+        )}
 
         {/* Filter tabs */}
         <View

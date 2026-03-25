@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView, StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { usePomodoroSession } from '../hooks/usePomodoroSession';
 import { ROUTES } from '../navigation/routes';
@@ -12,6 +12,7 @@ import { PomodoroTimerCard } from './pomodoro/PomodoroTimerCard';
 import { BackHeader } from '../components/ui/BackHeader';
 import { pushWebPathForRoute } from '../navigation/webPathMap';
 import { TutorialBubble } from '../components/tutorial/TutorialBubble';
+import { FeatureGuideButton } from '../components/tutorial/FeatureGuideButton';
 import { pomodoroOnboardingFlow } from '../store/useTutorialStore';
 import { useFeatureTutorial } from '../hooks/useFeatureTutorial';
 
@@ -57,18 +58,11 @@ const PomodoroScreen = () => {
           />
           <View style={styles.headerRow}>
             <PomodoroHeader isCosmic={isCosmic} isWorking={isWorking} />
-            <Pressable
+            <FeatureGuideButton
               onPress={() => startTutorial()}
-              accessibilityRole="button"
-              accessibilityLabel="Start pomodoro tutorial"
+              accessibilityLabel="Replay guide for pomodoro"
               testID="pomodoro-tour-button"
-              style={({ pressed }) => [
-                styles.tourButton,
-                pressed && styles.tourButtonPressed,
-              ]}
-            >
-              <Text style={styles.tourButtonText}>TOUR</Text>
-            </Pressable>
+            />
           </View>
 
           {currentTutorialStep && (
@@ -128,24 +122,6 @@ const getStyles = () =>
       justifyContent: 'space-between',
       width: '100%',
       marginBottom: Tokens.spacing[4],
-    },
-    tourButton: {
-      paddingHorizontal: Tokens.spacing[3],
-      paddingVertical: Tokens.spacing[2],
-      borderRadius: Tokens.radii.md,
-      backgroundColor: 'rgba(139, 92, 246, 0.15)',
-      borderWidth: 1,
-      borderColor: 'rgba(139, 92, 246, 0.3)',
-    },
-    tourButtonPressed: {
-      opacity: 0.7,
-    },
-    tourButtonText: {
-      fontFamily: Tokens.type.fontFamily.mono,
-      fontSize: Tokens.type.xs,
-      fontWeight: '700',
-      color: '#8B5CF6',
-      letterSpacing: 1,
     },
     tutorialOverlay: {
       width: '100%',

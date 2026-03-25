@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Pressable, SafeAreaView, ScrollView, Text, View } from 'react-native';
+import { SafeAreaView, ScrollView, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { CosmicBackground, GlowCard, RuneButton } from '../ui/cosmic';
 import { EvidenceBadge } from '../components/ui/EvidenceBadge';
@@ -19,6 +19,7 @@ import {
 } from './check-in/checkInData';
 import { CheckInOptionGroup } from './check-in/CheckInOptionGroup';
 import { TutorialBubble } from '../components/tutorial/TutorialBubble';
+import { FeatureGuideButton } from '../components/tutorial/FeatureGuideButton';
 import { checkInOnboardingFlow } from '../store/useTutorialStore';
 import { useFeatureTutorial } from '../hooks/useFeatureTutorial';
 
@@ -144,18 +145,11 @@ const CheckInScreen = ({ navigation }: { navigation?: CheckInNavigation }) => {
               <Text style={styles.subtitle} testID="checkin-subtitle">
                 HOW ARE YOU FEELING RIGHT NOW?
               </Text>
-              <Pressable
+              <FeatureGuideButton
                 onPress={() => startTutorial()}
-                accessibilityRole="button"
-                accessibilityLabel="Start check-in tutorial"
+                accessibilityLabel="Replay guide for check-in"
                 testID="checkin-tour-button"
-                style={({ pressed }) => [
-                  styles.tourButton,
-                  pressed && styles.tourButtonPressed,
-                ]}
-              >
-                <Text style={styles.tourButtonText}>TOUR</Text>
-              </Pressable>
+              />
             </View>
 
             {currentTutorialStep && (

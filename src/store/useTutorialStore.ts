@@ -26,6 +26,7 @@ export interface TutorialFlow {
   id: string;
   name: string;
   steps: TutorialStep[];
+  autoStart?: boolean;
 }
 
 /**
@@ -67,7 +68,7 @@ export const brainDumpOnboardingFlow: TutorialFlow = {
       title: "You're Ready",
       whyText: 'Progress, not perfection. Even capturing one thought is a win.',
       howText:
-        'Start dumping whenever your mind feels cluttered. Use the TOUR button here anytime you want to replay this guide.',
+        'Start dumping whenever your mind feels cluttered. Use Replay Guide here anytime you want to see this guide again.',
       iconName: 'check-circle',
     },
   ],
@@ -113,7 +114,7 @@ export const anchorOnboardingFlow: TutorialFlow = {
       whyText:
         'Even one session resets your baseline. Consistency beats intensity.',
       howText:
-        'Use Anchor whenever you feel scattered or overwhelmed. Replay this tour with the TOUR button.',
+        'Use Anchor whenever you feel scattered or overwhelmed. Use Replay Guide whenever you want to review these steps again.',
       iconName: 'check-circle',
     },
   ],
@@ -159,7 +160,7 @@ export const pomodoroOnboardingFlow: TutorialFlow = {
       whyText:
         "Four focused sessions is a solid day. Don't guilt yourself if you need more breaks.",
       howText:
-        'Replay this tour anytime with the TOUR button. Track your sessions in your weekly metrics.',
+        'Use Replay Guide anytime you want to review how this screen works. Track your sessions in your weekly metrics.',
       iconName: 'check-circle',
     },
   ],
@@ -205,7 +206,7 @@ export const fogCutterOnboardingFlow: TutorialFlow = {
       whyText:
         'A task that felt impossible is now a checklist. Progress is momentum.',
       howText:
-        'Use Fog Cutter whenever a task feels too big. Replay with the TOUR button.',
+        'Use Fog Cutter whenever a task feels too big. Use Replay Guide if you want to walk through this screen again.',
       iconName: 'check-circle',
     },
   ],
@@ -257,7 +258,114 @@ export const checkInOnboardingFlow: TutorialFlow = {
   ],
 };
 
+export const inboxOnboardingFlow: TutorialFlow = {
+  id: 'inbox-onboarding',
+  name: 'Capture Inbox Introduction',
+  autoStart: false,
+  steps: [
+    {
+      id: 'inbox-purpose',
+      title: 'Inbox: Review Captured Items',
+      whyText:
+        'Quick capture is only useful if you can process it later without losing anything important.',
+      howText:
+        'This screen holds captured notes until you decide whether each one should become a task, note, or be discarded.',
+      iconName: 'inbox-arrow-down',
+    },
+    {
+      id: 'inbox-filters',
+      title: 'Filter by Status',
+      whyText:
+        'Separating unreviewed, promoted, and discarded items reduces clutter and helps you focus on the next decision.',
+      howText:
+        'Use the tabs to narrow the list when you only want to review fresh captures or check what you already processed.',
+      iconName: 'filter-variant',
+    },
+    {
+      id: 'inbox-actions',
+      title: 'Choose the Next Home',
+      whyText:
+        'ADHD-friendly capture works best when the review step is short and decisive.',
+      howText:
+        'For each item, send it to Task, keep it as a Note, or discard it if it is no longer useful.',
+      iconName: 'check-circle',
+    },
+  ],
+};
+
+export const chatOnboardingFlow: TutorialFlow = {
+  id: 'chat-onboarding',
+  name: 'Chat Guide',
+  autoStart: false,
+  steps: [
+    {
+      id: 'chat-purpose',
+      title: 'Chat: Ask for a Next Step',
+      whyText:
+        'When your brain is stuck, a short back-and-forth can reduce the effort needed to decide what to do next.',
+      howText:
+        'Use this screen to ask for help reframing, clarifying, or reducing a task into something more doable.',
+      iconName: 'message-text-outline',
+    },
+    {
+      id: 'chat-thread',
+      title: 'Keep the Thread Focused',
+      whyText:
+        'Short, focused prompts reduce overwhelm and make the response easier to act on.',
+      howText:
+        'Read the conversation area from top to bottom. Keep each question narrow so the answer stays useful.',
+      iconName: 'format-list-bulleted',
+    },
+    {
+      id: 'chat-compose',
+      title: 'Send One Clear Prompt',
+      whyText:
+        'A single clear prompt is easier to answer well than a long tangled paragraph.',
+      howText:
+        'Type what you are stuck on, then press Send. If needed, follow up with one more question rather than rewriting everything.',
+      iconName: 'send',
+    },
+  ],
+};
+
+export const tasksOnboardingFlow: TutorialFlow = {
+  id: 'tasks-onboarding',
+  name: 'Tasks Guide',
+  autoStart: false,
+  steps: [
+    {
+      id: 'tasks-purpose',
+      title: 'Tasks: See the Work Clearly',
+      whyText:
+        'A visible task list lowers cognitive load because you do not have to keep everything in working memory.',
+      howText:
+        'Use this screen to capture tasks, review active work, and keep completed items from mixing with what still needs attention.',
+      iconName: 'text-box-outline',
+    },
+    {
+      id: 'tasks-add',
+      title: 'Add the Next Task Fast',
+      whyText:
+        'The faster you can write a task down, the less likely it is to disappear while you are trying to stay focused.',
+      howText:
+        'Type a short task into the input and add it immediately. Keep it concrete enough that you can imagine starting it.',
+      iconName: 'plus-circle',
+    },
+    {
+      id: 'tasks-review',
+      title: 'Review by Status',
+      whyText:
+        'Switching between all, active, and done helps you narrow attention to what matters right now.',
+      howText:
+        'Use the stats and filter tabs to scan the list, then complete or delete items to keep the queue current.',
+      iconName: 'check-circle',
+    },
+  ],
+};
+
 interface TutorialState {
+  /** Whether the guide selection modal is visible */
+  isGuideMenuVisible: boolean;
   /** Global setting for whether first-run guided tutorials should auto-show */
   tutorialsEnabled: boolean;
   // Persistence state
@@ -278,6 +386,7 @@ interface TutorialState {
 
   // Actions
   startTutorial: (flow: TutorialFlow) => void;
+  setGuideMenuVisible: (visible: boolean) => void;
   setTutorialsEnabled: (enabled: boolean) => void;
   nextStep: () => void;
   previousStep: () => void;
@@ -300,6 +409,7 @@ export const useTutorialStore = create<TutorialState>()(
       activeFlow: null,
       currentStepIndex: 0,
       isVisible: false,
+      isGuideMenuVisible: false,
 
       startTutorial: (flow: TutorialFlow) => {
         UXMetricsService.track('tutorial_started', {
@@ -312,7 +422,12 @@ export const useTutorialStore = create<TutorialState>()(
           activeFlow: flow,
           currentStepIndex: 0,
           isVisible: true,
+          isGuideMenuVisible: false,
         });
+      },
+
+      setGuideMenuVisible: (visible: boolean) => {
+        set({ isGuideMenuVisible: visible });
       },
 
       setTutorialsEnabled: (enabled: boolean) => {
@@ -368,6 +483,7 @@ export const useTutorialStore = create<TutorialState>()(
 
         set({
           isVisible: false,
+          isGuideMenuVisible: false,
           activeFlow: null,
           currentStepIndex: 0,
           onboardingCompleted: true,
@@ -393,6 +509,7 @@ export const useTutorialStore = create<TutorialState>()(
 
         set({
           isVisible: false,
+          isGuideMenuVisible: false,
           activeFlow: null,
           currentStepIndex: 0,
           onboardingCompleted: true,
@@ -410,6 +527,7 @@ export const useTutorialStore = create<TutorialState>()(
           completedFlows: [],
           lastTutorialAt: null,
           isVisible: false,
+          isGuideMenuVisible: false,
           activeFlow: null,
           currentStepIndex: 0,
         });

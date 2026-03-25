@@ -1,22 +1,24 @@
-# Brain Dump Tutorial Guide
+# Guided Tutorial Guide
 
-This guide explains how the Brain Dump tutorial works in the app and how to
-verify it during development.
+This guide explains how the shared guided tutorial system works in the app and
+how to verify it during development.
 
-## What The Tutorial Does
+## What The Tutorial System Does
 
-The tutorial is a short onboarding flow for the Brain Dump screen. It explains:
+Each guided flow is a short step-by-step overlay for a supported screen. It
+explains:
 
-- why Brain Dump exists,
-- how to capture thoughts quickly,
-- when to use AI sorting,
+- why the screen exists,
+- what the most important controls do,
+- how to use the screen effectively,
 - and how to replay the guide later.
 
 ## User Behavior
 
-- The tutorial opens automatically the first time a user visits Brain Dump.
-- The tutorial can be replayed at any time with the `TOUR` button in the
-  Brain Dump header.
+- Guided tutorials open automatically the first time a user visits a supported
+  screen, as long as `Show guided tutorials` is enabled in Diagnostics.
+- Guides can be replayed at any time with the `Replay Guide` action on a
+  supported screen or from the Home replay-guide chooser.
 - `Next` advances through the steps.
 - `Previous` moves back one step.
 - `Skip Tutorial` dismisses the flow and marks onboarding as complete.
@@ -26,24 +28,39 @@ The tutorial is a short onboarding flow for the Brain Dump screen. It explains:
 
 - Tutorial progress is persisted in the Zustand store key
   `spark-tutorial-storage`.
-- The Brain Dump tutorial flow id is `brain-dump-onboarding`.
+- The global tutorial setting is stored alongside flow completion state.
+- Current supported flows include:
+  - `brain-dump-onboarding`
+  - `anchor-onboarding`
+  - `pomodoro-onboarding`
+  - `fog-cutter-onboarding`
+  - `check-in-onboarding`
+  - `inbox-onboarding`
+  - `chat-onboarding`
+  - `tasks-onboarding`
 
 ## QA Checklist
 
-1. Launch the app and open the `TASKS` tab.
-2. Confirm the tutorial overlay appears automatically.
+1. Launch the app and open a supported screen such as Brain Dump, Tasks, or
+   Chat.
+2. Confirm the tutorial overlay appears automatically when guided tutorials are
+   enabled.
 3. Click `Next` and verify the step title changes.
 4. Click `Previous` and verify the earlier step returns.
 5. Click `Skip Tutorial` and confirm the overlay closes.
-6. Click the `TOUR` button and confirm the tutorial reopens.
+6. Click `Replay Guide` and confirm the guide reopens.
 7. Finish the tutorial and reload the page.
-8. Confirm the tutorial does not auto-open after completion.
+8. Confirm the guide does not auto-open after completion.
+9. Open Diagnostics and disable `Show guided tutorials`.
+10. Revisit a supported screen and confirm the guide does not auto-open, while
+    manual replay still works.
 
 ## E2E Coverage
 
 The Playwright smoke coverage for this feature should validate:
 
 - first-run tutorial visibility,
-- replay via the `TOUR` button,
+- replay via `Replay Guide`,
 - step navigation,
+- bubble suppression while a guide overlay is visible,
 - and a successful capture bubble save flow into Inbox.

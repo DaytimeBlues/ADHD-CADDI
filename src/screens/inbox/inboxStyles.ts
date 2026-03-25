@@ -57,6 +57,14 @@ export const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: Tokens.colors.neutral.borderSubtle,
   },
+  guideRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Tokens.spacing[4],
+    paddingTop: Tokens.spacing[2],
+    paddingBottom: Tokens.spacing[3],
+  },
   headerCosmic: {
     borderBottomColor: 'rgba(185, 194, 217, 0.12)',
   },
@@ -95,6 +103,10 @@ export const styles = StyleSheet.create({
         textShadow: '0 0 16px rgba(139, 92, 246, 0.3)',
       } as object,
     }),
+  },
+  tutorialOverlay: {
+    paddingHorizontal: Tokens.spacing[4],
+    paddingBottom: Tokens.spacing[3],
   },
   tabs: {
     flexDirection: 'row',

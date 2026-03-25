@@ -16,7 +16,11 @@ import { FilterTab } from './TasksScreen.FilterTab';
 import { getTasksScreenStyles } from './TasksScreen.styles';
 import { TaskItem } from './TasksScreen.TaskItem';
 import { BackHeader } from '../components/ui/BackHeader';
+import { FeatureGuideButton } from '../components/tutorial/FeatureGuideButton';
+import { TutorialBubble } from '../components/tutorial/TutorialBubble';
 import { useTheme } from '../theme/useTheme';
+import { tasksOnboardingFlow } from '../store/useTutorialStore';
+import { useFeatureTutorial } from '../hooks/useFeatureTutorial';
 import {
   BrainDumpInput,
   BrainDumpItem,
@@ -28,6 +32,15 @@ export const TasksScreen = memo(function TasksScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const { isNightAwe, t, variant } = useTheme();
+  const {
+    currentTutorialStep,
+    currentStepIndex,
+    totalSteps,
+    nextStep,
+    previousStep,
+    skipTutorial,
+    startTutorial,
+  } = useFeatureTutorial(tasksOnboardingFlow);
   const {
     items: dumpItems,
     addItem: addDumpItem,
@@ -97,6 +110,11 @@ export const TasksScreen = memo(function TasksScreen() {
 
   const utilityActions = isNightAwe ? (
     <View style={styles.headerActions}>
+      <FeatureGuideButton
+        onPress={() => startTutorial()}
+        accessibilityLabel="Replay guide for tasks"
+        testID="tasks-guide-button"
+      />
       <Pressable
         onPress={handleSync}
         accessibilityRole="button"
@@ -125,6 +143,11 @@ export const TasksScreen = memo(function TasksScreen() {
     </View>
   ) : (
     <View style={styles.headerActions}>
+      <FeatureGuideButton
+        onPress={() => startTutorial()}
+        accessibilityLabel="Replay guide for tasks"
+        testID="tasks-guide-button"
+      />
       <RuneButton
         variant="secondary"
         size="sm"
@@ -157,6 +180,21 @@ export const TasksScreen = memo(function TasksScreen() {
 
         {utilityActions}
       </View>
+
+      {currentTutorialStep && (
+        <View style={styles.tutorialOverlay} testID="tutorial-overlay">
+          <TutorialBubble
+            step={currentTutorialStep}
+            stepIndex={currentStepIndex}
+            totalSteps={totalSteps}
+            isFirstStep={currentStepIndex === 0}
+            isLastStep={currentStepIndex === totalSteps - 1}
+            onNext={nextStep}
+            onPrevious={previousStep}
+            onSkip={skipTutorial}
+          />
+        </View>
+      )}
 
       <ScrollView
         style={styles.scrollView}

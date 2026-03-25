@@ -43,8 +43,10 @@ import { HomeModesGrid } from './home/HomeModesGrid';
 import {
   anchorOnboardingFlow,
   brainDumpOnboardingFlow,
+  chatOnboardingFlow,
   checkInOnboardingFlow,
   fogCutterOnboardingFlow,
+  tasksOnboardingFlow,
   pomodoroOnboardingFlow,
   useTutorialStore,
   TutorialFlow,
@@ -66,7 +68,6 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
   const { isNightAwe, t, variant } = useTheme();
   const { isGuestSession, isDemoSession, loadDemoData, signOut } = useAuth();
   const [streak, setStreak] = useState(0);
-  const [showTutorialModal, setShowTutorialModal] = useState(false);
 
   const {
     isOverlayEnabled,
@@ -93,11 +94,19 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
   const prefersReducedMotion = useReducedMotion();
 
   const startTutorial = useTutorialStore((state) => state.startTutorial);
+  const showTutorialModal = useTutorialStore(
+    (state) => state.isGuideMenuVisible,
+  );
+  const setGuideMenuVisible = useTutorialStore(
+    (state) => state.setGuideMenuVisible,
+  );
 
   const tutorialFlows: { flow: TutorialFlow; name: string; icon: string }[] = [
     { flow: brainDumpOnboardingFlow, name: 'Brain Dump', icon: 'brain' },
     { flow: anchorOnboardingFlow, name: 'Anchor', icon: 'anchor' },
     { flow: pomodoroOnboardingFlow, name: 'Pomodoro', icon: 'timer-sand' },
+    { flow: tasksOnboardingFlow, name: 'Tasks', icon: 'text-box-outline' },
+    { flow: chatOnboardingFlow, name: 'Chat', icon: 'message-text-outline' },
     {
       flow: fogCutterOnboardingFlow,
       name: 'Fog Cutter',
@@ -108,11 +117,17 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
 
   const handleStartTutorial = (flow: TutorialFlow) => {
     startTutorial(flow);
-    setShowTutorialModal(false);
+    setGuideMenuVisible(false);
     // Navigate to the appropriate screen
     switch (flow.id) {
       case 'brain-dump-onboarding':
         navigation.navigate(ROUTES.TASKS);
+        break;
+      case 'tasks-onboarding':
+        navigation.navigate(ROUTES.TASKS);
+        break;
+      case 'chat-onboarding':
+        navigation.navigate(ROUTES.CHAT);
         break;
       case 'anchor-onboarding':
         navigation.navigate(ROUTES.ANCHOR);
@@ -315,12 +330,12 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
                 <Text style={styles.feedbackButtonText}>FEEDBACK</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => setShowTutorialModal(true)}
+                onPress={() => setGuideMenuVisible(true)}
                 style={styles.feedbackButton}
                 accessibilityLabel="View feature tutorials"
                 testID="home-tour-button"
               >
-                <Text style={styles.feedbackButtonText}>TOUR</Text>
+                <Text style={styles.feedbackButtonText}>REPLAY GUIDE</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => navigateByRouteName(ROUTES.DIAGNOSTICS)}
@@ -465,17 +480,18 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
         visible={showTutorialModal}
         transparent
         animationType="fade"
-        onRequestClose={() => setShowTutorialModal(false)}
+        onRequestClose={() => setGuideMenuVisible(false)}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>FEATURE TOURS</Text>
+            <Text style={styles.modalTitle}>REPLAY GUIDES</Text>
             <Text style={styles.modalSubtitle}>
-              Replay the tutorial for any feature
+              Choose a screen guide to replay.
             </Text>
             {tutorialFlows.map(({ flow, name, icon }) => (
               <Pressable
                 key={flow.id}
+                testID={`home-guide-option-${flow.id}`}
                 style={({ pressed }) => [
                   styles.tutorialOption,
                   pressed && styles.tutorialOptionPressed,
@@ -491,7 +507,7 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
                 styles.modalCloseButton,
                 pressed && styles.modalCloseButtonPressed,
               ]}
-              onPress={() => setShowTutorialModal(false)}
+              onPress={() => setGuideMenuVisible(false)}
             >
               <Text style={styles.modalCloseText}>CLOSE</Text>
             </Pressable>

@@ -24,10 +24,12 @@ import {
   IntegrationPanel,
 } from '../components/brain-dump';
 import { TutorialBubble } from '../components/tutorial/TutorialBubble';
+import { FeatureGuideButton } from '../components/tutorial/FeatureGuideButton';
 import { BackHeader } from '../components/ui/BackHeader';
 import useBrainDump from '../hooks/useBrainDump';
+import { brainDumpOnboardingFlow } from '../store/useTutorialStore';
+import { useFeatureTutorial } from '../hooks/useFeatureTutorial';
 import { useTaskStore } from '../store/useTaskStore';
-import useBrainDumpTutorial from './brain-dump/useBrainDumpTutorial';
 import { getBrainDumpStyles } from './brain-dump/brainDumpStyles';
 import { BrainDumpSortedSection } from './brain-dump/BrainDumpSortedSection';
 
@@ -53,7 +55,6 @@ const BrainDumpScreen = () => {
     [storeTasks],
   );
   const {
-    brainDumpOnboardingFlow,
     currentTutorialStep,
     currentStepIndex,
     totalSteps,
@@ -61,7 +62,7 @@ const BrainDumpScreen = () => {
     previousStep,
     skipTutorial,
     startTutorial,
-  } = useBrainDumpTutorial();
+  } = useFeatureTutorial(brainDumpOnboardingFlow);
 
   const {
     items,
@@ -97,18 +98,11 @@ const BrainDumpScreen = () => {
           <View style={styles.header}>
             <Text style={styles.title}>CAPTURE_SYSTEM</Text>
             <View style={styles.headerLine} />
-            <Pressable
-              onPress={() => startTutorial(brainDumpOnboardingFlow)}
-              accessibilityRole="button"
-              accessibilityLabel="Start brain dump tutorial"
+            <FeatureGuideButton
+              onPress={() => startTutorial()}
+              accessibilityLabel="Replay guide for brain dump"
               testID="brain-dump-tour-button"
-              style={({ pressed }) => [
-                styles.tourButton,
-                pressed && styles.tourButtonPressed,
-              ]}
-            >
-              <Text style={styles.tourButtonText}>TOUR</Text>
-            </Pressable>
+            />
           </View>
 
           {currentTutorialStep && (

@@ -68,6 +68,21 @@ const skipTutorial = () => {
   tutorialState.onboardingCompleted = true;
 };
 
+jest.mock('../src/hooks/useFeatureTutorial', () => ({
+  useFeatureTutorial: () => ({
+    currentTutorialStep:
+      tutorialState.isVisible && tutorialState.activeFlow
+        ? tutorialState.activeFlow.steps[tutorialState.currentStepIndex] ?? null
+        : null,
+    currentStepIndex: tutorialState.currentStepIndex,
+    totalSteps: tutorialState.activeFlow?.steps.length ?? 0,
+    nextStep,
+    previousStep,
+    skipTutorial,
+    startTutorial: () => startTutorial(mockBrainDumpFlow),
+  }),
+}));
+
 jest.mock('@react-navigation/native', () => ({
   __esModule: true,
   useRoute: () => ({ params: {} }),

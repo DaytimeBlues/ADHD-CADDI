@@ -36,6 +36,7 @@
 
 - [ ] TASKS header visible
 - [ ] NEBULA QUEUE subtitle visible
+- [ ] Replay Guide button visible
 - [ ] Task list displays
 - [ ] Add new task
 - [ ] Toggle task completion
@@ -49,6 +50,7 @@
 #### BrainDumpScreen (separate route opened from TasksScreen)
 
 - [ ] BRAIN_DUMP header visible
+- [ ] Replay Guide button visible
 - [ ] Text input for new items
 - [ ] Add item via Enter key
 - [ ] Voice recording toggle
@@ -71,6 +73,7 @@
 #### ChatScreen
 
 - [ ] CADDI_ASSISTANT header visible
+- [ ] Replay Guide button visible
 - [ ] Message input field
 - [ ] Send button
 - [ ] Message history display
@@ -80,6 +83,7 @@
 #### FogCutterScreen
 
 - [ ] FOG_CUTTER header visible
+- [ ] Replay Guide button visible
 - [ ] Task input field
 - [ ] Micro-step input
 - [ ] Add micro-step button
@@ -89,6 +93,7 @@
 
 #### PomodoroScreen
 
+- [ ] Replay Guide button visible
 - [ ] START TIMER button
 - [ ] PAUSE button (after start)
 - [ ] Timer display decrements
@@ -99,6 +104,7 @@
 #### AnchorScreen
 
 - [ ] BREATHING EXERCISES header
+- [ ] Replay Guide button visible
 - [ ] Pattern selection (4-7-8, Box, Energize)
 - [ ] BREATHE IN animation
 - [ ] HOLD animation
@@ -107,6 +113,7 @@
 #### CheckInScreen
 
 - [ ] HOW ARE YOU FEELING RIGHT NOW? header
+- [ ] Replay Guide button visible
 - [ ] Mood selection (1-5 options)
 - [ ] Energy selection (1-5 options)
 - [ ] RECOMMENDED FOR YOU display
@@ -122,6 +129,7 @@
 #### InboxScreen
 
 - [ ] INBOX header visible
+- [ ] Replay Guide button visible
 - [ ] Unreviewed items list
 - [ ] Promote to task button
 - [ ] Discard button
@@ -138,6 +146,22 @@
 - [ ] Meeting mode accepts multi-line
 - [ ] Cancel closes drawer without saving
 - [ ] Bubble hidden on fullscreen modals
+- [ ] Bubble hidden while guided tutorial overlays are visible
+- [ ] Bubble hidden while the Home replay-guide menu is visible
+
+### Guided Tutorial Features
+
+- [ ] Guided tutorials setting visible in Diagnostics
+- [ ] Guided tutorials can be disabled globally
+- [ ] Tutorial progress can be reset from Diagnostics
+- [ ] Brain Dump guide auto-starts on first visit
+- [ ] Tasks guide is replay-only by default
+- [ ] Chat guide is replay-only by default
+- [ ] Inbox guide is replay-only by default
+- [ ] Home replay-guide menu lists supported screens
+- [ ] Replay Guide launches the expected flow
+- [ ] Skipping a guide dismisses it cleanly
+- [ ] Completing a guide prevents auto-start on the same flow
 
 ### Integration Features (NEW)
 
