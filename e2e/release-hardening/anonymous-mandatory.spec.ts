@@ -114,7 +114,9 @@ test.describe('Release hardening anonymous mandatory @release @smoke', () => {
   }) => {
     await gotoAnonymousAppShell(page, APP_ROUTES.anchor);
 
-    await expect(page.getByText('ANCHOR')).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /Anchor: Find Your Breath/i }),
+    ).toBeVisible();
     await page.getByTestId('anchor-pattern-box').click();
     await expect(page.getByText('BOX BREATHING')).toBeVisible();
     await expect(page.getByText('BREATHE IN', { exact: true })).toBeVisible();

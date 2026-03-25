@@ -62,9 +62,15 @@ npx tsc --noEmit
 # Browser smoke test
 npm run e2e:smoke
 
+# Opportunistic authenticated browser check
+# Skips cleanly unless a real Playwright auth storage state already exists
+npm run e2e:auth
+
 # Lightweight admin checks
 npm run admin:check
 ```
+
+`npm run admin:check` may warn about missing Google client IDs. That warning is expected on machines where optional Google-backed features have not been configured yet.
 
 ### Deploying
 

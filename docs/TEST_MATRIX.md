@@ -1,6 +1,8 @@
 # ADHD-CADDI Test Matrix
 
 > Current stance: the browser/web workflow is the primary verified path, and the shipped web app is web-first and online-first. Offline/PWA support is intentionally disabled; treat service-worker-driven offline behavior as out of scope unless a dedicated pass re-enables it.
+>
+> Integration note: Google Tasks and Todoist UI entry points ship in the Brain Dump flow, but live OAuth coverage is config-dependent. Authenticated browser coverage is opportunistic and only runs when a real Playwright storage state already exists.
 
 ## Page/Button Inventory
 
@@ -59,9 +61,9 @@
 - [ ] Delete individual items
 - [ ] Items persist across reload
 - [ ] Items persist across tab navigation
-- [ ] Google OAuth connect button (NEW)
-- [ ] Todoist sync button (NEW)
-- [ ] Integration status indicators (NEW)
+- [ ] Google Tasks connect button visible
+- [ ] Todoist connect button visible
+- [ ] Integration status indicators visible
 
 #### CalendarScreen
 
@@ -163,15 +165,15 @@
 - [ ] Skipping a guide dismisses it cleanly
 - [ ] Completing a guide prevents auto-start on the same flow
 
-### Integration Features (NEW)
+### Integration Features (Config-dependent)
 
 #### Google OAuth
 
 - [ ] Connect Google button visible in task pages
-- [ ] OAuth flow initiates
+- [ ] OAuth flow initiates when Google client IDs are configured
 - [ ] Success callback handled
 - [ ] Token stored securely
-- [ ] User email displayed
+- [ ] User email displayed after connection
 - [ ] Disconnect option
 - [ ] Token refresh on expiry
 - [ ] Error states: denied, network, timeout
@@ -185,6 +187,7 @@
 - [ ] Two-way sync status
 - [ ] Disconnect option
 - [ ] Error handling
+- [ ] Graceful degraded state when Todoist is not connected
 
 ## Test Tags
 
@@ -205,8 +208,8 @@
 - Task CRUD operations
 - Timer functionality
 - Data persistence
-- OAuth connection flows
-- Todoist sync
+- Anonymous auth entry path
+- Disconnected optional integrations do not block launch
 
 ### @smoke (quick validation)
 
@@ -225,7 +228,7 @@
 
 ### @oauth (Google integration)
 
-- Sign-in flow
+- Sign-in flow when client IDs are configured
 - Token management
 - Refresh logic
 - Error states
@@ -236,6 +239,7 @@
 - Task export
 - Sync status
 - Error handling
+- Disconnected/degraded fallback state
 
 ### @android (native specific)
 
