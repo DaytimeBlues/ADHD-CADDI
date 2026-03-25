@@ -16,8 +16,8 @@ import { isIOS } from '../utils/PlatformUtils';
 import { BackHeader } from '../components/ui/BackHeader';
 import { ROUTES } from '../navigation/routes';
 import { pushWebPathForRoute } from '../navigation/webPathMap';
-import { TutorialBubble } from '../components/tutorial/TutorialBubble';
 import { FeatureGuideButton } from '../components/tutorial/FeatureGuideButton';
+import { FeatureTutorialOverlay } from '../components/tutorial/FeatureTutorialOverlay';
 import { chatOnboardingFlow } from '../store/useTutorialStore';
 import { useFeatureTutorial } from '../hooks/useFeatureTutorial';
 
@@ -86,20 +86,15 @@ const ChatScreen = () => {
           />
         </View>
 
-        {currentTutorialStep && (
-          <View style={styles.tutorialOverlay} testID="tutorial-overlay">
-            <TutorialBubble
-              step={currentTutorialStep}
-              stepIndex={currentStepIndex}
-              totalSteps={totalSteps}
-              isFirstStep={currentStepIndex === 0}
-              isLastStep={currentStepIndex === totalSteps - 1}
-              onNext={nextStep}
-              onPrevious={previousStep}
-              onSkip={skipTutorial}
-            />
-          </View>
-        )}
+        <FeatureTutorialOverlay
+          currentTutorialStep={currentTutorialStep}
+          currentStepIndex={currentStepIndex}
+          totalSteps={totalSteps}
+          onNext={nextStep}
+          onPrevious={previousStep}
+          onSkip={skipTutorial}
+          style={styles.tutorialOverlay}
+        />
 
         <ScrollView
           ref={scrollViewRef}

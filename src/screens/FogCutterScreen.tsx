@@ -13,8 +13,8 @@ import { FogCutterTaskComposer } from './fog-cutter/FogCutterTaskComposer';
 import { FogCutterTaskList } from './fog-cutter/FogCutterTaskList';
 import { BackHeader } from '../components/ui/BackHeader';
 import { pushWebPathForRoute } from '../navigation/webPathMap';
-import { TutorialBubble } from '../components/tutorial/TutorialBubble';
 import { FeatureGuideButton } from '../components/tutorial/FeatureGuideButton';
+import { FeatureTutorialOverlay } from '../components/tutorial/FeatureTutorialOverlay';
 import { fogCutterOnboardingFlow } from '../store/useTutorialStore';
 import { useFeatureTutorial } from '../hooks/useFeatureTutorial';
 
@@ -130,20 +130,15 @@ const FogCutterScreen = ({ navigation }: FogCutterScreenProps) => {
             />
           </View>
 
-          {currentTutorialStep && (
-            <View style={styles.tutorialOverlay} testID="tutorial-overlay">
-              <TutorialBubble
-                step={currentTutorialStep}
-                stepIndex={currentStepIndex}
-                totalSteps={totalSteps}
-                isFirstStep={currentStepIndex === 0}
-                isLastStep={currentStepIndex === totalSteps - 1}
-                onNext={nextStep}
-                onPrevious={previousStep}
-                onSkip={skipTutorial}
-              />
-            </View>
-          )}
+          <FeatureTutorialOverlay
+            currentTutorialStep={currentTutorialStep}
+            currentStepIndex={currentStepIndex}
+            totalSteps={totalSteps}
+            onNext={nextStep}
+            onPrevious={previousStep}
+            onSkip={skipTutorial}
+            style={styles.tutorialOverlay}
+          />
 
           <FogCutterTaskComposer
             focusedInput={focusedInput}

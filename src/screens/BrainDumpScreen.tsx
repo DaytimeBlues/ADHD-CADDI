@@ -23,8 +23,8 @@ import {
   BrainDumpVoiceRecord,
   IntegrationPanel,
 } from '../components/brain-dump';
-import { TutorialBubble } from '../components/tutorial/TutorialBubble';
 import { FeatureGuideButton } from '../components/tutorial/FeatureGuideButton';
+import { FeatureTutorialOverlay } from '../components/tutorial/FeatureTutorialOverlay';
 import { BackHeader } from '../components/ui/BackHeader';
 import useBrainDump from '../hooks/useBrainDump';
 import { brainDumpOnboardingFlow } from '../store/useTutorialStore';
@@ -105,20 +105,15 @@ const BrainDumpScreen = () => {
             />
           </View>
 
-          {currentTutorialStep && (
-            <View style={styles.tutorialOverlay} testID="tutorial-overlay">
-              <TutorialBubble
-                step={currentTutorialStep}
-                stepIndex={currentStepIndex}
-                totalSteps={totalSteps}
-                isFirstStep={currentStepIndex === 0}
-                isLastStep={currentStepIndex === totalSteps - 1}
-                onNext={nextStep}
-                onPrevious={previousStep}
-                onSkip={skipTutorial}
-              />
-            </View>
-          )}
+          <FeatureTutorialOverlay
+            currentTutorialStep={currentTutorialStep}
+            currentStepIndex={currentStepIndex}
+            totalSteps={totalSteps}
+            onNext={nextStep}
+            onPrevious={previousStep}
+            onSkip={skipTutorial}
+            style={styles.tutorialOverlay}
+          />
 
           <BrainDumpRationale />
 

@@ -17,8 +17,8 @@ import { getTasksScreenStyles } from './TasksScreen.styles';
 import { TaskItem } from './TasksScreen.TaskItem';
 import { BackHeader } from '../components/ui/BackHeader';
 import { FeatureGuideButton } from '../components/tutorial/FeatureGuideButton';
-import { TutorialBubble } from '../components/tutorial/TutorialBubble';
 import { useTheme } from '../theme/useTheme';
+import { FeatureTutorialOverlay } from '../components/tutorial/FeatureTutorialOverlay';
 import { tasksOnboardingFlow } from '../store/useTutorialStore';
 import { useFeatureTutorial } from '../hooks/useFeatureTutorial';
 import {
@@ -181,20 +181,15 @@ export const TasksScreen = memo(function TasksScreen() {
         {utilityActions}
       </View>
 
-      {currentTutorialStep && (
-        <View style={styles.tutorialOverlay} testID="tutorial-overlay">
-          <TutorialBubble
-            step={currentTutorialStep}
-            stepIndex={currentStepIndex}
-            totalSteps={totalSteps}
-            isFirstStep={currentStepIndex === 0}
-            isLastStep={currentStepIndex === totalSteps - 1}
-            onNext={nextStep}
-            onPrevious={previousStep}
-            onSkip={skipTutorial}
-          />
-        </View>
-      )}
+      <FeatureTutorialOverlay
+        currentTutorialStep={currentTutorialStep}
+        currentStepIndex={currentStepIndex}
+        totalSteps={totalSteps}
+        onNext={nextStep}
+        onPrevious={previousStep}
+        onSkip={skipTutorial}
+        style={styles.tutorialOverlay}
+      />
 
       <ScrollView
         style={styles.scrollView}

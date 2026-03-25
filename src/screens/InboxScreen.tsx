@@ -15,8 +15,8 @@ import CaptureService, {
 } from '../services/CaptureService';
 import { LoggerService } from '../services/LoggerService';
 import { CosmicBackground } from '../ui/cosmic';
-import { TutorialBubble } from '../components/tutorial/TutorialBubble';
 import { FeatureGuideButton } from '../components/tutorial/FeatureGuideButton';
+import { FeatureTutorialOverlay } from '../components/tutorial/FeatureTutorialOverlay';
 import {
   CaptureRow,
   CaptureSkeleton,
@@ -169,20 +169,15 @@ const InboxScreen = (): JSX.Element => {
           />
         </View>
 
-        {currentTutorialStep && (
-          <View style={styles.tutorialOverlay} testID="tutorial-overlay">
-            <TutorialBubble
-              step={currentTutorialStep}
-              stepIndex={currentStepIndex}
-              totalSteps={totalSteps}
-              isFirstStep={currentStepIndex === 0}
-              isLastStep={currentStepIndex === totalSteps - 1}
-              onNext={nextStep}
-              onPrevious={previousStep}
-              onSkip={skipTutorial}
-            />
-          </View>
-        )}
+        <FeatureTutorialOverlay
+          currentTutorialStep={currentTutorialStep}
+          currentStepIndex={currentStepIndex}
+          totalSteps={totalSteps}
+          onNext={nextStep}
+          onPrevious={previousStep}
+          onSkip={skipTutorial}
+          style={styles.tutorialOverlay}
+        />
 
         {/* Filter tabs */}
         <View

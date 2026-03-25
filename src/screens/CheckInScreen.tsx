@@ -18,8 +18,8 @@ import {
   getRecommendationCopy,
 } from './check-in/checkInData';
 import { CheckInOptionGroup } from './check-in/CheckInOptionGroup';
-import { TutorialBubble } from '../components/tutorial/TutorialBubble';
 import { FeatureGuideButton } from '../components/tutorial/FeatureGuideButton';
+import { FeatureTutorialOverlay } from '../components/tutorial/FeatureTutorialOverlay';
 import { checkInOnboardingFlow } from '../store/useTutorialStore';
 import { useFeatureTutorial } from '../hooks/useFeatureTutorial';
 
@@ -152,20 +152,15 @@ const CheckInScreen = ({ navigation }: { navigation?: CheckInNavigation }) => {
               />
             </View>
 
-            {currentTutorialStep && (
-              <View style={styles.tutorialOverlay} testID="tutorial-overlay">
-                <TutorialBubble
-                  step={currentTutorialStep}
-                  stepIndex={currentStepIndex}
-                  totalSteps={totalSteps}
-                  isFirstStep={currentStepIndex === 0}
-                  isLastStep={currentStepIndex === totalSteps - 1}
-                  onNext={nextStep}
-                  onPrevious={previousStep}
-                  onSkip={skipTutorial}
-                />
-              </View>
-            )}
+            <FeatureTutorialOverlay
+              currentTutorialStep={currentTutorialStep}
+              currentStepIndex={currentStepIndex}
+              totalSteps={totalSteps}
+              onNext={nextStep}
+              onPrevious={previousStep}
+              onSkip={skipTutorial}
+              style={styles.tutorialOverlay}
+            />
             <Text style={styles.helperText}>
               Pick the option that feels closest. Once you choose both mood and
               energy, CADDI suggests one clear next step.
