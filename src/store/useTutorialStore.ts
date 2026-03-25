@@ -17,6 +17,10 @@ export interface TutorialStep {
   howText: string;
   /** Optional: Icon name from MaterialCommunityIcons */
   iconName?: string;
+  /** Optional: tutorial target id to spotlight on the active screen */
+  targetId?: string;
+  /** Optional: preferred placement for the tutorial card */
+  placement?: 'auto' | 'top' | 'bottom' | 'center';
 }
 
 /**
@@ -44,6 +48,8 @@ export const brainDumpOnboardingFlow: TutorialFlow = {
       howText:
         'This is your capture zone. Type to dump everything on your mind. Audio capture is planned for a later update.',
       iconName: 'brain',
+      targetId: 'brain-dump-input',
+      placement: 'bottom',
     },
     {
       id: 'brain-dump-capture',
@@ -373,6 +379,8 @@ interface TutorialState {
   onboardingCompleted: boolean;
   /** Set of completed tutorial flow IDs */
   completedFlows: string[];
+  /** Set of flows the user has dismissed or completed at least once */
+  interactedFlows: string[];
   /** Timestamp of last tutorial interaction */
   lastTutorialAt: number | null;
 
@@ -394,6 +402,7 @@ interface TutorialState {
   completeTutorial: () => void;
   resetTutorials: () => void;
   hasCompletedFlow: (flowId: string) => boolean;
+  hasInteractedWithFlow: (flowId: string) => boolean;
 }
 
 export const useTutorialStore = create<TutorialState>()(
@@ -403,6 +412,7 @@ export const useTutorialStore = create<TutorialState>()(
       tutorialsEnabled: true,
       onboardingCompleted: false,
       completedFlows: [],
+      interactedFlows: [],
       lastTutorialAt: null,
 
       // Transient defaults
@@ -467,7 +477,7 @@ export const useTutorialStore = create<TutorialState>()(
       },
 
       skipTutorial: () => {
-        const { activeFlow, currentStepIndex } = get();
+        const { activeFlow, currentStepIndex, interactedFlows } = get();
         if (!activeFlow) {
           return;
         }
@@ -481,18 +491,24 @@ export const useTutorialStore = create<TutorialState>()(
           stepTitle: currentStep?.title,
         });
 
+        const updatedInteractedFlows = [...interactedFlows];
+        if (!updatedInteractedFlows.includes(activeFlow.id)) {
+          updatedInteractedFlows.push(activeFlow.id);
+        }
+
         set({
           isVisible: false,
           isGuideMenuVisible: false,
           activeFlow: null,
           currentStepIndex: 0,
           onboardingCompleted: true,
+          interactedFlows: updatedInteractedFlows,
           lastTutorialAt: Date.now(),
         });
       },
 
       completeTutorial: () => {
-        const { activeFlow, completedFlows } = get();
+        const { activeFlow, completedFlows, interactedFlows } = get();
         if (!activeFlow) {
           return;
         }
@@ -500,6 +516,11 @@ export const useTutorialStore = create<TutorialState>()(
         const updatedCompletedFlows = [...completedFlows];
         if (!updatedCompletedFlows.includes(activeFlow.id)) {
           updatedCompletedFlows.push(activeFlow.id);
+        }
+
+        const updatedInteractedFlows = [...interactedFlows];
+        if (!updatedInteractedFlows.includes(activeFlow.id)) {
+          updatedInteractedFlows.push(activeFlow.id);
         }
 
         UXMetricsService.track('tutorial_completed', {
@@ -514,6 +535,7 @@ export const useTutorialStore = create<TutorialState>()(
           currentStepIndex: 0,
           onboardingCompleted: true,
           completedFlows: updatedCompletedFlows,
+          interactedFlows: updatedInteractedFlows,
           lastTutorialAt: Date.now(),
         });
       },
@@ -525,6 +547,7 @@ export const useTutorialStore = create<TutorialState>()(
           tutorialsEnabled: true,
           onboardingCompleted: false,
           completedFlows: [],
+          interactedFlows: [],
           lastTutorialAt: null,
           isVisible: false,
           isGuideMenuVisible: false,
@@ -536,6 +559,9 @@ export const useTutorialStore = create<TutorialState>()(
       hasCompletedFlow: (flowId: string) => {
         return get().completedFlows.includes(flowId);
       },
+      hasInteractedWithFlow: (flowId: string) => {
+        return get().interactedFlows.includes(flowId);
+      },
     }),
     {
       name: 'spark-tutorial-storage',
@@ -545,6 +571,7 @@ export const useTutorialStore = create<TutorialState>()(
         tutorialsEnabled: state.tutorialsEnabled,
         onboardingCompleted: state.onboardingCompleted,
         completedFlows: state.completedFlows,
+        interactedFlows: state.interactedFlows,
         lastTutorialAt: state.lastTutorialAt,
       }),
     },

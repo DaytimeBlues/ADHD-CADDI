@@ -42,4 +42,24 @@ describe('useTutorialStore guided tutorial settings', () => {
     expect(useTutorialStore.getState().completedFlows).toEqual([]);
     expect(useTutorialStore.getState().lastTutorialAt).toBeNull();
   });
+
+  it('supports target metadata on tutorial steps', () => {
+    const firstStep = brainDumpOnboardingFlow.steps[0];
+
+    expect(firstStep.targetId).toBe('brain-dump-input');
+    expect(firstStep.placement).toBe('bottom');
+  });
+
+  it('marks a skipped flow as replayable without marking it completed', () => {
+    useTutorialStore.getState().startTutorial(brainDumpOnboardingFlow);
+
+    useTutorialStore.getState().skipTutorial();
+
+    expect(useTutorialStore.getState().completedFlows).toEqual([]);
+    expect(
+      useTutorialStore
+        .getState()
+        .hasInteractedWithFlow(brainDumpOnboardingFlow.id),
+    ).toBe(true);
+  });
 });
