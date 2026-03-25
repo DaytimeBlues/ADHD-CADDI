@@ -1,24 +1,34 @@
-# Brain Dump Tutorial Guide
+# Guided Tutorial Guide
 
-This guide explains how the Brain Dump tutorial works in the app and how to
-verify it during development.
+This guide explains how the shared guided tutorial system works in the app and
+how to verify it during development.
 
-## What The Tutorial Does
+## What The Tutorial System Does
 
-The tutorial is a short onboarding flow for the Brain Dump screen. It explains:
+Each guided flow is a short step-by-step overlay for a supported screen. It
+explains:
 
-- why Brain Dump exists,
-- how to capture thoughts quickly,
-- when to use AI sorting,
+- why the screen exists,
+- what the most important controls do,
+- how to use the screen effectively,
 - and how to replay the guide later.
 
 ## User Behavior
 
-- The tutorial opens automatically the first time a user visits Brain Dump.
-- The tutorial can be replayed at any time with the `TOUR` button in the
-  Brain Dump header.
+- Guided tutorials open automatically the first time a user visits a supported
+  screen, as long as `Show guided tutorials` is enabled in Diagnostics.
+- Each tutorial now appears as a spotlight overlay on top of the live screen,
+  rather than as a separate instructional card inside the page layout.
+- The overlay dims the rest of the UI, highlights the current target control,
+  and shows a bounded explanation card with what the control does and why it is
+  useful.
+- Guides can be launched with the `Tutorial` action on a supported screen or
+  from the Home tutorial chooser.
+- After a guide is completed or dismissed, the screen-level action changes to
+  `Replay Tutorial`.
 - `Next` advances through the steps.
 - `Previous` moves back one step.
+- The `X` button dismisses the flow immediately.
 - `Skip Tutorial` dismisses the flow and marks onboarding as complete.
 - Finishing the last step also marks onboarding as complete.
 
@@ -26,24 +36,45 @@ The tutorial is a short onboarding flow for the Brain Dump screen. It explains:
 
 - Tutorial progress is persisted in the Zustand store key
   `spark-tutorial-storage`.
-- The Brain Dump tutorial flow id is `brain-dump-onboarding`.
+- The global tutorial setting is stored alongside flow completion state.
+- Current supported flows include:
+  - `brain-dump-onboarding`
+  - `anchor-onboarding`
+  - `pomodoro-onboarding`
+  - `fog-cutter-onboarding`
+  - `check-in-onboarding`
+  - `inbox-onboarding`
+  - `chat-onboarding`
+  - `tasks-onboarding`
 
 ## QA Checklist
 
-1. Launch the app and open the `TASKS` tab.
-2. Confirm the tutorial overlay appears automatically.
-3. Click `Next` and verify the step title changes.
-4. Click `Previous` and verify the earlier step returns.
-5. Click `Skip Tutorial` and confirm the overlay closes.
-6. Click the `TOUR` button and confirm the tutorial reopens.
-7. Finish the tutorial and reload the page.
-8. Confirm the tutorial does not auto-open after completion.
+1. Launch the app and open a supported screen such as Brain Dump, Tasks, or
+   Chat.
+2. Confirm the spotlight tutorial overlay appears automatically when guided
+   tutorials are enabled.
+3. Confirm the current target control is highlighted and the rest of the screen
+   is dimmed.
+4. Confirm the explanation card stays within visible screen bounds on an
+   Android-sized viewport.
+5. Click `Next` and verify the step title and target highlight change.
+6. Click `Previous` and verify the earlier step returns.
+7. Click the `X` dismiss control and confirm the overlay closes.
+8. Confirm the screen now shows `Replay Tutorial`.
+9. Reopen the guide and finish the tutorial.
+10. Reload the page and confirm the guide does not auto-open after completion.
+11. Open Diagnostics and disable `Show guided tutorials`.
+12. Revisit a supported screen and confirm the guide does not auto-open, while
+    manual replay still works.
 
 ## E2E Coverage
 
 The Playwright smoke coverage for this feature should validate:
 
 - first-run tutorial visibility,
-- replay via the `TOUR` button,
+- replay via `Tutorial` and `Replay Tutorial`,
 - step navigation,
+- dismiss via `X`,
+- bounded overlay layout on Android-sized viewports,
+- bubble suppression while a guide overlay is visible,
 - and a successful capture bubble save flow into Inbox.

@@ -180,7 +180,7 @@ export const IgniteTimerDisplay = ({
             <Text
               style={[styles.soundButtonText, isPlaying && styles.textActive]}
             >
-              {isPlaying ? 'NOISE: ON' : 'NOISE: OFF'}
+              {isPlaying ? 'BROWN NOISE: ON' : 'BROWN NOISE: OFF'}
             </Text>
           </Pressable>
         </View>

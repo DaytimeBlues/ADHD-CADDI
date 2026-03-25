@@ -38,33 +38,25 @@ export const BrainDumpVoiceRecord: React.FC<BrainDumpVoiceRecordProps> = ({
       <Pressable
         testID="brain-dump-record-toggle"
         onPress={onRecordPress}
-        disabled={recordingState === 'processing'}
+        disabled
         accessibilityRole="button"
-        accessibilityLabel={
-          recordingState === 'recording' ? 'Stop recording' : 'Start recording'
-        }
-        accessibilityHint="Records voice and converts it to a task item"
+        accessibilityLabel="Audio capture coming soon"
+        accessibilityHint="Audio capture and transcription are not ready yet"
         style={({ pressed, hovered }: PressableState) => [
           styles.recordButton,
           hovered && styles.recordButtonHovered,
+          styles.recordButtonProcessing,
           recordingState === 'recording' && styles.recordButtonActive,
-          recordingState === 'processing' && styles.recordButtonProcessing,
           pressed && styles.recordButtonPressed,
         ]}
       >
-        {recordingState === 'processing' ? (
-          <ActivityIndicator size="small" color={styles.recordActivity.color} />
-        ) : (
-          <Text style={styles.recordIcon}>
-            {recordingState === 'recording' ? '[]' : 'O'}
-          </Text>
-        )}
-        <Text style={styles.recordText}>
-          {recordingState === 'idle' && 'VOICE_INPUT'}
-          {recordingState === 'recording' && 'STOP_REC'}
-          {recordingState === 'processing' && 'PROCESSING...'}
-        </Text>
+        <ActivityIndicator size="small" color={styles.recordActivity.color} />
+        <Text style={styles.recordText}>COMING SOON</Text>
       </Pressable>
+      <Text style={styles.helperText}>
+        Audio capture and transcription are not ready yet. This feature is
+        planned for a later update.
+      </Text>
       {recordingError && <Text style={styles.errorText}>{recordingError}</Text>}
     </View>
   );
@@ -158,6 +150,19 @@ const getStyles = (variant: ThemeVariant, t: ThemeTokens) => {
       color: accent,
       textAlign: 'center',
       marginTop: Tokens.spacing[2],
+    },
+    helperText: {
+      fontFamily: Tokens.type.fontFamily.sans,
+      fontSize: Tokens.type.xs,
+      color: isNightAwe
+        ? t.colors.text?.secondary || Tokens.colors.text.secondary
+        : isCosmic
+          ? 'rgba(185, 194, 217, 0.86)'
+          : Tokens.colors.text.secondary,
+      textAlign: 'center',
+      lineHeight: 18,
+      marginTop: Tokens.spacing[2],
+      maxWidth: 320,
     },
   });
 };

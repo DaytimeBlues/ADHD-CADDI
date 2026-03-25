@@ -179,6 +179,7 @@ export const CaptureBubbleFab = memo(function CaptureBubbleFab({
       <Pressable
         testID="capture-bubble"
         onPress={handlePress}
+        onLongPress={handleBadgePress}
         disabled={bubbleState === 'processing'}
         accessibilityLabel={
           bubbleState === 'recording'

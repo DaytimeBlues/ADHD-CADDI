@@ -176,7 +176,7 @@ export const createConfig = (env: RuntimeEnv = getRuntimeEnv()): Config => {
       envVar: 'EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID',
       feature: 'google-sync',
       message:
-        'Google client IDs are not configured. Google sign-in, Tasks, and Calendar sync will stay disabled until they are set.',
+        'Google client IDs are not configured. Native Google sign-in plus Google Tasks and Calendar sync will stay disabled until they are set.',
     });
   }
 

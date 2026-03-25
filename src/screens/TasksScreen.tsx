@@ -16,7 +16,12 @@ import { FilterTab } from './TasksScreen.FilterTab';
 import { getTasksScreenStyles } from './TasksScreen.styles';
 import { TaskItem } from './TasksScreen.TaskItem';
 import { BackHeader } from '../components/ui/BackHeader';
+import { FeatureGuideButton } from '../components/tutorial/FeatureGuideButton';
+import { TutorialTarget } from '../components/tutorial/TutorialTarget';
 import { useTheme } from '../theme/useTheme';
+import { FeatureTutorialOverlay } from '../components/tutorial/FeatureTutorialOverlay';
+import { tasksOnboardingFlow } from '../store/useTutorialStore';
+import { useFeatureTutorial } from '../hooks/useFeatureTutorial';
 import {
   BrainDumpInput,
   BrainDumpItem,
@@ -28,6 +33,17 @@ export const TasksScreen = memo(function TasksScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const { isNightAwe, t, variant } = useTheme();
+  const {
+    currentTutorialStep,
+    currentStepIndex,
+    totalSteps,
+    nextStep,
+    previousStep,
+    skipTutorial,
+    guideButtonLabel,
+    isReplayTutorial,
+    startTutorial,
+  } = useFeatureTutorial(tasksOnboardingFlow);
   const {
     items: dumpItems,
     addItem: addDumpItem,
@@ -97,6 +113,15 @@ export const TasksScreen = memo(function TasksScreen() {
 
   const utilityActions = isNightAwe ? (
     <View style={styles.headerActions}>
+      <TutorialTarget targetId="tasks-replay">
+        <FeatureGuideButton
+          onPress={() => startTutorial()}
+          accessibilityLabel="Open tutorial for tasks"
+          testID="tasks-guide-button"
+          label={guideButtonLabel}
+          isSecondary={isReplayTutorial}
+        />
+      </TutorialTarget>
       <Pressable
         onPress={handleSync}
         accessibilityRole="button"
@@ -125,6 +150,15 @@ export const TasksScreen = memo(function TasksScreen() {
     </View>
   ) : (
     <View style={styles.headerActions}>
+      <TutorialTarget targetId="tasks-replay">
+        <FeatureGuideButton
+          onPress={() => startTutorial()}
+          accessibilityLabel="Open tutorial for tasks"
+          testID="tasks-guide-button"
+          label={guideButtonLabel}
+          isSecondary={isReplayTutorial}
+        />
+      </TutorialTarget>
       <RuneButton
         variant="secondary"
         size="sm"
@@ -158,6 +192,16 @@ export const TasksScreen = memo(function TasksScreen() {
         {utilityActions}
       </View>
 
+      <FeatureTutorialOverlay
+        currentTutorialStep={currentTutorialStep}
+        currentStepIndex={currentStepIndex}
+        totalSteps={totalSteps}
+        onNext={nextStep}
+        onPrevious={previousStep}
+        onSkip={skipTutorial}
+        style={styles.tutorialOverlay}
+      />
+
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={[
@@ -166,7 +210,9 @@ export const TasksScreen = memo(function TasksScreen() {
         ]}
         showsVerticalScrollIndicator={false}
       >
-        <BrainDumpInput onAdd={addDumpItem} />
+        <TutorialTarget targetId="tasks-capture">
+          <BrainDumpInput onAdd={addDumpItem} />
+        </TutorialTarget>
         <BrainDumpGuide showGuide={showGuide} onDismiss={dismissGuide} />
         {dumpItems.map((item) => (
           <BrainDumpItem key={item.id} item={item} onDelete={deleteDumpItem} />
@@ -274,49 +320,53 @@ export const TasksScreen = memo(function TasksScreen() {
               </View>
             </View>
           ) : (
-            <GlowCard tone="sunken" padding="none" style={styles.addTaskCard}>
-              <View style={styles.addTaskContent}>
-                <TextInput
-                  value={newTaskTitle}
-                  onChangeText={setNewTaskTitle}
-                  placeholder="New objective..."
-                  placeholderTextColor="rgba(238, 242, 255, 0.4)"
-                  onSubmitEditing={handleAdd}
-                  returnKeyType="done"
-                  style={styles.addTaskInput}
-                />
-                <RuneButton
-                  variant="primary"
-                  size="sm"
-                  onPress={handleAdd}
-                  disabled={!newTaskTitle.trim()}
-                  style={styles.addTaskButton}
-                >
-                  +
-                </RuneButton>
-              </View>
-            </GlowCard>
+            <TutorialTarget targetId="tasks-add">
+              <GlowCard tone="sunken" padding="none" style={styles.addTaskCard}>
+                <View style={styles.addTaskContent}>
+                  <TextInput
+                    value={newTaskTitle}
+                    onChangeText={setNewTaskTitle}
+                    placeholder="New objective..."
+                    placeholderTextColor="rgba(238, 242, 255, 0.4)"
+                    onSubmitEditing={handleAdd}
+                    returnKeyType="done"
+                    style={styles.addTaskInput}
+                  />
+                  <RuneButton
+                    variant="primary"
+                    size="sm"
+                    onPress={handleAdd}
+                    disabled={!newTaskTitle.trim()}
+                    style={styles.addTaskButton}
+                  >
+                    +
+                  </RuneButton>
+                </View>
+              </GlowCard>
+            </TutorialTarget>
           )}
         </Animated.View>
 
         <Animated.View entering={FadeIn.delay(300).duration(300)}>
-          <View style={styles.filterTabs}>
-            <FilterTab
-              label="ALL"
-              active={filter === 'all'}
-              onPress={() => setFilter('all')}
-            />
-            <FilterTab
-              label="ACTIVE"
-              active={filter === 'active'}
-              onPress={() => setFilter('active')}
-            />
-            <FilterTab
-              label="DONE"
-              active={filter === 'completed'}
-              onPress={() => setFilter('completed')}
-            />
-          </View>
+          <TutorialTarget targetId="tasks-filters">
+            <View style={styles.filterTabs}>
+              <FilterTab
+                label="ALL"
+                active={filter === 'all'}
+                onPress={() => setFilter('all')}
+              />
+              <FilterTab
+                label="ACTIVE"
+                active={filter === 'active'}
+                onPress={() => setFilter('active')}
+              />
+              <FilterTab
+                label="DONE"
+                active={filter === 'completed'}
+                onPress={() => setFilter('completed')}
+              />
+            </View>
+          </TutorialTarget>
         </Animated.View>
 
         <Animated.View layout={Layout.springify()}>

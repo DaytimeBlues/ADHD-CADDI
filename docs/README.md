@@ -8,7 +8,7 @@
 - `SECURITY_CHECKLIST.md` - security controls and release checks.
 - `RELEASE_PROCESS.md` - release workflow.
 - `GOOGLE_SETUP_GUIDE.md` - Google auth and sync setup.
-- `TUTORIAL_GUIDE.md` - Brain Dump onboarding flow, replay behavior, and QA steps.
+- `TUTORIAL_GUIDE.md` - shared guided tutorial system, replay behavior, and QA steps.
 
 ## Planning Docs
 

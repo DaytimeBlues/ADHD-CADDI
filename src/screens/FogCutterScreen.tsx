@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useRef } from 'react';
 import { SafeAreaView, Text, TextInput, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import ActivationService from '../services/ActivationService';
 import { ROUTES } from '../navigation/routes';
 import { useTheme } from '../theme/useTheme';
@@ -11,6 +12,12 @@ import { getFogCutterScreenStyles } from './FogCutterScreen.styles';
 import { FogCutterTaskComposer } from './fog-cutter/FogCutterTaskComposer';
 import { FogCutterTaskList } from './fog-cutter/FogCutterTaskList';
 import { BackHeader } from '../components/ui/BackHeader';
+import { pushWebPathForRoute } from '../navigation/webPathMap';
+import { FeatureGuideButton } from '../components/tutorial/FeatureGuideButton';
+import { FeatureTutorialOverlay } from '../components/tutorial/FeatureTutorialOverlay';
+import { TutorialTarget } from '../components/tutorial/TutorialTarget';
+import { fogCutterOnboardingFlow } from '../store/useTutorialStore';
+import { useFeatureTutorial } from '../hooks/useFeatureTutorial';
 
 type FogCutterNavigation = {
   navigate: (route: string) => void;
@@ -21,6 +28,7 @@ interface FogCutterScreenProps {
 }
 
 const FogCutterScreen = ({ navigation }: FogCutterScreenProps) => {
+  const stackNavigation = useNavigation<FogCutterNavigation>();
   const { isCosmic, isNightAwe, t, variant } = useTheme();
   const styles = useMemo(
     () => getFogCutterScreenStyles(variant, t),
@@ -39,9 +47,9 @@ const FogCutterScreen = ({ navigation }: FogCutterScreenProps) => {
         },
       });
 
-      navigation?.navigate(ROUTES.FOCUS);
+      (navigation ?? stackNavigation).navigate(ROUTES.FOCUS);
     },
-    [navigation],
+    [navigation, stackNavigation],
   );
 
   const {
@@ -72,6 +80,18 @@ const FogCutterScreen = ({ navigation }: FogCutterScreenProps) => {
     ),
   });
 
+  const {
+    currentTutorialStep,
+    currentStepIndex,
+    totalSteps,
+    nextStep,
+    previousStep,
+    skipTutorial,
+    guideButtonLabel,
+    isReplayTutorial,
+    startTutorial,
+  } = useFeatureTutorial(fogCutterOnboardingFlow);
+
   const handleDismissGuide = useCallback(async () => {
     await dismissGuide();
 
@@ -84,8 +104,8 @@ const FogCutterScreen = ({ navigation }: FogCutterScreenProps) => {
       },
     });
 
-    navigation?.navigate(ROUTES.FOCUS);
-  }, [dismissGuide, latestSavedTaskId, navigation]);
+    (navigation ?? stackNavigation).navigate(ROUTES.FOCUS);
+  }, [dismissGuide, latestSavedTaskId, navigation, stackNavigation]);
 
   const content = (
     <SafeAreaView
@@ -95,44 +115,74 @@ const FogCutterScreen = ({ navigation }: FogCutterScreenProps) => {
     >
       <View style={styles.scrollContent}>
         <View style={styles.content}>
-          <BackHeader title="FOG_CUTTER" />
+          <BackHeader
+            title="FOG_CUTTER"
+            fallbackRoute="Home"
+            onBack={() => {
+              pushWebPathForRoute(ROUTES.HOME);
+              (navigation ?? stackNavigation).navigate(ROUTES.HOME);
+            }}
+          />
           <View style={styles.header}>
             <Text style={styles.title}>DECOMPOSITION</Text>
             <View style={styles.headerLine} />
+            <TutorialTarget targetId="fogcutter-replay">
+              <FeatureGuideButton
+                onPress={() => startTutorial()}
+                accessibilityLabel="Open tutorial for fog cutter"
+                testID="fogcutter-tour-button"
+                label={guideButtonLabel}
+                isSecondary={isReplayTutorial}
+              />
+            </TutorialTarget>
           </View>
 
-          <FogCutterTaskComposer
-            focusedInput={focusedInput}
-            isAiLoading={isAiLoading}
-            isCosmic={isCosmic}
-            isNightAwe={isNightAwe}
-            microSteps={microSteps}
-            newStep={newStep}
-            onAddMicroStep={addMicroStep}
-            onAddTask={addTask}
-            onAiBreakdownPress={() => handleAiBreakdown(task)}
-            onFocusInput={setFocusedInput}
-            onNewStepChange={setNewStep}
-            onTaskChange={setTask}
-            saveDisabled={microSteps.length === 0}
-            setTaskInputRef={taskInputRef}
-            task={task}
+          <FeatureTutorialOverlay
+            currentTutorialStep={currentTutorialStep}
+            currentStepIndex={currentStepIndex}
+            totalSteps={totalSteps}
+            onNext={nextStep}
+            onPrevious={previousStep}
+            onSkip={skipTutorial}
+            style={styles.tutorialOverlay}
           />
 
-          <FogCutterTaskList
-            isCosmic={isCosmic}
-            isLoading={isLoading}
-            isNightAwe={isNightAwe}
-            onDismissGuide={handleDismissGuide}
-            onExamplePress={(example) => {
-              setTask(example);
-              taskInputRef.current?.focus();
-            }}
-            onFocusTaskInput={() => taskInputRef.current?.focus()}
-            onToggleTask={toggleTask}
-            showGuide={showGuide}
-            tasks={tasks}
-          />
+          <TutorialTarget targetId="fogcutter-task-composer">
+            <FogCutterTaskComposer
+              focusedInput={focusedInput}
+              isAiLoading={isAiLoading}
+              isCosmic={isCosmic}
+              isNightAwe={isNightAwe}
+              microSteps={microSteps}
+              newStep={newStep}
+              onAddMicroStep={addMicroStep}
+              onAddTask={addTask}
+              onAiBreakdownPress={() => handleAiBreakdown(task)}
+              onFocusInput={setFocusedInput}
+              onNewStepChange={setNewStep}
+              onTaskChange={setTask}
+              saveDisabled={microSteps.length === 0}
+              setTaskInputRef={taskInputRef}
+              task={task}
+            />
+          </TutorialTarget>
+
+          <TutorialTarget targetId="fogcutter-task-list">
+            <FogCutterTaskList
+              isCosmic={isCosmic}
+              isLoading={isLoading}
+              isNightAwe={isNightAwe}
+              onDismissGuide={handleDismissGuide}
+              onExamplePress={(example) => {
+                setTask(example);
+                taskInputRef.current?.focus();
+              }}
+              onFocusTaskInput={() => taskInputRef.current?.focus()}
+              onToggleTask={toggleTask}
+              showGuide={showGuide}
+              tasks={tasks}
+            />
+          </TutorialTarget>
         </View>
       </View>
     </SafeAreaView>

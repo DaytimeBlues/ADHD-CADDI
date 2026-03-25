@@ -7,6 +7,8 @@ import {
   AccessibilityInfo,
   TouchableOpacity,
   StyleSheet,
+  Modal,
+  Pressable,
 } from 'react-native';
 import { useOverlayEvents } from '../hooks/useOverlayEvents';
 import { useShareAction } from '../hooks/useShareAction';
@@ -21,10 +23,12 @@ import RetentionService, {
 } from '../services/RetentionService';
 import useReducedMotion from '../hooks/useReducedMotion';
 import useEntranceAnimation from '../hooks/useEntranceAnimation';
+import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../theme/useTheme';
 import { Tokens } from '../theme/tokens';
 import { ModeCardMode } from './ModeCard';
 import { ROUTES } from '../navigation/routes';
+import { pushWebPathForRoute } from '../navigation/webPathMap';
 import { CosmicBackground } from '../ui/cosmic';
 import { NightAweBackground } from '../ui/nightAwe';
 import AppIcon from '../components/AppIcon';
@@ -32,9 +36,21 @@ import { getStyles } from './HomeScreen.styles';
 import { isAndroid } from '../utils/PlatformUtils';
 import { useHomeMetrics } from './home/useHomeMetrics';
 import { HomeActivationCard } from './home/HomeActivationCard';
+import { HomeGuestCard } from './home/HomeGuestCard';
 import { HomeOverlayCard } from './home/HomeOverlayCard';
 import { HomeDebugPanel } from './home/HomeDebugPanel';
 import { HomeModesGrid } from './home/HomeModesGrid';
+import {
+  anchorOnboardingFlow,
+  brainDumpOnboardingFlow,
+  chatOnboardingFlow,
+  checkInOnboardingFlow,
+  fogCutterOnboardingFlow,
+  tasksOnboardingFlow,
+  pomodoroOnboardingFlow,
+  useTutorialStore,
+  TutorialFlow,
+} from '../store/useTutorialStore';
 
 type NavigatorState = {
   routeNames?: string[];
@@ -50,6 +66,7 @@ type NavigationNode = {
 
 const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
   const { isNightAwe, t, variant } = useTheme();
+  const { isGuestSession, isDemoSession, loadDemoData, signOut } = useAuth();
   const [streak, setStreak] = useState(0);
 
   const {
@@ -75,6 +92,57 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
   const [reentryPromptLevel, setReentryPromptLevel] =
     useState<ReentryPromptLevel>('none');
   const prefersReducedMotion = useReducedMotion();
+
+  const startTutorial = useTutorialStore((state) => state.startTutorial);
+  const showTutorialModal = useTutorialStore(
+    (state) => state.isGuideMenuVisible,
+  );
+  const setGuideMenuVisible = useTutorialStore(
+    (state) => state.setGuideMenuVisible,
+  );
+
+  const tutorialFlows: { flow: TutorialFlow; name: string; icon: string }[] = [
+    { flow: brainDumpOnboardingFlow, name: 'Brain Dump', icon: 'brain' },
+    { flow: anchorOnboardingFlow, name: 'Anchor', icon: 'anchor' },
+    { flow: pomodoroOnboardingFlow, name: 'Pomodoro', icon: 'timer-sand' },
+    { flow: tasksOnboardingFlow, name: 'Tasks', icon: 'text-box-outline' },
+    { flow: chatOnboardingFlow, name: 'Chat', icon: 'message-text-outline' },
+    {
+      flow: fogCutterOnboardingFlow,
+      name: 'Fog Cutter',
+      icon: 'weather-windy',
+    },
+    { flow: checkInOnboardingFlow, name: 'Check In', icon: 'chart-bar' },
+  ];
+
+  const handleStartTutorial = (flow: TutorialFlow) => {
+    startTutorial(flow);
+    setGuideMenuVisible(false);
+    // Navigate to the appropriate screen
+    switch (flow.id) {
+      case 'brain-dump-onboarding':
+        navigation.navigate(ROUTES.TASKS);
+        break;
+      case 'tasks-onboarding':
+        navigation.navigate(ROUTES.TASKS);
+        break;
+      case 'chat-onboarding':
+        navigation.navigate(ROUTES.CHAT);
+        break;
+      case 'anchor-onboarding':
+        navigation.navigate(ROUTES.ANCHOR);
+        break;
+      case 'pomodoro-onboarding':
+        navigation.navigate(ROUTES.POMODORO);
+        break;
+      case 'fog-cutter-onboarding':
+        navigation.navigate(ROUTES.FOG_CUTTER);
+        break;
+      case 'check-in-onboarding':
+        navigation.navigate(ROUTES.CHECK_IN);
+        break;
+    }
+  };
 
   const { trendMetrics, hasActivationData, showReentryPrompt } = useHomeMetrics(
     activationSummary,
@@ -201,12 +269,14 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
       while (currentNavigator) {
         const routeNames = currentNavigator.getState?.()?.routeNames;
         if (Array.isArray(routeNames) && routeNames.includes(routeName)) {
+          pushWebPathForRoute(routeName);
           currentNavigator.navigate(routeName);
           return;
         }
         currentNavigator = currentNavigator.getParent?.();
       }
 
+      pushWebPathForRoute(routeName);
       navigation.navigate(routeName);
     },
     [navigation],
@@ -252,6 +322,21 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
               </View>
             </View>
             <View style={styles.headerRight}>
+              <TouchableOpacity
+                onPress={() => navigateByRouteName(ROUTES.DIAGNOSTICS)}
+                style={styles.feedbackButton}
+                accessibilityLabel="Report an issue or share feedback"
+              >
+                <Text style={styles.feedbackButtonText}>FEEDBACK</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setGuideMenuVisible(true)}
+                style={styles.feedbackButton}
+                accessibilityLabel="View feature tutorials"
+                testID="home-tour-button"
+              >
+                <Text style={styles.feedbackButtonText}>TUTORIAL</Text>
+              </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => navigateByRouteName(ROUTES.DIAGNOSTICS)}
                 style={styles.settingsButton}
@@ -300,6 +385,23 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
                 textNeutral: styles.textNeutral,
               }}
               onPrimaryAction={() => navigateByRouteName(ROUTES.FOCUS)}
+            />
+          )}
+
+          {isGuestSession && (
+            <HomeGuestCard
+              isDemoSession={isDemoSession}
+              styles={{
+                overlayCard: styles.overlayCard,
+                overlayTextGroup: styles.overlayTextGroup,
+                overlayTitle: styles.overlayTitle,
+                overlayStatus: styles.overlayStatus,
+                debugButtonRow: styles.debugButtonRow,
+                debugButton: styles.debugButton,
+                debugButtonText: styles.debugButtonText,
+              }}
+              onLoadDemoData={loadDemoData}
+              onExitGuest={signOut}
             />
           )}
 
@@ -374,6 +476,44 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
   return (
     <CosmicBackground variant="ridge" style={StyleSheet.absoluteFillObject}>
       {content}
+      <Modal
+        visible={showTutorialModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setGuideMenuVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>TUTORIALS</Text>
+            <Text style={styles.modalSubtitle}>
+              Choose a screen guide to replay.
+            </Text>
+            {tutorialFlows.map(({ flow, name, icon }) => (
+              <Pressable
+                key={flow.id}
+                testID={`home-guide-option-${flow.id}`}
+                style={({ pressed }) => [
+                  styles.tutorialOption,
+                  pressed && styles.tutorialOptionPressed,
+                ]}
+                onPress={() => handleStartTutorial(flow)}
+              >
+                <AppIcon name={icon} size={20} color="#8B5CF6" />
+                <Text style={styles.tutorialOptionText}>{name}</Text>
+              </Pressable>
+            ))}
+            <Pressable
+              style={({ pressed }) => [
+                styles.modalCloseButton,
+                pressed && styles.modalCloseButtonPressed,
+              ]}
+              onPress={() => setGuideMenuVisible(false)}
+            >
+              <Text style={styles.modalCloseText}>CLOSE</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </CosmicBackground>
   );
 };

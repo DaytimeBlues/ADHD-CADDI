@@ -27,6 +27,20 @@ describe('FogCutterAIService', () => {
   it('falls back when API returns non-ok response', async () => {
     global.fetch = jest.fn().mockResolvedValue({ ok: false } as Response);
     const steps = await FogCutterAIService.generateMicroSteps('Task');
-    expect(steps[0].text).toContain('Write down');
+    expect(steps[0].text).toContain('Write one clear outcome');
+  });
+
+  it('builds task-specific fallback steps when the API is unavailable', async () => {
+    global.fetch = jest.fn().mockRejectedValue(new Error('offline'));
+
+    const steps = await FogCutterAIService.generateMicroSteps('Write an email');
+
+    expect(steps.map((step) => step.text)).toEqual([
+      'Open your email app and start a new draft',
+      'Write a short subject line for the email',
+      'Add one sentence saying why you are writing',
+      'Add the single next detail or request the person needs',
+      'Read it once, then send or save the draft',
+    ]);
   });
 });

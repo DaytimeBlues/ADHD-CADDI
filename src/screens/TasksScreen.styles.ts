@@ -57,6 +57,10 @@ export const getTasksScreenStyles = (variant: ThemeVariant, t: ThemeTokens) => {
       alignItems: 'center',
       gap: 8,
     },
+    tutorialOverlay: {
+      paddingHorizontal: 20,
+      paddingBottom: 16,
+    },
     headerTitle: {
       fontSize: 24,
       fontWeight: '700',

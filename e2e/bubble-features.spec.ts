@@ -4,6 +4,7 @@ import {
   seedZeroReviewBubbleState,
   enableCosmicTheme,
   enableE2ETestMode,
+  enableE2EAnonymousAppShell,
   seedAlexPersona,
 } from './helpers/seed';
 import {
@@ -20,6 +21,7 @@ test.describe('Bubble Features: Interruption & Vignette Check-ins', () => {
     page,
   }) => {
     await enableE2ETestMode(page);
+    await enableE2EAnonymousAppShell(page);
     await seedAlexPersona(page);
     await enableCosmicTheme(page);
     await gotoAppRoot(page);
@@ -37,6 +39,7 @@ test.describe('Bubble Features: Interruption & Vignette Check-ins', () => {
     page,
   }) => {
     await enableE2ETestMode(page);
+    await enableE2EAnonymousAppShell(page);
     await seedZeroReviewBubbleState(page);
     await enableCosmicTheme(page);
     await gotoAppRoot(page);
@@ -72,6 +75,7 @@ test.describe('Bubble Features: Interruption & Vignette Check-ins', () => {
     page,
   }) => {
     await enableE2ETestMode(page);
+    await enableE2EAnonymousAppShell(page);
     await seedZeroReviewBubbleState(page);
     await enableCosmicTheme(page);
     await gotoAppRoot(page);
@@ -83,6 +87,12 @@ test.describe('Bubble Features: Interruption & Vignette Check-ins', () => {
 
     const checkInScreen = page.getByLabel('Check-in screen');
     await expect(checkInScreen).toBeVisible();
+
+    const tutorialOverlay = checkInScreen.getByTestId('tutorial-overlay');
+    if (await tutorialOverlay.isVisible()) {
+      await page.getByTestId('tutorial-skip-button').click();
+      await expect(tutorialOverlay).not.toBeVisible();
+    }
 
     if (!isLivePagesSmoke) {
       await expect(

@@ -8,6 +8,7 @@ import {
   Alert,
 } from 'react-native';
 import AppIcon from '../AppIcon';
+import BrandLogo from '../BrandLogo';
 import { useTheme } from '../../theme/useTheme';
 import { Tokens } from '../../theme/tokens';
 import {
@@ -153,7 +154,7 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
 
       <View style={styles.integrationRow}>
         <View style={styles.iconContainer}>
-          <AppIcon name="google" size={20} color="#4285F4" />
+          <BrandLogo name="google" size={20} accessibilityLabel="Google logo" />
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.integrationName}>Google Tasks</Text>
@@ -194,7 +195,11 @@ export const IntegrationPanel: React.FC<IntegrationPanelProps> = ({
 
       <View style={styles.integrationRow}>
         <View style={styles.iconContainer}>
-          <AppIcon name="check-circle-outline" size={20} color="#E44332" />
+          <BrandLogo
+            name="todoist"
+            size={20}
+            accessibilityLabel="Todoist logo"
+          />
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.integrationName}>Todoist</Text>

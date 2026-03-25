@@ -12,6 +12,8 @@ const getActWarnings = () =>
 
 const mockNavigate = jest.fn();
 const mockUpdateCount = jest.fn();
+let mockTutorialVisible = false;
+let mockGuideMenuVisible = false;
 
 let checkInSubscriber: ((isPending: boolean) => void) | null = null;
 let captureSubscriber: ((count: number) => void) | null = null;
@@ -56,6 +58,20 @@ jest.mock('../src/store/useTaskStore', () => ({
   ) => selector({ getActiveCount: () => 0 }),
 }));
 
+jest.mock('../src/store/useTutorialStore', () => ({
+  __esModule: true,
+  useTutorialStore: (
+    selector: (state: {
+      isVisible: boolean;
+      isGuideMenuVisible: boolean;
+    }) => unknown,
+  ) =>
+    selector({
+      isVisible: mockTutorialVisible,
+      isGuideMenuVisible: mockGuideMenuVisible,
+    }),
+}));
+
 jest.mock('../src/services/OverlayService', () => ({
   __esModule: true,
   default: {
@@ -82,6 +98,8 @@ describe('CaptureBubble', () => {
     captureSubscriber = null;
     mockCaptureCount = 0;
     mockCheckInPending = false;
+    mockTutorialVisible = false;
+    mockGuideMenuVisible = false;
   });
 
   afterEach(() => {
@@ -123,5 +141,30 @@ describe('CaptureBubble', () => {
     fireEvent.press(screen.getByTestId('capture-bubble'));
 
     expect(screen.getByTestId('capture-drawer-mock')).toBeTruthy();
+  });
+
+  it('opens inbox on long press as a direct quick action', () => {
+    render(<CaptureBubble />);
+
+    fireEvent(screen.getByTestId('capture-bubble'), 'longPress');
+
+    expect(mockNavigate).toHaveBeenCalledWith('Inbox');
+    expect(screen.queryByTestId('capture-drawer-mock')).toBeNull();
+  });
+
+  it('hides the bubble while a guided tutorial overlay is visible', () => {
+    mockTutorialVisible = true;
+
+    render(<CaptureBubble />);
+
+    expect(screen.queryByTestId('capture-bubble')).toBeNull();
+  });
+
+  it('hides the bubble while the home replay guide menu is visible', () => {
+    mockGuideMenuVisible = true;
+
+    render(<CaptureBubble />);
+
+    expect(screen.queryByTestId('capture-bubble')).toBeNull();
   });
 });

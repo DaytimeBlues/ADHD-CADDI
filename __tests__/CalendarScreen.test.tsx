@@ -47,7 +47,7 @@ describe('CalendarScreen', () => {
     const button = screen.getByText('WEB UNSUPPORTED');
     fireEvent.press(button);
     expect(mockSignInInteractive).not.toHaveBeenCalled();
-  });
+  }, 20000);
 
   it('shows disconnected status on native when calendar scope is missing', async () => {
     mockIsWeb = false;

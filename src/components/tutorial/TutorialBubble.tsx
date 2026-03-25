@@ -78,6 +78,15 @@ export const TutorialBubble: React.FC<TutorialBubbleProps> = ({
     if (prefersReducedMotion) {
       return {};
     }
+
+    const canUseReanimatedTransitions =
+      typeof FadeInUp?.duration === 'function' &&
+      typeof Layout?.springify === 'function';
+
+    if (!canUseReanimatedTransitions) {
+      return {};
+    }
+
     return {
       entering: FadeInUp.duration(300).springify(),
       layout: Layout.springify(),

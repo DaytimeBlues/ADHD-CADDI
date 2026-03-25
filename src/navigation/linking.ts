@@ -18,6 +18,12 @@ const TAB_PATHS: Record<string, string> = {
 
 const ROOT_SCREEN_CONFIG: LinkingOptions<RootStackParamList>['config'] = {
   screens: {
+    [ROUTES.AUTH]: {
+      path: 'Auth',
+      screens: {
+        [ROUTES.LOGIN]: 'Login',
+      },
+    },
     [ROUTES.MAIN]: {
       path: '',
       screens: TAB_PATHS,
@@ -43,7 +49,11 @@ function trimBasePath(path: string): string {
 
 function prependBasePath(path: string): string {
   if (!path || path === '/') {
-    return `${WEB_APP_BASE_PATH}/`;
+    return WEB_APP_BASE_PATH === '/' ? '/' : `${WEB_APP_BASE_PATH}/`;
+  }
+
+  if (WEB_APP_BASE_PATH === '/') {
+    return path.startsWith('/') ? path : `/${path}`;
   }
 
   if (path.startsWith(WEB_APP_BASE_PATH)) {

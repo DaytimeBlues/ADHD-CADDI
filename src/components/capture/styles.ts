@@ -80,6 +80,8 @@ export const captureStyles = StyleSheet.create({
   },
   modeContent: {
     flex: 1,
+    gap: 12,
+    paddingBottom: 12,
   },
 
   // Voice mode
@@ -219,7 +221,12 @@ export const captureStyles = StyleSheet.create({
     padding: 12,
     fontSize: 15,
     minHeight: 100,
+    maxHeight: 160,
     backgroundColor: 'rgba(7, 7, 18, 0.4)',
+  },
+  textModeAction: {
+    alignSelf: 'stretch',
+    zIndex: 2,
   },
   textInputMeeting: {
     borderWidth: 1,

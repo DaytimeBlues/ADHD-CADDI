@@ -29,6 +29,31 @@ const copyPublicAssets = {
   },
 };
 
+const transpileNodeModules = new Set([
+  'react-native-vector-icons',
+  'react-native-reanimated',
+  'react-native-gesture-handler',
+  'react-native-screens',
+  'react-native-safe-area-context',
+  '@react-native',
+  '@react-navigation',
+  'expo',
+  '@expo',
+  'expo-modules-core',
+]);
+
+const shouldExcludeFromBabel = (modulePath) => {
+  const normalizedPath = modulePath.replace(/\\/g, '/');
+
+  if (!normalizedPath.includes('/node_modules/')) {
+    return false;
+  }
+
+  return !Array.from(transpileNodeModules).some((packageName) =>
+    normalizedPath.includes(`/node_modules/${packageName}/`),
+  );
+};
+
 module.exports = (env, argv) => {
   const isProduction = argv.mode === 'production';
   const disableDevOverlay = Boolean(process.env.CI);
@@ -82,6 +107,31 @@ module.exports = (env, argv) => {
       alias: {
         '@': path.resolve(__dirname, 'src'),
         'react-native$': 'react-native-web',
+        '@firebase/app$': path.resolve(
+          __dirname,
+          'node_modules/@firebase/app/dist/esm/index.esm2017.js',
+        ),
+        'firebase/app$': path.resolve(
+          __dirname,
+          'node_modules/firebase/app/dist/esm/index.esm.js',
+        ),
+        idb$: path.resolve(__dirname, 'node_modules/idb/build/index.js'),
+        'idb/build/index.cjs$': path.resolve(
+          __dirname,
+          'node_modules/idb/build/index.js',
+        ),
+        'idb/build/wrap-idb-value.cjs$': path.resolve(
+          __dirname,
+          'node_modules/idb/build/wrap-idb-value.js',
+        ),
+        'firebase/auth$': path.resolve(
+          __dirname,
+          'node_modules/firebase/auth/dist/esm/index.esm.js',
+        ),
+        '@firebase/auth$': path.resolve(
+          __dirname,
+          'node_modules/@firebase/auth/dist/esm2017/index.js',
+        ),
         '@sentry/react-native': path.resolve(
           __dirname,
           'src/mocks/sentry.web.js',
@@ -123,13 +173,12 @@ module.exports = (env, argv) => {
       rules: [
         {
           test: /\.(js|jsx|ts|tsx)$/,
-          exclude:
-            /node_modules\/(?!(react-native-vector-icons|react-native-reanimated|react-native-gesture-handler|react-native-screens|react-native-safe-area-context|@react-native|@react-navigation|expo|expo-.*|@expo|expo-modules-core)\/).*/,
+          exclude: shouldExcludeFromBabel,
           use: {
             loader: 'babel-loader',
             options: {
               presets: [
-                '@babel/preset-env',
+                ['@babel/preset-env', { modules: false }],
                 '@babel/preset-react',
                 '@babel/preset-typescript',
               ],

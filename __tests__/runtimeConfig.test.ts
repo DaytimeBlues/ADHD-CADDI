@@ -15,16 +15,19 @@ describe('runtime config', () => {
     );
   });
 
-  it('warns when Google client IDs are missing', () => {
+  it('warns when native Google client IDs are missing', () => {
     const config = createConfig({
       EXPO_PUBLIC_ENV: 'development',
     });
 
-    expect(config.startupWarnings).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ code: 'MISSING_GOOGLE_CLIENT_IDS' }),
-      ]),
+    const warning = config.startupWarnings.find(
+      (entry) => entry.code === 'MISSING_GOOGLE_CLIENT_IDS',
     );
+
+    expect(warning).toEqual(
+      expect.objectContaining({ code: 'MISSING_GOOGLE_CLIENT_IDS' }),
+    );
+    expect(warning?.message).toContain('Native Google sign-in');
   });
 
   it('falls back to vercel when direct AI is requested without a key', () => {

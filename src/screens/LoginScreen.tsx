@@ -10,17 +10,24 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { FirebaseAuthService } from '../services/FirebaseAuthService';
+import { config } from '../config';
 import { Tokens } from '../theme/tokens';
 import { cosmicColors } from '../theme/cosmicTokens';
 import { GlowCard } from '../ui/cosmic';
 import AppIcon from '../components/AppIcon';
+import { useAuth } from '../contexts/AuthContext';
 
 export const LoginScreen = () => {
+  const { enterGuestMode } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const canUseGoogleSignIn =
+    Platform.OS === 'web'
+      ? true
+      : Boolean(config.googleWebClientId || config.googleIosClientId);
 
   const handleAuth = async () => {
     if (!email || !password) {
@@ -48,6 +55,19 @@ export const LoginScreen = () => {
       await FirebaseAuthService.signInWithGoogleWeb();
     if (authError) {
       setError(authError);
+      setLoading(false);
+    }
+  };
+
+  const handleGuestSignIn = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      await enterGuestMode();
+    } catch (authError) {
+      setError(
+        authError instanceof Error ? authError.message : String(authError),
+      );
       setLoading(false);
     }
   };
@@ -115,18 +135,36 @@ export const LoginScreen = () => {
           </TouchableOpacity>
         </GlowCard>
 
-        <View style={styles.divider}>
-          <View style={styles.line} />
-          <Text style={styles.dividerText}>OR</Text>
-          <View style={styles.line} />
-        </View>
+        {canUseGoogleSignIn ? (
+          <>
+            <View style={styles.divider}>
+              <View style={styles.line} />
+              <Text style={styles.dividerText}>OR</Text>
+              <View style={styles.line} />
+            </View>
+
+            <TouchableOpacity
+              style={styles.googleButton}
+              onPress={handleGoogleSignIn}
+            >
+              <AppIcon name="google" size={20} color="#FFF" />
+              <Text style={styles.googleButtonText}>CONTINUE WITH GOOGLE</Text>
+            </TouchableOpacity>
+          </>
+        ) : null}
 
         <TouchableOpacity
-          style={styles.googleButton}
-          onPress={handleGoogleSignIn}
+          style={styles.guestButton}
+          onPress={handleGuestSignIn}
+          disabled={loading}
+          testID="login-guest-button"
         >
-          <AppIcon name="google" size={20} color="#FFF" />
-          <Text style={styles.googleButtonText}>CONTINUE WITH GOOGLE</Text>
+          <AppIcon
+            name="account-circle-outline"
+            size={20}
+            color={cosmicColors.nebulaViolet}
+          />
+          <Text style={styles.guestButtonText}>CONTINUE AS GUEST</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -268,6 +306,25 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     letterSpacing: 0.5,
+  },
+  guestButton: {
+    flexDirection: 'row',
+    height: 50,
+    width: '100%',
+    backgroundColor: 'rgba(139, 92, 246, 0.08)',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(139, 92, 246, 0.3)',
+    marginTop: 16,
+  },
+  guestButtonText: {
+    color: cosmicColors.nebulaViolet,
+    fontSize: 14,
+    fontWeight: '700',
+    marginLeft: 10,
+    letterSpacing: 1,
   },
 });
 

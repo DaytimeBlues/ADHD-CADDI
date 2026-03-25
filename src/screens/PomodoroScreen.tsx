@@ -1,57 +1,106 @@
 import React from 'react';
 import { SafeAreaView, StyleSheet, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { usePomodoroSession } from '../hooks/usePomodoroSession';
+import { ROUTES } from '../navigation/routes';
 import { Tokens } from '../theme/tokens';
 import { useTheme } from '../theme/useTheme';
 import { CosmicBackground } from '../ui/cosmic';
 import { PomodoroControls } from './pomodoro/PomodoroControls';
 import { PomodoroHeader } from './pomodoro/PomodoroHeader';
-import { PomodoroSessionCounter } from './pomodoro/PomodoroSessionCounter';
 import { PomodoroTimerCard } from './pomodoro/PomodoroTimerCard';
 import { BackHeader } from '../components/ui/BackHeader';
+import { pushWebPathForRoute } from '../navigation/webPathMap';
+import { FeatureGuideButton } from '../components/tutorial/FeatureGuideButton';
+import { FeatureTutorialOverlay } from '../components/tutorial/FeatureTutorialOverlay';
+import { TutorialTarget } from '../components/tutorial/TutorialTarget';
+import { pomodoroOnboardingFlow } from '../store/useTutorialStore';
+import { useFeatureTutorial } from '../hooks/useFeatureTutorial';
 
 const PomodoroScreen = () => {
   const { isCosmic } = useTheme();
   const styles = getStyles();
+  const navigation = useNavigation();
   const {
     timeLeft,
     isRunning,
     formattedTime,
     isWorking,
-    sessions,
     start,
     pause,
     reset,
     getTotalDuration,
   } = usePomodoroSession();
+  const {
+    currentTutorialStep,
+    currentStepIndex,
+    totalSteps,
+    nextStep,
+    previousStep,
+    skipTutorial,
+    guideButtonLabel,
+    isReplayTutorial,
+    startTutorial,
+  } = useFeatureTutorial(pomodoroOnboardingFlow);
 
   return (
-    <CosmicBackground variant="nebula" style={StyleSheet.absoluteFill}>
+    <CosmicBackground variant="nebula">
       <SafeAreaView
         style={styles.container}
         accessibilityLabel="Pomodoro screen"
         accessibilityRole="summary"
       >
         <View style={styles.content}>
-          <BackHeader title="POMODORO" />
-          <PomodoroHeader isCosmic={isCosmic} isWorking={isWorking} />
-          <PomodoroTimerCard
-            isCosmic={isCosmic}
-            isWorking={isWorking}
-            isRunning={isRunning}
-            timeLeft={timeLeft}
-            formattedTime={formattedTime}
-            totalDuration={getTotalDuration()}
+          <BackHeader
+            title="POMODORO"
+            fallbackRoute="Home"
+            onBack={() => {
+              pushWebPathForRoute(ROUTES.HOME);
+              navigation.navigate(ROUTES.HOME as never);
+            }}
           />
-          <PomodoroSessionCounter isCosmic={isCosmic} sessions={sessions} />
-          <PomodoroControls
-            isCosmic={isCosmic}
-            isRunning={isRunning}
-            isWorking={isWorking}
-            onStart={start}
-            onPause={pause}
-            onReset={reset}
+          <View style={styles.headerRow}>
+            <PomodoroHeader isCosmic={isCosmic} isWorking={isWorking} />
+            <TutorialTarget targetId="pomodoro-replay">
+              <FeatureGuideButton
+                onPress={() => startTutorial()}
+                accessibilityLabel="Open tutorial for pomodoro"
+                testID="pomodoro-tour-button"
+                label={guideButtonLabel}
+                isSecondary={isReplayTutorial}
+              />
+            </TutorialTarget>
+          </View>
+
+          <FeatureTutorialOverlay
+            currentTutorialStep={currentTutorialStep}
+            currentStepIndex={currentStepIndex}
+            totalSteps={totalSteps}
+            onNext={nextStep}
+            onPrevious={previousStep}
+            onSkip={skipTutorial}
+            style={styles.tutorialOverlay}
           />
+          <TutorialTarget targetId="pomodoro-timer">
+            <PomodoroTimerCard
+              isCosmic={isCosmic}
+              isWorking={isWorking}
+              isRunning={isRunning}
+              timeLeft={timeLeft}
+              formattedTime={formattedTime}
+              totalDuration={getTotalDuration()}
+            />
+          </TutorialTarget>
+          <TutorialTarget targetId="pomodoro-controls">
+            <PomodoroControls
+              isCosmic={isCosmic}
+              isRunning={isRunning}
+              isWorking={isWorking}
+              onStart={start}
+              onPause={pause}
+              onReset={reset}
+            />
+          </TutorialTarget>
         </View>
       </SafeAreaView>
     </CosmicBackground>
@@ -71,6 +120,18 @@ const getStyles = () =>
       justifyContent: 'center',
       width: '100%',
       maxWidth: Tokens.layout.maxWidth.prose,
+      alignSelf: 'center',
+    },
+    headerRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      width: '100%',
+      marginBottom: Tokens.spacing[4],
+    },
+    tutorialOverlay: {
+      width: '100%',
+      marginBottom: Tokens.spacing[4],
     },
   });
 

@@ -147,6 +147,29 @@ export const seedZeroReviewBubbleState = async (page: Page): Promise<void> => {
   await seedAlexPersona(page, { captureInboxItems: [] });
 };
 
+export const seedMinimalAppState = async (page: Page): Promise<void> => {
+  await page.addInitScript(() => {
+    window.localStorage.clear();
+    window.localStorage.setItem('streakCount', '3');
+    window.localStorage.setItem(
+      'lastUseDate',
+      new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+    );
+    window.localStorage.setItem('brainDump', JSON.stringify([]));
+    window.localStorage.setItem('tasks', JSON.stringify([]));
+    window.localStorage.setItem(
+      'captureInbox',
+      JSON.stringify({
+        state: {
+          items: [],
+          _hasHydrated: true,
+        },
+        version: 0,
+      }),
+    );
+  });
+};
+
 export const enableE2ETestMode = async (page: Page): Promise<void> => {
   await page.addInitScript(() => {
     const globalRecord = window as unknown as Record<string, unknown> & {
@@ -161,6 +184,18 @@ export const enableE2ETestMode = async (page: Page): Promise<void> => {
     }
 
     globalRecord.__SPARK_E2E_TEST_MODE__ = true;
+  });
+};
+
+export const enableE2EAnonymousAppShell = async (page: Page): Promise<void> => {
+  await page.addInitScript(() => {
+    const globalRecord = window as unknown as Record<string, unknown>;
+    globalRecord.__SPARK_E2E_AUTH_BYPASS__ = {
+      enabled: true,
+      uid: 'e2e-anonymous-shell',
+      displayName: 'E2E Anonymous Shell',
+      email: null,
+    };
   });
 };
 

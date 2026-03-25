@@ -1,6 +1,8 @@
 # ADHD-CADDI Test Matrix
 
 > Current stance: the browser/web workflow is the primary verified path, and the shipped web app is web-first and online-first. Offline/PWA support is intentionally disabled; treat service-worker-driven offline behavior as out of scope unless a dedicated pass re-enables it.
+>
+> Integration note: Google Tasks and Todoist UI entry points ship in the Brain Dump flow, but live OAuth coverage is config-dependent. Authenticated browser coverage is opportunistic and only runs when a real Playwright storage state already exists.
 
 ## Page/Button Inventory
 
@@ -36,6 +38,7 @@
 
 - [ ] TASKS header visible
 - [ ] NEBULA QUEUE subtitle visible
+- [ ] Replay Guide button visible
 - [ ] Task list displays
 - [ ] Add new task
 - [ ] Toggle task completion
@@ -49,6 +52,7 @@
 #### BrainDumpScreen (separate route opened from TasksScreen)
 
 - [ ] BRAIN_DUMP header visible
+- [ ] Replay Guide button visible
 - [ ] Text input for new items
 - [ ] Add item via Enter key
 - [ ] Voice recording toggle
@@ -57,9 +61,9 @@
 - [ ] Delete individual items
 - [ ] Items persist across reload
 - [ ] Items persist across tab navigation
-- [ ] Google OAuth connect button (NEW)
-- [ ] Todoist sync button (NEW)
-- [ ] Integration status indicators (NEW)
+- [ ] Google Tasks connect button visible
+- [ ] Todoist connect button visible
+- [ ] Integration status indicators visible
 
 #### CalendarScreen
 
@@ -71,6 +75,7 @@
 #### ChatScreen
 
 - [ ] CADDI_ASSISTANT header visible
+- [ ] Replay Guide button visible
 - [ ] Message input field
 - [ ] Send button
 - [ ] Message history display
@@ -80,6 +85,7 @@
 #### FogCutterScreen
 
 - [ ] FOG_CUTTER header visible
+- [ ] Replay Guide button visible
 - [ ] Task input field
 - [ ] Micro-step input
 - [ ] Add micro-step button
@@ -89,6 +95,7 @@
 
 #### PomodoroScreen
 
+- [ ] Replay Guide button visible
 - [ ] START TIMER button
 - [ ] PAUSE button (after start)
 - [ ] Timer display decrements
@@ -99,6 +106,7 @@
 #### AnchorScreen
 
 - [ ] BREATHING EXERCISES header
+- [ ] Replay Guide button visible
 - [ ] Pattern selection (4-7-8, Box, Energize)
 - [ ] BREATHE IN animation
 - [ ] HOLD animation
@@ -107,6 +115,7 @@
 #### CheckInScreen
 
 - [ ] HOW ARE YOU FEELING RIGHT NOW? header
+- [ ] Replay Guide button visible
 - [ ] Mood selection (1-5 options)
 - [ ] Energy selection (1-5 options)
 - [ ] RECOMMENDED FOR YOU display
@@ -122,6 +131,7 @@
 #### InboxScreen
 
 - [ ] INBOX header visible
+- [ ] Replay Guide button visible
 - [ ] Unreviewed items list
 - [ ] Promote to task button
 - [ ] Discard button
@@ -138,16 +148,35 @@
 - [ ] Meeting mode accepts multi-line
 - [ ] Cancel closes drawer without saving
 - [ ] Bubble hidden on fullscreen modals
+- [ ] Bubble hidden while guided tutorial overlays are visible
+- [ ] Bubble hidden while the Home replay-guide menu is visible
 
-### Integration Features (NEW)
+### Guided Tutorial Features
+
+- [ ] Guided tutorials setting visible in Diagnostics
+- [ ] Guided tutorials can be disabled globally
+- [ ] Tutorial progress can be reset from Diagnostics
+- [ ] Brain Dump guide auto-starts on first visit
+- [ ] Tasks guide is replay-only by default
+- [ ] Chat guide is replay-only by default
+- [ ] Inbox guide is replay-only by default
+- [ ] Home tutorial menu lists supported screens
+- [ ] Tutorial launches the expected flow
+- [ ] Replay Tutorial appears after dismissal or completion
+- [ ] Overlay dismiss `X` closes the active guide
+- [ ] Overlay highlight stays inside Android screen bounds
+- [ ] Skipping a guide dismisses it cleanly
+- [ ] Completing a guide prevents auto-start on the same flow
+
+### Integration Features (Config-dependent)
 
 #### Google OAuth
 
 - [ ] Connect Google button visible in task pages
-- [ ] OAuth flow initiates
+- [ ] OAuth flow initiates when Google client IDs are configured
 - [ ] Success callback handled
 - [ ] Token stored securely
-- [ ] User email displayed
+- [ ] User email displayed after connection
 - [ ] Disconnect option
 - [ ] Token refresh on expiry
 - [ ] Error states: denied, network, timeout
@@ -161,6 +190,7 @@
 - [ ] Two-way sync status
 - [ ] Disconnect option
 - [ ] Error handling
+- [ ] Graceful degraded state when Todoist is not connected
 
 ## Test Tags
 
@@ -181,8 +211,8 @@
 - Task CRUD operations
 - Timer functionality
 - Data persistence
-- OAuth connection flows
-- Todoist sync
+- Anonymous auth entry path
+- Disconnected optional integrations do not block launch
 
 ### @smoke (quick validation)
 
@@ -201,7 +231,7 @@
 
 ### @oauth (Google integration)
 
-- Sign-in flow
+- Sign-in flow when client IDs are configured
 - Token management
 - Refresh logic
 - Error states
@@ -212,6 +242,7 @@
 - Task export
 - Sync status
 - Error handling
+- Disconnected/degraded fallback state
 
 ### @android (native specific)
 

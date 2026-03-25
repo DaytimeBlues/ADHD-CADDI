@@ -9,6 +9,12 @@ import React from 'react';
 import { Share } from 'react-native';
 import HomeScreen from '../src/screens/HomeScreen';
 
+const mockUseAuth = jest.fn();
+
+jest.mock('../src/contexts/AuthContext', () => ({
+  useAuth: () => mockUseAuth(),
+}));
+
 // Control `isWeb` / `isAndroid` per test — the screen imports these as module-scope constants.
 let mockIsWeb = false;
 let mockIsAndroid = false;
@@ -117,6 +123,13 @@ describe('HomeScreen', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockUseAuth.mockReturnValue({
+      sessionMode: 'account',
+      isGuestSession: false,
+      isDemoSession: false,
+      loadDemoData: jest.fn(),
+      signOut: jest.fn(),
+    });
     mockIsWeb = false;
     mockIsAndroid = false;
     mockGetReentryPromptLevel.mockResolvedValue('none');
@@ -172,6 +185,12 @@ describe('HomeScreen', () => {
     await renderHomeScreen();
     fireEvent.press(screen.getByTestId('mode-fogcutter'));
     expect(mockNavigation.navigate).toHaveBeenCalledWith('FogCutter');
+  });
+
+  it('opens diagnostics from the feedback action', async () => {
+    await renderHomeScreen();
+    fireEvent.press(screen.getByLabelText('Report an issue or share feedback'));
+    expect(mockNavigation.navigate).toHaveBeenCalledWith('Diagnostics');
   });
 
   it('navigates to Focus (Ignite) when Resume card is pressed', async () => {
@@ -233,5 +252,26 @@ describe('HomeScreen', () => {
       emitOverlayEvent('overlay_started');
     });
     expect(screen.getByText('ACTIVE')).toBeTruthy();
+  });
+
+  it('shows guest session actions when browsing without an account', async () => {
+    const mockLoadDemoData = jest.fn();
+    const mockSignOut = jest.fn();
+    mockUseAuth.mockReturnValue({
+      sessionMode: 'guest',
+      isGuestSession: true,
+      isDemoSession: false,
+      loadDemoData: mockLoadDemoData,
+      signOut: mockSignOut,
+    });
+
+    await renderHomeScreen();
+
+    expect(screen.getByText('GUEST MODE')).toBeTruthy();
+    fireEvent.press(screen.getByText('LOAD DEMO DATA'));
+    fireEvent.press(screen.getByText('EXIT GUEST'));
+
+    expect(mockLoadDemoData).toHaveBeenCalledTimes(1);
+    expect(mockSignOut).toHaveBeenCalledTimes(1);
   });
 });

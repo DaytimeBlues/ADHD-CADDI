@@ -1,11 +1,11 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
+import { initializeApp, getApps, getApp } from '@firebase/app';
 import {
   initializeAuth,
   GoogleAuthProvider,
   EmailAuthProvider,
-  indexedDBLocalPersistence,
   browserLocalPersistence,
-} from 'firebase/auth';
+  browserPopupRedirectResolver,
+} from '@firebase/auth';
 
 /**
  * firebase.web.ts
@@ -37,7 +37,8 @@ const firebaseConfig = {
 const firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 const auth = initializeAuth(firebaseApp, {
-  persistence: [indexedDBLocalPersistence, browserLocalPersistence],
+  persistence: browserLocalPersistence,
+  popupRedirectResolver: browserPopupRedirectResolver,
 });
 
 export const googleProvider = new GoogleAuthProvider();

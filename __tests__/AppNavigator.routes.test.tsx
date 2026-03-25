@@ -144,6 +144,16 @@ describe('AppNavigator route registration', () => {
   beforeEach(() => {
     jest.useFakeTimers();
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    Object.defineProperty(globalThis, 'window', {
+      value: {
+        location: { pathname: '/home' },
+        history: {
+          pushState: jest.fn(),
+          replaceState: jest.fn(),
+        },
+      },
+      configurable: true,
+    });
   });
 
   afterEach(() => {

@@ -1,5 +1,6 @@
 import React from 'react';
 import { SafeAreaView, Text, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../theme/useTheme';
 import { CosmicBackground, GlowCard } from '../ui/cosmic';
 import { NightAweBackground } from '../ui/nightAwe';
@@ -7,11 +8,14 @@ import { getIgniteScreenStyles } from './IgniteScreen.styles';
 import { IgniteTimerDisplay } from './ignite/IgniteTimerDisplay';
 import { useIgniteController } from './ignite/useIgniteController';
 import { BackHeader } from '../components/ui/BackHeader';
+import { ROUTES } from '../navigation/routes';
+import { pushWebPathForRoute } from '../navigation/webPathMap';
 
 const IgniteScreen = () => {
   const { isCosmic, isNightAwe, t, variant } = useTheme();
   const styles = getIgniteScreenStyles(variant, t);
   const controller = useIgniteController();
+  const navigation = useNavigation();
 
   const rationaleContent = (
     <>
@@ -32,14 +36,14 @@ const IgniteScreen = () => {
     >
       <View style={styles.centerWrapper}>
         <View style={styles.content}>
-          <BackHeader title="IGNITE_PROTOCOL" />
-          <View style={styles.header}>
-            <View style={styles.statusBadge}>
-              <Text style={styles.statusText}>
-                {controller.isRunning ? 'RUNNING' : 'READY'}
-              </Text>
-            </View>
-          </View>
+          <BackHeader
+            title="IGNITE_PROTOCOL"
+            fallbackRoute="Home"
+            onBack={() => {
+              pushWebPathForRoute(ROUTES.HOME);
+              navigation.navigate(ROUTES.HOME as never);
+            }}
+          />
 
           {isNightAwe ? (
             <View style={styles.rationaleCardSurface}>{rationaleContent}</View>
@@ -67,6 +71,10 @@ const IgniteScreen = () => {
             onStart={controller.startTimer}
             onToggleSound={controller.toggleSound}
           />
+          <Text style={styles.brownNoiseNote}>
+            Brown noise can soften distracting peaks in the background so the
+            timer has less competition for your attention.
+          </Text>
         </View>
       </View>
     </SafeAreaView>

@@ -53,9 +53,21 @@ export const getCheckInScreenStyles = (isCosmic: boolean) =>
       fontFamily: Tokens.type.fontFamily.sans,
       fontSize: Tokens.type.base,
       color: isCosmic ? '#B9C2D9' : Tokens.colors.text.secondary,
-      marginBottom: Tokens.spacing[4],
+      marginBottom: Tokens.spacing[2],
       textAlign: 'center',
       letterSpacing: 1,
+    },
+    helperText: {
+      fontFamily: Tokens.type.fontFamily.body,
+      fontSize: Tokens.type.sm,
+      color: isCosmic
+        ? 'rgba(185, 194, 217, 0.9)'
+        : Tokens.colors.text.secondary,
+      lineHeight: 20,
+      textAlign: 'center',
+      maxWidth: 520,
+      alignSelf: 'center',
+      marginBottom: Tokens.spacing[6],
     },
     rationaleCard: {
       marginBottom: Tokens.spacing[8],
@@ -200,6 +212,33 @@ export const getCheckInScreenStyles = (isCosmic: boolean) =>
     recommendation: {
       marginTop: Tokens.spacing[4],
     },
+    selectionSummary: {
+      marginTop: Tokens.spacing[4],
+      marginBottom: Tokens.spacing[2],
+      padding: Tokens.spacing[3],
+      borderRadius: isCosmic ? 16 : Tokens.radii.none,
+      backgroundColor: isCosmic
+        ? 'rgba(14, 20, 40, 0.55)'
+        : Tokens.colors.neutral.darkest,
+      borderWidth: 1,
+      borderColor: isCosmic
+        ? 'rgba(185, 194, 217, 0.12)'
+        : Tokens.colors.neutral.borderSubtle,
+    },
+    selectionSummaryLabel: {
+      fontFamily: Tokens.type.fontFamily.mono,
+      fontSize: Tokens.type.xxs,
+      color: isCosmic ? '#B9C2D9' : Tokens.colors.text.tertiary,
+      letterSpacing: 1,
+      marginBottom: 4,
+      textTransform: 'uppercase',
+    },
+    selectionSummaryText: {
+      fontFamily: Tokens.type.fontFamily.sans,
+      fontSize: Tokens.type.sm,
+      color: isCosmic ? '#EEF2FF' : Tokens.colors.text.primary,
+      lineHeight: 20,
+    },
     recommendationTitle: {
       fontFamily: Tokens.type.fontFamily.sans,
       fontSize: Tokens.type.lg,
@@ -246,6 +285,7 @@ export const getCheckInScreenStyles = (isCosmic: boolean) =>
         : Tokens.colors.brand[500],
       marginBottom: 4,
       letterSpacing: 1,
+      textTransform: 'uppercase',
     },
     insightText: {
       fontFamily: Tokens.type.fontFamily.sans,
@@ -253,5 +293,32 @@ export const getCheckInScreenStyles = (isCosmic: boolean) =>
       fontStyle: 'italic',
       color: isCosmic ? '#EEF2FF' : Tokens.colors.text.primary,
       lineHeight: 20,
+    },
+    tourHeaderRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: Tokens.spacing[4],
+    },
+    tourButton: {
+      paddingHorizontal: Tokens.spacing[3],
+      paddingVertical: Tokens.spacing[2],
+      borderRadius: Tokens.radii.md,
+      backgroundColor: 'rgba(139, 92, 246, 0.15)',
+      borderWidth: 1,
+      borderColor: 'rgba(139, 92, 246, 0.3)',
+    },
+    tourButtonPressed: {
+      opacity: 0.7,
+    },
+    tourButtonText: {
+      fontFamily: Tokens.type.fontFamily.mono,
+      fontSize: Tokens.type.xs,
+      fontWeight: '700',
+      color: '#8B5CF6',
+      letterSpacing: 1,
+    },
+    tutorialOverlay: {
+      marginBottom: Tokens.spacing[4],
     },
   });

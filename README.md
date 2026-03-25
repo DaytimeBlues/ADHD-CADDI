@@ -10,8 +10,8 @@ A behavioral activation tool for ADHD, designed primarily for the browser with a
 
 ## Deployment Status
 
-- Live web app: [https://daytimeblues.github.io/ADHD-CADDI/](https://daytimeblues.github.io/ADHD-CADDI/)
-- Production deploy path: push reviewed changes to `main` and let `.github/workflows/pages.yml` publish GitHub Pages
+- Primary Firebase Hosting URL after deploy: [https://adhd-3f643.web.app](https://adhd-3f643.web.app)
+- Production deploy path: push reviewed changes to `main` and let `.github/workflows/firebase-hosting.yml` deploy Firebase Hosting
 - Android verification path: `.github/workflows/android.yml` builds debug and release APK artifacts on CI
 
 ## Features
@@ -62,9 +62,15 @@ npx tsc --noEmit
 # Browser smoke test
 npm run e2e:smoke
 
+# Opportunistic authenticated browser check
+# Skips cleanly unless a real Playwright auth storage state already exists
+npm run e2e:auth
+
 # Lightweight admin checks
 npm run admin:check
 ```
+
+`npm run admin:check` may warn about missing Google client IDs. That warning is expected on machines where optional Google-backed features have not been configured yet.
 
 ### Deploying
 
@@ -72,14 +78,20 @@ npm run admin:check
 git push origin main
 ```
 
-`npm run deploy` still exists as a manual `gh-pages` helper, but the production site now deploys through the GitHub Actions Pages workflow instead of that script.
+For a manual web deploy from your machine, use:
+
+```bash
+npm run deploy
+```
+
+This repository stays GitHub-first for source control, but Firebase Hosting is the single primary web deployment path.
 
 ### Branch Workflow
 
 1. Create a branch from `main`.
 2. Run local checks.
 3. Push the branch for review.
-4. Merge to `main` only when ready for CI and Pages deployment.
+4. Merge to `main` only when ready for CI and Firebase Hosting deployment.
 
 If the change is isolated or experimental, do not push directly to `main`.
 
@@ -138,7 +150,7 @@ npm run test:e2e:android
 - Logic: TypeScript
 - State/Storage: AsyncStorage
 - Testing: Jest plus Playwright
-- Deployment: GitHub Pages
+- Deployment: Firebase Hosting
 
 ## Config and Operations
 

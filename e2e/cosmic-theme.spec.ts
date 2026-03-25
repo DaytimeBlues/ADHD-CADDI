@@ -1,6 +1,7 @@
 import { test, expect, Page } from '@playwright/test';
 import {
   enableE2ETestMode,
+  enableE2EAnonymousAppShell,
   enableCosmicTheme,
   enableRecordingMock,
   seedAlexPersona,
@@ -31,6 +32,7 @@ const navigateToScreen = async (page: Page, modeId: string) => {
 test.describe('Cosmic Theme — Theme Toggle', () => {
   test.beforeEach(async ({ page }) => {
     await enableE2ETestMode(page);
+    await enableE2EAnonymousAppShell(page);
     await gotoAppRoot(page);
     await expect(page.getByTestId('home-title')).toBeVisible();
   });
@@ -96,6 +98,7 @@ test.describe('Cosmic Theme — Theme Toggle', () => {
 test.describe('Cosmic Theme — Home Screen', () => {
   test.beforeEach(async ({ page }) => {
     await enableE2ETestMode(page);
+    await enableE2EAnonymousAppShell(page);
     await enableCosmicTheme(page);
     await seedAlexPersona(page);
     await gotoAppRoot(page);
@@ -149,6 +152,7 @@ const screenRoutes: { id: string; verifyText: string }[] = [
 test.describe('Cosmic Theme — Screen Rendering Smoke Tests', () => {
   test.beforeEach(async ({ page }) => {
     await enableE2ETestMode(page);
+    await enableE2EAnonymousAppShell(page);
     await enableCosmicTheme(page);
     await enableRecordingMock(page);
     await seedAlexPersona(page);
@@ -183,6 +187,7 @@ test.describe('Cosmic Theme — Screen Rendering Smoke Tests', () => {
 test.describe('Cosmic Theme — Timer Interactions', () => {
   test.beforeEach(async ({ page }) => {
     await enableE2ETestMode(page);
+    await enableE2EAnonymousAppShell(page);
     await enableCosmicTheme(page);
     await enableRecordingMock(page);
     await seedAlexPersona(page);
@@ -278,6 +283,7 @@ test.describe('Cosmic Theme — Timer Interactions', () => {
 test.describe('Cosmic Theme — Interactive Features', () => {
   test.beforeEach(async ({ page }) => {
     await enableE2ETestMode(page);
+    await enableE2EAnonymousAppShell(page);
     await enableCosmicTheme(page);
     await enableRecordingMock(page);
     await seedAlexPersona(page);

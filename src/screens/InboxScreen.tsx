@@ -15,6 +15,9 @@ import CaptureService, {
 } from '../services/CaptureService';
 import { LoggerService } from '../services/LoggerService';
 import { CosmicBackground } from '../ui/cosmic';
+import { FeatureGuideButton } from '../components/tutorial/FeatureGuideButton';
+import { FeatureTutorialOverlay } from '../components/tutorial/FeatureTutorialOverlay';
+import { TutorialTarget } from '../components/tutorial/TutorialTarget';
 import {
   CaptureRow,
   CaptureSkeleton,
@@ -23,6 +26,8 @@ import {
 } from './inbox/inboxParts';
 import { styles } from './inbox/inboxStyles';
 import { BackHeader } from '../components/ui/BackHeader';
+import { inboxOnboardingFlow } from '../store/useTutorialStore';
+import { useFeatureTutorial } from '../hooks/useFeatureTutorial';
 
 // ============================================================================
 // SCREEN
@@ -30,6 +35,17 @@ import { BackHeader } from '../components/ui/BackHeader';
 
 const InboxScreen = (): JSX.Element => {
   const { isCosmic } = useTheme();
+  const {
+    currentTutorialStep,
+    currentStepIndex,
+    totalSteps,
+    nextStep,
+    previousStep,
+    skipTutorial,
+    guideButtonLabel,
+    isReplayTutorial,
+    startTutorial,
+  } = useFeatureTutorial(inboxOnboardingFlow);
 
   const [items, setItems] = useState<CaptureItem[]>([]);
   const [activeFilter, setActiveFilter] = useState<FilterTab>('all');
@@ -145,40 +161,68 @@ const InboxScreen = (): JSX.Element => {
       >
         {/* Header */}
         <BackHeader title="CAPTURE INBOX" />
+        <View style={styles.guideRow}>
+          <Text style={[styles.title, isCosmic && styles.titleCosmic]}>
+            REVIEW
+          </Text>
+          <TutorialTarget targetId="inbox-replay">
+            <FeatureGuideButton
+              onPress={() => startTutorial()}
+              accessibilityLabel="Open tutorial for inbox"
+              testID="inbox-guide-button"
+              label={guideButtonLabel}
+              isSecondary={isReplayTutorial}
+            />
+          </TutorialTarget>
+        </View>
+
+        <FeatureTutorialOverlay
+          currentTutorialStep={currentTutorialStep}
+          currentStepIndex={currentStepIndex}
+          totalSteps={totalSteps}
+          onNext={nextStep}
+          onPrevious={previousStep}
+          onSkip={skipTutorial}
+          style={styles.tutorialOverlay}
+        />
 
         {/* Filter tabs */}
-        <View
-          style={[styles.tabs, isCosmic && styles.tabsCosmic]}
-          testID="inbox-filter-tabs"
-        >
-          {FILTER_TABS.map((tab) => (
-            <Pressable
-              key={tab.key}
-              onPress={() => setActiveFilter(tab.key)}
-              style={[
-                styles.tab,
-                activeFilter === tab.key &&
-                  (isCosmic ? styles.tabActiveCosmic : styles.tabActiveLinear),
-              ]}
-              testID={`inbox-tab-${tab.key}`}
-              accessibilityRole="tab"
-              accessibilityState={{ selected: activeFilter === tab.key }}
-            >
-              <Text
+        <TutorialTarget targetId="inbox-filters">
+          <View
+            style={[styles.tabs, isCosmic && styles.tabsCosmic]}
+            testID="inbox-filter-tabs"
+          >
+            {FILTER_TABS.map((tab) => (
+              <Pressable
+                key={tab.key}
+                onPress={() => setActiveFilter(tab.key)}
                 style={[
-                  styles.tabText,
-                  isCosmic && styles.tabTextCosmic,
+                  styles.tab,
                   activeFilter === tab.key &&
                     (isCosmic
-                      ? styles.tabTextActiveCosmic
-                      : styles.tabTextActiveLinear),
+                      ? styles.tabActiveCosmic
+                      : styles.tabActiveLinear),
                 ]}
+                testID={`inbox-tab-${tab.key}`}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: activeFilter === tab.key }}
               >
-                {tab.label}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
+                <Text
+                  style={[
+                    styles.tabText,
+                    isCosmic && styles.tabTextCosmic,
+                    activeFilter === tab.key &&
+                      (isCosmic
+                        ? styles.tabTextActiveCosmic
+                        : styles.tabTextActiveLinear),
+                  ]}
+                >
+                  {tab.label}
+                </Text>
+              </Pressable>
+            ))}
+          </View>
+        </TutorialTarget>
 
         {/* Content */}
         {isLoading ? (
@@ -198,14 +242,16 @@ const InboxScreen = (): JSX.Element => {
             </Text>
           </View>
         ) : (
-          <FlatList
-            data={items}
-            keyExtractor={(item) => item.id}
-            renderItem={renderItem}
-            contentContainerStyle={styles.listContent}
-            testID="inbox-list"
-            showsVerticalScrollIndicator={false}
-          />
+          <TutorialTarget targetId="inbox-list">
+            <FlatList
+              data={items}
+              keyExtractor={(item) => item.id}
+              renderItem={renderItem}
+              contentContainerStyle={styles.listContent}
+              testID="inbox-list"
+              showsVerticalScrollIndicator={false}
+            />
+          </TutorialTarget>
         )}
       </SafeAreaView>
     </CosmicBackground>

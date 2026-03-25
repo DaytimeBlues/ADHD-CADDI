@@ -13,6 +13,7 @@ import {
   ViewStyle,
   Animated,
   Platform,
+  View,
 } from 'react-native';
 import { useTheme } from '../../theme/useTheme';
 import { surfaceColors, webBoxShadows } from '../../theme/cosmicTokens';
@@ -226,7 +227,6 @@ export const GlowCard = memo(function GlowCard({
     }
   }, [isCosmic, glow]);
 
-  const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
   const pressedLinearStyle =
     isPressedInternal && !isCosmic ? styles.pressedLinear : undefined;
 
@@ -257,6 +257,21 @@ export const GlowCard = memo(function GlowCard({
     return baseStyle;
   };
 
+  if (!onPress) {
+    return (
+      <View
+        testID={testID}
+        style={[containerStyle, style as ViewStyle]}
+        accessibilityState={accessibilityState}
+        accessibilityLabel={accessibilityLabel}
+      >
+        {children}
+      </View>
+    );
+  }
+
+  const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
   return (
     <AnimatedPressable
       testID={testID}
@@ -274,7 +289,7 @@ export const GlowCard = memo(function GlowCard({
         selected: !!accessibilityState?.selected,
       }}
       accessibilityLabel={accessibilityLabel}
-      accessibilityRole={accessibilityRole || (onPress ? 'button' : undefined)}
+      accessibilityRole={accessibilityRole || 'button'}
       accessibilityHint={accessibilityHint}
     >
       <Animated.View

@@ -349,7 +349,7 @@ const AppNavigatorContent = () => {
         </>
       ) : (
         <Stack.Screen
-          name="Auth"
+          name={ROUTES.AUTH}
           component={AuthNavigator}
           options={{ headerShown: false }}
         />

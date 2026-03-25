@@ -7,17 +7,38 @@ import {
   ScrollView,
   KeyboardAvoidingView,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { CosmicBackground, GlowCard, RuneButton } from '../ui/cosmic';
 import ChatService, { ChatMessage } from '../services/ChatService';
 import { Tokens } from '../theme/tokens';
 import { useTheme } from '../theme/useTheme';
 import { isIOS } from '../utils/PlatformUtils';
+import { BackHeader } from '../components/ui/BackHeader';
+import { ROUTES } from '../navigation/routes';
+import { pushWebPathForRoute } from '../navigation/webPathMap';
+import { FeatureGuideButton } from '../components/tutorial/FeatureGuideButton';
+import { FeatureTutorialOverlay } from '../components/tutorial/FeatureTutorialOverlay';
+import { TutorialTarget } from '../components/tutorial/TutorialTarget';
+import { chatOnboardingFlow } from '../store/useTutorialStore';
+import { useFeatureTutorial } from '../hooks/useFeatureTutorial';
 
 const ChatScreen = () => {
+  const navigation = useNavigation();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const scrollViewRef = useRef<ScrollView>(null);
   const { isCosmic } = useTheme();
+  const {
+    currentTutorialStep,
+    currentStepIndex,
+    totalSteps,
+    nextStep,
+    previousStep,
+    skipTutorial,
+    guideButtonLabel,
+    isReplayTutorial,
+    startTutorial,
+  } = useFeatureTutorial(chatOnboardingFlow);
 
   useEffect(() => {
     return ChatService.subscribe((msgs) => {
@@ -51,65 +72,96 @@ const ChatScreen = () => {
         accessibilityLabel="Chat screen"
         accessibilityRole="summary"
       >
+        <BackHeader
+          title="CHAT"
+          fallbackRoute={ROUTES.HOME}
+          onBack={() => {
+            pushWebPathForRoute(ROUTES.HOME);
+            navigation.navigate(ROUTES.HOME as never);
+          }}
+        />
         <View style={styles.header}>
           <Text style={styles.title}>CADDI_ASSISTANT</Text>
+          <TutorialTarget targetId="chat-replay">
+            <FeatureGuideButton
+              onPress={() => startTutorial()}
+              accessibilityLabel="Open tutorial for chat"
+              testID="chat-guide-button"
+              label={guideButtonLabel}
+              isSecondary={isReplayTutorial}
+            />
+          </TutorialTarget>
         </View>
 
-        <ScrollView
-          ref={scrollViewRef}
-          style={styles.messageList}
-          contentContainerStyle={styles.messageContent}
-        >
-          {messages.map((msg) => (
-            <View
-              key={msg.id}
-              style={[
-                styles.messageRow,
-                msg.role === 'user' ? styles.userRow : styles.assistantRow,
-              ]}
-            >
-              <GlowCard
-                glow={msg.role === 'assistant' ? 'soft' : 'none'}
-                padding="sm"
+        <FeatureTutorialOverlay
+          currentTutorialStep={currentTutorialStep}
+          currentStepIndex={currentStepIndex}
+          totalSteps={totalSteps}
+          onNext={nextStep}
+          onPrevious={previousStep}
+          onSkip={skipTutorial}
+          style={styles.tutorialOverlay}
+        />
+
+        <TutorialTarget targetId="chat-thread">
+          <ScrollView
+            ref={scrollViewRef}
+            style={styles.messageList}
+            contentContainerStyle={styles.messageContent}
+          >
+            {messages.map((msg) => (
+              <View
+                key={msg.id}
                 style={[
-                  styles.bubble,
-                  msg.role === 'user'
-                    ? styles.userBubble
-                    : styles.assistantBubble,
+                  styles.messageRow,
+                  msg.role === 'user' ? styles.userRow : styles.assistantRow,
                 ]}
               >
-                <Text style={styles.messageText}>{msg.content}</Text>
-              </GlowCard>
-            </View>
-          ))}
-          {messages.length === 0 && (
-            <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>
-                HOW CAN I HELP YOU FOCUS TODAY?
-              </Text>
-            </View>
-          )}
-        </ScrollView>
+                <GlowCard
+                  glow={msg.role === 'assistant' ? 'soft' : 'none'}
+                  padding="sm"
+                  style={[
+                    styles.bubble,
+                    msg.role === 'user'
+                      ? styles.userBubble
+                      : styles.assistantBubble,
+                  ]}
+                >
+                  <Text style={styles.messageText}>{msg.content}</Text>
+                </GlowCard>
+              </View>
+            ))}
+            {messages.length === 0 && (
+              <View style={styles.emptyContainer}>
+                <Text style={styles.emptyText}>
+                  HOW CAN I HELP YOU FOCUS TODAY?
+                </Text>
+              </View>
+            )}
+          </ScrollView>
+        </TutorialTarget>
 
-        <View style={styles.inputArea}>
-          <TextInput
-            style={styles.input}
-            placeholder="TYPE_YOUR_THOUGHTS..."
-            placeholderTextColor={Tokens.colors.text.placeholder}
-            value={inputText}
-            onChangeText={setInputText}
-            onSubmitEditing={handleSend}
-            multiline
-          />
-          <RuneButton
-            variant="primary"
-            size="sm"
-            onPress={handleSend}
-            disabled={!inputText.trim()}
-          >
-            SEND
-          </RuneButton>
-        </View>
+        <TutorialTarget targetId="chat-compose">
+          <View style={styles.inputArea}>
+            <TextInput
+              style={styles.input}
+              placeholder="TYPE_YOUR_THOUGHTS..."
+              placeholderTextColor={Tokens.colors.text.placeholder}
+              value={inputText}
+              onChangeText={setInputText}
+              onSubmitEditing={handleSend}
+              multiline
+            />
+            <RuneButton
+              variant="primary"
+              size="sm"
+              onPress={handleSend}
+              disabled={!inputText.trim()}
+            >
+              SEND
+            </RuneButton>
+          </View>
+        </TutorialTarget>
       </KeyboardAvoidingView>
     </CosmicBackground>
   );
@@ -121,12 +173,19 @@ const getStyles = (isCosmic: boolean) =>
       flex: 1,
     },
     header: {
+      paddingHorizontal: Tokens.spacing[4],
       padding: Tokens.spacing[4],
+      flexDirection: 'row',
       alignItems: 'center',
+      justifyContent: 'space-between',
       borderBottomWidth: 1,
       borderBottomColor: isCosmic
         ? 'rgba(139, 92, 246, 0.2)'
         : Tokens.colors.neutral.borderSubtle,
+    },
+    tutorialOverlay: {
+      paddingHorizontal: Tokens.spacing[4],
+      paddingTop: Tokens.spacing[3],
     },
     title: {
       fontFamily: Tokens.type.fontFamily.mono,

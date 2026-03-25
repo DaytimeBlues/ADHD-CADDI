@@ -200,7 +200,18 @@ describe('App bootstrap', () => {
     Object.defineProperty(globalThis, 'window', {
       value: {
         location: { pathname: '/home' },
-        history: { replaceState: jest.fn() },
+        history: {
+          pushState: jest.fn(),
+          replaceState: jest.fn(),
+        },
+        addEventListener: jest.fn(),
+        removeEventListener: jest.fn(),
+      },
+      configurable: true,
+    });
+    Object.defineProperty(globalThis, 'document', {
+      value: {
+        title: 'ADHD-CADDI',
       },
       configurable: true,
     });

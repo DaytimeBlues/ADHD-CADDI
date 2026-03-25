@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy to Firebase Hosting
 
 on:
   push:
@@ -7,15 +7,12 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: 'pages'
+  group: 'firebase-hosting'
   cancel-in-progress: false
 
 jobs:
-  # Gate: All quality checks must pass before deploy
   quality-gates:
     name: Quality Gates
     runs-on: ubuntu-latest
@@ -66,7 +63,6 @@ jobs:
           path: coverage/
           retention-days: 30
 
-  # Gate: E2E tests must pass before deploy
   e2e-gate:
     name: E2E Web Tests
     runs-on: ubuntu-latest
@@ -121,8 +117,8 @@ jobs:
             e2e-core.log
           retention-days: 30
 
-  # Build and deploy (only after gates pass)
   build:
+    name: Build Web App
     runs-on: ubuntu-latest
     needs: [quality-gates, e2e-gate]
     steps:
@@ -143,9 +139,6 @@ jobs:
           set -o pipefail
           npm run build:web 2>&1 | tee build-production.log
 
-      - name: Copy SPA fallback
-        run: cp public/404.html dist/404.html
-
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         if: always()
@@ -156,26 +149,37 @@ jobs:
             build-production.log
           retention-days: 30
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./dist
-
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    name: Deploy Firebase Hosting
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-  # Post-deploy validation
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify Firebase token is configured
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: |
+          if [ -z "$FIREBASE_TOKEN" ]; then
+            echo "FIREBASE_TOKEN GitHub secret is required for Firebase Hosting deploys."
+            exit 1
+          fi
+
+      - name: Deploy to Firebase Hosting
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: npx firebase-tools deploy --only hosting --project adhd-3f643 --token "$FIREBASE_TOKEN"
+
   post-deploy-check:
     name: Post-Deploy Validation
     runs-on: ubuntu-latest
@@ -197,11 +201,10 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run smoke tests against production
-        run: |
-          npx playwright test e2e/smoke-basic.spec.ts --project=chromium
+        run: npx playwright test e2e/smoke-basic.spec.ts --project=chromium
         env:
           CI: true
-          PLAYWRIGHT_BASE_URL: https://daytimeblues.github.io/ADHD-CADDI/
+          PLAYWRIGHT_BASE_URL: https://adhd-3f643.web.app
 
       - name: Upload post-deploy report
         uses: actions/upload-artifact@v4

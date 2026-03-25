@@ -30,6 +30,8 @@ export const CheckInOptionGroup = ({
           <Pressable
             key={option.value}
             testID={`${testIdPrefix}-${option.value}`}
+            accessibilityRole="button"
+            accessibilityLabel={`${title} ${option.label}`}
             style={(state) => [
               styles.option,
               selectedValue === option.value && styles.selected,

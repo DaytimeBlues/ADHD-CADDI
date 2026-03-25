@@ -49,7 +49,7 @@ export const TextCaptureMode = memo(function TextCaptureMode({
         onPress={handleConfirm}
         disabled={!text.trim()}
         variant="primary"
-        style={styles.marginTop12}
+        style={[styles.marginTop12, styles.textModeAction]}
       >
         SAVE TO INBOX
       </RuneButton>

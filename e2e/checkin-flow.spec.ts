@@ -1,9 +1,14 @@
 import { test, expect } from '@playwright/test';
-import { enableE2ETestMode, enableCosmicTheme } from './helpers/seed';
+import {
+  enableE2ETestMode,
+  enableE2EAnonymousAppShell,
+  enableCosmicTheme,
+} from './helpers/seed';
 
 test.describe('CheckIn Flow', () => {
   test.beforeEach(async ({ page }) => {
     await enableE2ETestMode(page);
+    await enableE2EAnonymousAppShell(page);
     await enableCosmicTheme(page);
     await page.goto('/');
     await expect(page.getByTestId('home-title')).toBeVisible();

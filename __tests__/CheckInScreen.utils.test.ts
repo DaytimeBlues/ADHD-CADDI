@@ -23,7 +23,7 @@ const CASES = [
   {
     mood: 3,
     energy: 3,
-    route: ROUTES.TASKS,
+    route: ROUTES.BRAIN_DUMP,
     cta: 'OPEN BRAIN DUMP',
   },
 ] as const;

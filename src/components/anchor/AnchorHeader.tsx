@@ -10,7 +10,6 @@ export const AnchorHeader: React.FC = () => {
 
   return (
     <View style={styles.header}>
-      <Text style={styles.title}>ANCHOR</Text>
       <Text style={styles.subtitle}>
         BREATHING EXERCISES FOR CALM AND FOCUS.
       </Text>
@@ -22,7 +21,7 @@ const getStyles = (isCosmic: boolean) =>
   StyleSheet.create({
     header: {
       width: '100%',
-      marginBottom: Tokens.spacing[10],
+      marginBottom: Tokens.spacing[8],
       alignItems: 'center',
     },
     title: {

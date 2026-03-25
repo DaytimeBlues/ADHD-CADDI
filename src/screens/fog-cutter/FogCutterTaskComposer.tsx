@@ -110,7 +110,16 @@ export const FogCutterTaskComposer = ({
   const creationContent = (
     <>
       <View style={styles.creationHeader}>
-        <Text style={styles.cardTitle}>DECOMPOSE_TASK</Text>
+        <Text style={styles.cardTitle}>BREAK DOWN A TASK</Text>
+        <Text style={styles.rationaleText}>
+          Turn one task into a small starter plan.
+        </Text>
+        <Text style={styles.rationaleText}>
+          Use this when the next step feels too big.
+        </Text>
+        <Text style={styles.rationaleText}>
+          You can edit the steps after they appear.
+        </Text>
       </View>
       <View style={styles.inputGroup}>
         <TextInput
@@ -133,7 +142,7 @@ export const FogCutterTaskComposer = ({
               onPress={onAiBreakdownPress}
               disabled={!task.trim() || isAiLoading}
               accessibilityRole="button"
-              accessibilityLabel="Generate AI breakdown"
+              accessibilityLabel="Break task into steps"
               style={({ pressed }) => [
                 styles.secondaryButton,
                 (pressed || !task.trim() || isAiLoading) && {
@@ -142,7 +151,7 @@ export const FogCutterTaskComposer = ({
               ]}
             >
               <Text style={styles.secondaryButtonText}>
-                {isAiLoading ? 'ANALYSING...' : 'AI_BREAKDOWN'}
+                {isAiLoading ? 'PREPARING STEPS...' : 'BREAK INTO STEPS'}
               </Text>
             </Pressable>
           ) : (
@@ -152,8 +161,9 @@ export const FogCutterTaskComposer = ({
               onPress={onAiBreakdownPress}
               disabled={!task.trim() || isAiLoading}
               loading={isAiLoading}
+              accessibilityLabel="Break task into steps"
             >
-              {isAiLoading ? 'ANALYSING...' : 'AI_BREAKDOWN'}
+              {isAiLoading ? 'PREPARING STEPS...' : 'BREAK INTO STEPS'}
             </RuneButton>
           )}
         </View>
@@ -184,14 +194,19 @@ export const FogCutterTaskComposer = ({
 
       {isAiLoading && (
         <View style={styles.previewContainer}>
-          <Text style={styles.previewTitle}>ANALYSING...</Text>
+          <Text style={styles.previewTitle}>PREPARING STEPS...</Text>
           <Shimmer width="100%" height={60} style={styles.shimmer} />
         </View>
       )}
 
       {microSteps.length > 0 && !isAiLoading && (
         <View style={styles.previewContainer}>
-          <Text style={styles.previewTitle}>SEQUENCE:</Text>
+          <Text style={styles.previewTitle}>
+            Here is a quick breakdown to get you moving.
+          </Text>
+          <Text style={styles.rationaleText}>
+            Starter steps ready. Adjust anything that doesn't fit.
+          </Text>
           <FlatList
             data={microSteps}
             renderItem={({ item, index }) => (

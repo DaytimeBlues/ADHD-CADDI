@@ -68,6 +68,21 @@ const skipTutorial = () => {
   tutorialState.onboardingCompleted = true;
 };
 
+jest.mock('../src/hooks/useFeatureTutorial', () => ({
+  useFeatureTutorial: () => ({
+    currentTutorialStep:
+      tutorialState.isVisible && tutorialState.activeFlow
+        ? tutorialState.activeFlow.steps[tutorialState.currentStepIndex] ?? null
+        : null,
+    currentStepIndex: tutorialState.currentStepIndex,
+    totalSteps: tutorialState.activeFlow?.steps.length ?? 0,
+    nextStep,
+    previousStep,
+    skipTutorial,
+    startTutorial: () => startTutorial(mockBrainDumpFlow),
+  }),
+}));
+
 jest.mock('@react-navigation/native', () => ({
   __esModule: true,
   useRoute: () => ({ params: {} }),
@@ -289,6 +304,8 @@ describe('BrainDumpScreen', () => {
       { timeout: 10000 },
     );
     expect(screen.getByText('_AWAITING_INPUT')).toBeTruthy();
+    expect(screen.getByTestId('tutorial-target-brain-dump-input')).toBeTruthy();
+    expect(screen.getByTestId('tutorial-target-brain-dump-sort')).toBeTruthy();
   }, 10000);
 
   it('renders tutorial state and advances through the mocked flow', async () => {

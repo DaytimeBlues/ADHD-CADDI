@@ -1,10 +1,16 @@
 const passthrough = (value) => value;
 
-module.exports = {
-  __esModule: true,
-  init: () => undefined,
-  captureException: () => undefined,
-  captureMessage: () => undefined,
-  withScope: (callback) =>
-    callback?.({ setTag: passthrough, setContext: passthrough }),
+export const init = () => undefined;
+export const captureException = () => undefined;
+export const captureMessage = () => undefined;
+export const withScope = (callback) =>
+  callback?.({ setTag: passthrough, setContext: passthrough });
+
+const sentryWeb = {
+  init,
+  captureException,
+  captureMessage,
+  withScope,
 };
+
+export default sentryWeb;
