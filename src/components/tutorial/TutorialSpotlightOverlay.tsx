@@ -35,23 +35,27 @@ export const TutorialSpotlightOverlay = ({
   onDismiss,
 }: TutorialSpotlightOverlayProps) => {
   const { width, height } = useWindowDimensions();
-  const fallbackInsets = {
+  type InsetValue = {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+  };
+  const fallbackInsets: InsetValue = {
     top: 0,
     right: 0,
     bottom: 0,
     left: 0,
   };
-  const InsetsContext =
+  const FallbackInsetsContext = createContext<InsetValue | null>(
+    fallbackInsets,
+  );
+  const InsetsContext: React.Context<InsetValue | null> =
     (
       SafeAreaContext as {
-        SafeAreaInsetsContext?: React.Context<{
-          top: number;
-          right: number;
-          bottom: number;
-          left: number;
-        } | null>;
+        SafeAreaInsetsContext?: React.Context<InsetValue | null>;
       }
-    ).SafeAreaInsetsContext ?? createContext(fallbackInsets);
+    ).SafeAreaInsetsContext ?? FallbackInsetsContext;
   const insets = useContext(InsetsContext) ?? fallbackInsets;
   const { getTargetLayout } = useTutorialTargetRegistry();
   const safeFrame = getSafeFrame({

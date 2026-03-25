@@ -2,6 +2,7 @@ import {
   test,
   expect,
   assertNoCriticalBrowserIssues,
+  type Page,
 } from './support/issueArtifacts';
 import {
   ALLOWED_CONSOLE_PATTERNS,
@@ -9,6 +10,20 @@ import {
   gotoAnonymousAppShell,
   prepareAnonymousMinimalShell,
 } from './support/appHarness';
+
+const dismissTutorialIfVisible = async (page: Page) => {
+  const tutorialOverlay = page.getByTestId('tutorial-overlay');
+  try {
+    await tutorialOverlay.waitFor({ state: 'visible', timeout: 1500 });
+  } catch {
+    return;
+  }
+
+  if (await tutorialOverlay.isVisible()) {
+    await page.getByTestId('tutorial-skip-button').click();
+    await expect(tutorialOverlay).not.toBeVisible();
+  }
+};
 
 test.describe('Release hardening anonymous mandatory @release @smoke', () => {
   test('hosted or local app shell reaches Home and keeps route/title in sync', async ({
@@ -53,6 +68,7 @@ test.describe('Release hardening anonymous mandatory @release @smoke', () => {
     await prepareAnonymousMinimalShell(page);
     await page.goto(APP_ROUTES.fogCutter);
     await page.waitForLoadState('networkidle');
+    await dismissTutorialIfVisible(page);
 
     await expect(page.getByText('FOG_CUTTER')).toBeVisible();
     await page.getByText('Write an email', { exact: true }).click();
@@ -113,10 +129,9 @@ test.describe('Release hardening anonymous mandatory @release @smoke', () => {
     issueCapture,
   }) => {
     await gotoAnonymousAppShell(page, APP_ROUTES.anchor);
+    await dismissTutorialIfVisible(page);
 
-    await expect(
-      page.getByRole('heading', { name: /Anchor: Find Your Breath/i }),
-    ).toBeVisible();
+    await expect(page.getByTestId('anchor-tour-button')).toBeVisible();
     await page.getByTestId('anchor-pattern-box').click();
     await expect(page.getByText('BOX BREATHING')).toBeVisible();
     await expect(page.getByText('BREATHE IN', { exact: true })).toBeVisible();
@@ -133,6 +148,7 @@ test.describe('Release hardening anonymous mandatory @release @smoke', () => {
     issueCapture,
   }) => {
     await gotoAnonymousAppShell(page, APP_ROUTES.checkIn);
+    await dismissTutorialIfVisible(page);
 
     await expect(page.getByTestId('checkin-subtitle')).toBeVisible();
     await page.getByTestId('mood-option-3').click();

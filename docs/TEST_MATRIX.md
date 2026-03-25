@@ -160,8 +160,11 @@
 - [ ] Tasks guide is replay-only by default
 - [ ] Chat guide is replay-only by default
 - [ ] Inbox guide is replay-only by default
-- [ ] Home replay-guide menu lists supported screens
-- [ ] Replay Guide launches the expected flow
+- [ ] Home tutorial menu lists supported screens
+- [ ] Tutorial launches the expected flow
+- [ ] Replay Tutorial appears after dismissal or completion
+- [ ] Overlay dismiss `X` closes the active guide
+- [ ] Overlay highlight stays inside Android screen bounds
 - [ ] Skipping a guide dismisses it cleanly
 - [ ] Completing a guide prevents auto-start on the same flow
 

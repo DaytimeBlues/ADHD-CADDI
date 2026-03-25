@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, type StyleProp, type ViewStyle } from 'react-native';
+import type { StyleProp, ViewStyle } from 'react-native';
 import type { TutorialStep } from '../../store/useTutorialStore';
 import { TutorialSpotlightOverlay } from './TutorialSpotlightOverlay';
 
@@ -20,23 +20,21 @@ export const FeatureTutorialOverlay = ({
   onNext,
   onPrevious,
   onSkip,
-  style,
+  style: _style,
 }: FeatureTutorialOverlayProps) => {
   if (!currentTutorialStep) {
     return null;
   }
 
   return (
-    <View style={style}>
-      <TutorialSpotlightOverlay
-        step={currentTutorialStep}
-        stepIndex={currentStepIndex}
-        totalSteps={totalSteps}
-        onNext={onNext}
-        onPrevious={onPrevious}
-        onDismiss={onSkip}
-      />
-    </View>
+    <TutorialSpotlightOverlay
+      step={currentTutorialStep}
+      stepIndex={currentStepIndex}
+      totalSteps={totalSteps}
+      onNext={onNext}
+      onPrevious={onPrevious}
+      onDismiss={onSkip}
+    />
   );
 };
 

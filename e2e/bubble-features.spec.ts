@@ -88,6 +88,12 @@ test.describe('Bubble Features: Interruption & Vignette Check-ins', () => {
     const checkInScreen = page.getByLabel('Check-in screen');
     await expect(checkInScreen).toBeVisible();
 
+    const tutorialOverlay = checkInScreen.getByTestId('tutorial-overlay');
+    if (await tutorialOverlay.isVisible()) {
+      await page.getByTestId('tutorial-skip-button').click();
+      await expect(tutorialOverlay).not.toBeVisible();
+    }
+
     if (!isLivePagesSmoke) {
       await expect(
         checkInScreen.getByText(CHECK_IN_MOODS[0].quote, { exact: false }),

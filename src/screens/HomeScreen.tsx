@@ -335,7 +335,7 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
                 accessibilityLabel="View feature tutorials"
                 testID="home-tour-button"
               >
-                <Text style={styles.feedbackButtonText}>REPLAY GUIDE</Text>
+                <Text style={styles.feedbackButtonText}>TUTORIAL</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => navigateByRouteName(ROUTES.DIAGNOSTICS)}
@@ -484,7 +484,7 @@ const HomeScreen = ({ navigation }: { navigation: NavigationNode }) => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>REPLAY GUIDES</Text>
+            <Text style={styles.modalTitle}>TUTORIALS</Text>
             <Text style={styles.modalSubtitle}>
               Choose a screen guide to replay.
             </Text>

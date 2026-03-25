@@ -33,6 +33,20 @@ test.describe('Tutorial And Bubble Smoke', () => {
     await expect(
       page.getByLabel('Brain dump screen').getByTestId('tutorial-overlay'),
     ).toBeVisible();
+    const overlayBounds = await page
+      .getByTestId('tutorial-overlay')
+      .boundingBox();
+    const viewport = page.viewportSize();
+    expect(overlayBounds).not.toBeNull();
+    expect(viewport).not.toBeNull();
+    expect(overlayBounds!.x).toBeGreaterThanOrEqual(0);
+    expect(overlayBounds!.y).toBeGreaterThanOrEqual(0);
+    expect(overlayBounds!.x + overlayBounds!.width).toBeLessThanOrEqual(
+      viewport!.width,
+    );
+    expect(overlayBounds!.y + overlayBounds!.height).toBeLessThanOrEqual(
+      viewport!.height,
+    );
     await expect(
       page
         .getByLabel('Brain dump screen')
@@ -72,6 +86,7 @@ test.describe('Tutorial And Bubble Smoke', () => {
     await page
       .getByTestId('capture-text-input')
       .fill('Playwright bubble smoke note');
+    await page.getByTestId('capture-text-input').blur();
     await page.getByRole('button', { name: 'SAVE TO INBOX' }).click();
 
     await expect(page.getByTestId('capture-drawer')).not.toBeVisible();
@@ -85,7 +100,7 @@ test.describe('Tutorial And Bubble Smoke', () => {
   test('home replay guide launches tasks guide and keeps bubble out of the way', async ({
     page,
   }) => {
-    await expect(page.getByText('REPLAY GUIDE')).toBeVisible();
+    await expect(page.getByText('TUTORIAL')).toBeVisible();
     await page.getByTestId('home-tour-button').click();
 
     await expect(
