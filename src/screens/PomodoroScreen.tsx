@@ -37,6 +37,8 @@ const PomodoroScreen = () => {
     nextStep,
     previousStep,
     skipTutorial,
+    guideButtonLabel,
+    isReplayTutorial,
     startTutorial,
   } = useFeatureTutorial(pomodoroOnboardingFlow);
 
@@ -60,8 +62,10 @@ const PomodoroScreen = () => {
             <PomodoroHeader isCosmic={isCosmic} isWorking={isWorking} />
             <FeatureGuideButton
               onPress={() => startTutorial()}
-              accessibilityLabel="Replay guide for pomodoro"
+              accessibilityLabel="Open tutorial for pomodoro"
               testID="pomodoro-tour-button"
+              label={guideButtonLabel}
+              isSecondary={isReplayTutorial}
             />
           </View>
 

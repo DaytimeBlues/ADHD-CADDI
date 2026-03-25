@@ -6,12 +6,16 @@ type FeatureGuideButtonProps = {
   onPress: () => void;
   accessibilityLabel: string;
   testID: string;
+  label?: string;
+  isSecondary?: boolean;
 };
 
 export const FeatureGuideButton = ({
   onPress,
   accessibilityLabel,
   testID,
+  label = 'Tutorial',
+  isSecondary = false,
 }: FeatureGuideButtonProps) => {
   return (
     <Pressable
@@ -19,9 +23,20 @@ export const FeatureGuideButton = ({
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
       testID={testID}
-      style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
+      style={({ pressed }) => [
+        styles.button,
+        isSecondary ? styles.buttonSecondary : styles.buttonPrimary,
+        pressed && styles.buttonPressed,
+      ]}
     >
-      <Text style={styles.buttonText}>REPLAY GUIDE</Text>
+      <Text
+        style={[
+          styles.buttonText,
+          isSecondary ? styles.buttonTextSecondary : styles.buttonTextPrimary,
+        ]}
+      >
+        {label.toUpperCase()}
+      </Text>
     </Pressable>
   );
 };
@@ -31,19 +46,37 @@ const styles = StyleSheet.create({
     paddingHorizontal: Tokens.spacing[3],
     paddingVertical: Tokens.spacing[2],
     borderRadius: Tokens.radii.md,
-    backgroundColor: 'rgba(139, 92, 246, 0.15)',
     borderWidth: 1,
-    borderColor: 'rgba(139, 92, 246, 0.3)',
+  },
+  buttonPrimary: {
+    backgroundColor: 'rgba(139, 92, 246, 0.2)',
+    borderColor: 'rgba(139, 92, 246, 0.4)',
+    minHeight: 40,
+    justifyContent: 'center',
+  },
+  buttonSecondary: {
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+    borderColor: 'rgba(139, 92, 246, 0.24)',
+    paddingHorizontal: Tokens.spacing[2],
+    minHeight: 32,
+    justifyContent: 'center',
   },
   buttonPressed: {
     opacity: 0.7,
   },
   buttonText: {
     fontFamily: Tokens.type.fontFamily.mono,
-    fontSize: Tokens.type.xs,
     fontWeight: '700',
+  },
+  buttonTextPrimary: {
+    fontSize: Tokens.type.xs,
     color: '#8B5CF6',
     letterSpacing: 1,
+  },
+  buttonTextSecondary: {
+    fontSize: Tokens.type.xxs,
+    color: '#A78BFA',
+    letterSpacing: 0.8,
   },
 });
 

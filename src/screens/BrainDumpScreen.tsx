@@ -61,6 +61,8 @@ const BrainDumpScreen = () => {
     nextStep,
     previousStep,
     skipTutorial,
+    guideButtonLabel,
+    isReplayTutorial,
     startTutorial,
   } = useFeatureTutorial(brainDumpOnboardingFlow);
 
@@ -100,8 +102,10 @@ const BrainDumpScreen = () => {
             <View style={styles.headerLine} />
             <FeatureGuideButton
               onPress={() => startTutorial()}
-              accessibilityLabel="Replay guide for brain dump"
+              accessibilityLabel="Open tutorial for brain dump"
               testID="brain-dump-tour-button"
+              label={guideButtonLabel}
+              isSecondary={isReplayTutorial}
             />
           </View>
 

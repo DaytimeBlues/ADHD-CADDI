@@ -39,6 +39,8 @@ export const TasksScreen = memo(function TasksScreen() {
     nextStep,
     previousStep,
     skipTutorial,
+    guideButtonLabel,
+    isReplayTutorial,
     startTutorial,
   } = useFeatureTutorial(tasksOnboardingFlow);
   const {
@@ -112,8 +114,10 @@ export const TasksScreen = memo(function TasksScreen() {
     <View style={styles.headerActions}>
       <FeatureGuideButton
         onPress={() => startTutorial()}
-        accessibilityLabel="Replay guide for tasks"
+        accessibilityLabel="Open tutorial for tasks"
         testID="tasks-guide-button"
+        label={guideButtonLabel}
+        isSecondary={isReplayTutorial}
       />
       <Pressable
         onPress={handleSync}
@@ -145,8 +149,10 @@ export const TasksScreen = memo(function TasksScreen() {
     <View style={styles.headerActions}>
       <FeatureGuideButton
         onPress={() => startTutorial()}
-        accessibilityLabel="Replay guide for tasks"
+        accessibilityLabel="Open tutorial for tasks"
         testID="tasks-guide-button"
+        label={guideButtonLabel}
+        isSecondary={isReplayTutorial}
       />
       <RuneButton
         variant="secondary"

@@ -37,6 +37,8 @@ const AnchorScreen = () => {
     nextStep,
     previousStep,
     skipTutorial,
+    guideButtonLabel,
+    isReplayTutorial,
     startTutorial,
   } = useFeatureTutorial(anchorOnboardingFlow);
 
@@ -60,8 +62,10 @@ const AnchorScreen = () => {
             <AnchorHeader />
             <FeatureGuideButton
               onPress={() => startTutorial()}
-              accessibilityLabel="Replay guide for anchor"
+              accessibilityLabel="Open tutorial for anchor"
               testID="anchor-tour-button"
+              label={guideButtonLabel}
+              isSecondary={isReplayTutorial}
             />
           </View>
 

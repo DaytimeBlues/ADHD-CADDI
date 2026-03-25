@@ -34,6 +34,8 @@ const ChatScreen = () => {
     nextStep,
     previousStep,
     skipTutorial,
+    guideButtonLabel,
+    isReplayTutorial,
     startTutorial,
   } = useFeatureTutorial(chatOnboardingFlow);
 
@@ -81,8 +83,10 @@ const ChatScreen = () => {
           <Text style={styles.title}>CADDI_ASSISTANT</Text>
           <FeatureGuideButton
             onPress={() => startTutorial()}
-            accessibilityLabel="Replay guide for chat"
+            accessibilityLabel="Open tutorial for chat"
             testID="chat-guide-button"
+            label={guideButtonLabel}
+            isSecondary={isReplayTutorial}
           />
         </View>
 

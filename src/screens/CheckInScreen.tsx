@@ -53,6 +53,8 @@ const CheckInScreen = ({ navigation }: { navigation?: CheckInNavigation }) => {
     nextStep,
     previousStep,
     skipTutorial,
+    guideButtonLabel,
+    isReplayTutorial,
     startTutorial,
   } = useFeatureTutorial(checkInOnboardingFlow);
 
@@ -147,8 +149,10 @@ const CheckInScreen = ({ navigation }: { navigation?: CheckInNavigation }) => {
               </Text>
               <FeatureGuideButton
                 onPress={() => startTutorial()}
-                accessibilityLabel="Replay guide for check-in"
+                accessibilityLabel="Open tutorial for check-in"
                 testID="checkin-tour-button"
+                label={guideButtonLabel}
+                isSecondary={isReplayTutorial}
               />
             </View>
 

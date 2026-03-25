@@ -10,6 +10,10 @@ export const useFeatureTutorial = (flow?: TutorialFlow | null) => {
     (state) => state.onboardingCompleted,
   );
   const tutorialsEnabled = useTutorialStore((state) => state.tutorialsEnabled);
+  const hasCompletedFlow = useTutorialStore((state) => state.hasCompletedFlow);
+  const hasInteractedWithFlow = useTutorialStore(
+    (state) => state.hasInteractedWithFlow,
+  );
   const startTutorial = useTutorialStore((state) => state.startTutorial);
   const nextStep = useTutorialStore((state) => state.nextStep);
   const previousStep = useTutorialStore((state) => state.previousStep);
@@ -44,6 +48,12 @@ export const useFeatureTutorial = (flow?: TutorialFlow | null) => {
       ? activeFlow.steps[currentStepIndex] ?? null
       : null;
 
+  const hasSeenFlow = flow
+    ? (typeof hasCompletedFlow === 'function' && hasCompletedFlow(flow.id)) ||
+      (typeof hasInteractedWithFlow === 'function' &&
+        hasInteractedWithFlow(flow.id))
+    : false;
+
   return {
     currentTutorialStep,
     currentStepIndex,
@@ -52,6 +62,8 @@ export const useFeatureTutorial = (flow?: TutorialFlow | null) => {
     nextStep,
     previousStep,
     skipTutorial,
+    isReplayTutorial: hasSeenFlow,
+    guideButtonLabel: hasSeenFlow ? 'Replay Tutorial' : 'Tutorial',
     startTutorial: () => {
       if (flow) {
         startTutorial(flow);

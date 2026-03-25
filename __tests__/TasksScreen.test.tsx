@@ -142,7 +142,7 @@ describe('TasksScreen', () => {
   it('shows Replay Guide and starts the shared tasks tutorial', () => {
     render(<TasksScreen />);
 
-    expect(screen.getByText('REPLAY GUIDE')).toBeTruthy();
+    expect(screen.getByText('TUTORIAL')).toBeTruthy();
 
     fireEvent.press(screen.getByTestId('tasks-guide-button'));
 

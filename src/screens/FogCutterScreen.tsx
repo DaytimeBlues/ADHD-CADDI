@@ -86,6 +86,8 @@ const FogCutterScreen = ({ navigation }: FogCutterScreenProps) => {
     nextStep,
     previousStep,
     skipTutorial,
+    guideButtonLabel,
+    isReplayTutorial,
     startTutorial,
   } = useFeatureTutorial(fogCutterOnboardingFlow);
 
@@ -125,8 +127,10 @@ const FogCutterScreen = ({ navigation }: FogCutterScreenProps) => {
             <View style={styles.headerLine} />
             <FeatureGuideButton
               onPress={() => startTutorial()}
-              accessibilityLabel="Replay guide for fog cutter"
+              accessibilityLabel="Open tutorial for fog cutter"
               testID="fogcutter-tour-button"
+              label={guideButtonLabel}
+              isSecondary={isReplayTutorial}
             />
           </View>
 

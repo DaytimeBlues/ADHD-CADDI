@@ -41,6 +41,8 @@ const InboxScreen = (): JSX.Element => {
     nextStep,
     previousStep,
     skipTutorial,
+    guideButtonLabel,
+    isReplayTutorial,
     startTutorial,
   } = useFeatureTutorial(inboxOnboardingFlow);
 
@@ -164,8 +166,10 @@ const InboxScreen = (): JSX.Element => {
           </Text>
           <FeatureGuideButton
             onPress={() => startTutorial()}
-            accessibilityLabel="Replay guide for inbox"
+            accessibilityLabel="Open tutorial for inbox"
             testID="inbox-guide-button"
+            label={guideButtonLabel}
+            isSecondary={isReplayTutorial}
           />
         </View>
 

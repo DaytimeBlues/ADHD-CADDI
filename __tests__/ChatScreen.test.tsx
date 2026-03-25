@@ -71,7 +71,7 @@ describe('ChatScreen', () => {
 
     expect(screen.getByText('CADDI_ASSISTANT')).toBeTruthy();
     expect(screen.getByText('HOW CAN I HELP YOU FOCUS TODAY?')).toBeTruthy();
-    expect(screen.getByText('REPLAY GUIDE')).toBeTruthy();
+    expect(screen.getByText('TUTORIAL')).toBeTruthy();
 
     fireEvent.changeText(
       screen.getByPlaceholderText('TYPE_YOUR_THOUGHTS...'),
