@@ -36,10 +36,10 @@ const firebaseConfig = {
     process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID ?? 'G-QPP8H2B002',
 };
 
-// ─── App singleton ───────────────────────────────────────────────────────────
+// ─── App singleton ────────────────────────────────────────────────────────────────────────────
 const firebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-// ─── Auth Initialization (Cross-Platform Persistence) ────────────────────────
+// ─── Auth Initialization (Cross-Platform Persistence) ────────────────────────────
 let auth: Auth;
 
 try {
@@ -64,7 +64,7 @@ try {
   auth = getAuth(firebaseApp);
 }
 
-// ─── Auth providers ──────────────────────────────────────────────────────────
+// ─── Auth providers ────────────────────────────────────────────────────────────────────────────
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.addScope('https://www.googleapis.com/auth/tasks');
 googleProvider.addScope('https://www.googleapis.com/auth/calendar.events');
@@ -72,6 +72,6 @@ googleProvider.setCustomParameters({ prompt: 'select_account' });
 
 export const emailProvider = new EmailAuthProvider();
 
-// ─── Exports ─────────────────────────────────────────────────────────────────
+// ─── Exports ───────────────────────────────────────────────────────────────────────────────
 export { auth, firebaseApp };
 export default firebaseApp;
