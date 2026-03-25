@@ -233,8 +233,10 @@ export const NightAweBackground = memo(function NightAweBackground({
                       backgroundColor: isActiveEdge
                         ? palette.constellation.active
                         : palette.constellation.line,
-                      opacity: isActiveEdge ? 1 : 0.72,
                     },
+                    isActiveEdge
+                      ? styles.constellationLineActiveOpacity
+                      : styles.constellationLineIdleOpacity,
                     isWeb
                       ? ({ transformOrigin: 'left center' } as ViewStyle)
                       : null,
@@ -276,8 +278,10 @@ export const NightAweBackground = memo(function NightAweBackground({
                         : isConnected
                           ? palette.constellation.line
                           : 'rgba(217, 228, 242, 0.08)',
-                      opacity: isConnected ? 0.92 : 1,
                     },
+                    isConnected
+                      ? styles.constellationNodeConnectedOpacity
+                      : styles.constellationNodeDefaultOpacity,
                     isActive
                       ? styles.constellationNodeActive
                       : isConnected
@@ -310,25 +314,29 @@ export const NightAweBackground = memo(function NightAweBackground({
         <View
           style={[
             styles.horizonFar,
-            { backgroundColor: palette.horizon.far, opacity: 0.55 },
+            styles.horizonFarOpacity,
+            { backgroundColor: palette.horizon.far },
           ]}
         />
         <View
           style={[
             styles.horizonMain,
-            { backgroundColor: palette.horizon.base, opacity: 0.92 },
+            styles.horizonMainOpacity,
+            { backgroundColor: palette.horizon.base },
           ]}
         />
         <View
           style={[
             styles.horizonFace,
-            { backgroundColor: palette.horizon.face, opacity: 0.9 },
+            styles.horizonFaceOpacity,
+            { backgroundColor: palette.horizon.face },
           ]}
         />
         <View
           style={[
             styles.horizonRim,
-            { backgroundColor: palette.horizon.rim, opacity: 0.22 },
+            styles.horizonRimOpacity,
+            { backgroundColor: palette.horizon.rim },
           ]}
         />
       </View>
@@ -338,7 +346,7 @@ export const NightAweBackground = memo(function NightAweBackground({
       {dimmer ? (
         <View
           pointerEvents="none"
-          style={[styles.dimmer, { backgroundColor: 'rgba(8, 17, 30, 0.24)' }]}
+          style={[styles.dimmer, styles.dimmerVisible]}
         />
       ) : null}
     </View>
@@ -382,6 +390,12 @@ const styles = StyleSheet.create({
     position: 'absolute',
     height: 1,
   },
+  constellationLineActiveOpacity: {
+    opacity: 1,
+  },
+  constellationLineIdleOpacity: {
+    opacity: 0.72,
+  },
   constellationNode: {
     position: 'absolute',
     width: 8,
@@ -403,6 +417,12 @@ const styles = StyleSheet.create({
     marginLeft: -4.5,
     marginTop: -4.5,
   },
+  constellationNodeConnectedOpacity: {
+    opacity: 0.92,
+  },
+  constellationNodeDefaultOpacity: {
+    opacity: 1,
+  },
   horizonWrap: {
     position: 'absolute',
     left: 0,
@@ -421,6 +441,9 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 260,
     transform: [{ scaleX: 1.04 }],
   },
+  horizonFarOpacity: {
+    opacity: 0.55,
+  },
   horizonMain: {
     position: 'absolute',
     left: '-8%',
@@ -429,6 +452,9 @@ const styles = StyleSheet.create({
     height: '54%',
     borderTopLeftRadius: 260,
     borderTopRightRadius: 320,
+  },
+  horizonMainOpacity: {
+    opacity: 0.92,
   },
   horizonFace: {
     position: 'absolute',
@@ -441,6 +467,9 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 28,
     borderBottomRightRadius: 20,
   },
+  horizonFaceOpacity: {
+    opacity: 0.9,
+  },
   horizonRim: {
     position: 'absolute',
     width: '38%',
@@ -449,8 +478,14 @@ const styles = StyleSheet.create({
     left: '30%',
     borderRadius: 24,
   },
+  horizonRimOpacity: {
+    opacity: 0.22,
+  },
   dimmer: {
     ...StyleSheet.absoluteFillObject,
+  },
+  dimmerVisible: {
+    backgroundColor: 'rgba(8, 17, 30, 0.24)',
   },
 });
 
