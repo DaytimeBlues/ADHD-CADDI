@@ -12,16 +12,19 @@ import {
 } from './support/appHarness';
 
 const dismissTutorialIfVisible = async (page: Page) => {
-  const tutorialOverlay = page.getByTestId('tutorial-overlay');
-  try {
-    await tutorialOverlay.waitFor({ state: 'visible', timeout: 1500 });
-  } catch {
-    return;
-  }
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const tutorialOverlay = page.getByTestId('tutorial-overlay');
+    try {
+      await tutorialOverlay.waitFor({ state: 'visible', timeout: 1500 });
+    } catch {
+      return;
+    }
 
-  if (await tutorialOverlay.isVisible()) {
-    await page.getByTestId('tutorial-skip-button').click();
-    await expect(tutorialOverlay).not.toBeVisible();
+    if (await tutorialOverlay.isVisible()) {
+      await page.getByTestId('tutorial-skip-button').click();
+      await expect(tutorialOverlay).not.toBeVisible();
+      await page.waitForTimeout(150);
+    }
   }
 };
 
