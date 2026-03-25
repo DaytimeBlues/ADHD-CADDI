@@ -99,4 +99,28 @@ test.describe('Tutorial And Bubble Smoke', () => {
     await expect(page.getByText('Tasks: See the Work Clearly')).toBeVisible();
     await expect(page.getByTestId('capture-bubble')).not.toBeVisible();
   });
+
+  test('disabling guided tutorials prevents auto-start but still allows manual replay', async ({
+    page,
+  }) => {
+    await page.getByLabel('Settings and Diagnostics').click();
+    await expect(page.getByText('GUIDED HELP')).toBeVisible();
+
+    await page.getByTestId('tutorials-enabled-toggle').click();
+    await page.getByLabel('Go back').click();
+
+    await page.getByTestId('nav-tasks').click({ force: true });
+    await page.getByTestId('open-brain-dump').click();
+    await expect(
+      page.getByLabel('Brain dump screen').getByText('BRAIN_DUMP'),
+    ).toBeVisible();
+    await expect(
+      page.getByLabel('Brain dump screen').getByTestId('tutorial-overlay'),
+    ).not.toBeVisible();
+
+    await page.getByTestId('brain-dump-tour-button').click();
+    await expect(
+      page.getByLabel('Brain dump screen').getByTestId('tutorial-overlay'),
+    ).toBeVisible();
+  });
 });
