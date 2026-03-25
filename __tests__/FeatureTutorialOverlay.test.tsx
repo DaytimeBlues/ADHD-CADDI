@@ -2,6 +2,15 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react-native';
 import { FeatureTutorialOverlay } from '../src/components/tutorial/FeatureTutorialOverlay';
 
+jest.mock('react-native-safe-area-context', () => ({
+  useSafeAreaInsets: () => ({
+    top: 24,
+    right: 0,
+    bottom: 32,
+    left: 0,
+  }),
+}));
+
 const tutorialStep = {
   id: 'brain-dump-capture',
   title: 'Capture Everything',

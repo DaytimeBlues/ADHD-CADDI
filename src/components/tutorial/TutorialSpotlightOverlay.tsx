@@ -1,8 +1,21 @@
-import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import React, { createContext, useContext } from 'react';
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  useWindowDimensions,
+} from 'react-native';
+import * as SafeAreaContext from 'react-native-safe-area-context';
 import type { TutorialStep } from '../../store/useTutorialStore';
 import { Tokens } from '../../theme/tokens';
 import { TutorialBubble } from './TutorialBubble';
+import { useTutorialTargetRegistry } from './useTutorialTargetRegistry';
+import {
+  clampRectToFrame,
+  getSafeFrame,
+  resolveTutorialCardPosition,
+} from './tutorialLayout';
 
 type TutorialSpotlightOverlayProps = {
   step: TutorialStep;
@@ -21,10 +34,75 @@ export const TutorialSpotlightOverlay = ({
   onPrevious,
   onDismiss,
 }: TutorialSpotlightOverlayProps) => {
+  const { width, height } = useWindowDimensions();
+  const fallbackInsets = {
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  };
+  const InsetsContext =
+    (
+      SafeAreaContext as {
+        SafeAreaInsetsContext?: React.Context<{
+          top: number;
+          right: number;
+          bottom: number;
+          left: number;
+        } | null>;
+      }
+    ).SafeAreaInsetsContext ?? createContext(fallbackInsets);
+  const insets = useContext(InsetsContext) ?? fallbackInsets;
+  const { getTargetLayout } = useTutorialTargetRegistry();
+  const safeFrame = getSafeFrame({
+    viewportWidth: width,
+    viewportHeight: height,
+    insets,
+    margin: Tokens.spacing[4],
+  });
+  const rawTargetRect = step.targetId ? getTargetLayout(step.targetId) : null;
+  const targetRect = rawTargetRect
+    ? clampRectToFrame(rawTargetRect, safeFrame)
+    : null;
+  const cardWidth = Math.min(safeFrame.width, 400);
+  const cardHeight = Math.min(320, safeFrame.height);
+  const cardPosition = resolveTutorialCardPosition({
+    targetRect,
+    cardSize: { width: cardWidth, height: cardHeight },
+    safeFrame,
+    placement: step.placement ?? 'auto',
+    gap: Tokens.spacing[3],
+  });
+
   return (
     <View style={styles.overlay} testID="tutorial-overlay">
       <View style={styles.scrim} testID="tutorial-overlay-scrim" />
-      <View style={styles.content}>
+      {targetRect ? (
+        <View
+          pointerEvents="none"
+          style={[
+            styles.highlightBox,
+            {
+              left: targetRect.x,
+              top: targetRect.y,
+              width: targetRect.width,
+              height: targetRect.height,
+            },
+          ]}
+          testID="tutorial-highlight-box"
+        />
+      ) : null}
+      <View
+        style={[
+          styles.content,
+          {
+            left: cardPosition.x,
+            top: cardPosition.y,
+            width: cardWidth,
+            maxHeight: cardHeight,
+          },
+        ]}
+      >
         <View style={styles.header}>
           <View style={styles.headerSpacer} />
           <Pressable
@@ -58,8 +136,6 @@ export const TutorialSpotlightOverlay = ({
 const styles = StyleSheet.create({
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
     zIndex: 1000,
   },
   scrim: {
@@ -67,13 +143,10 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(8, 11, 20, 0.72)',
   },
   content: {
-    width: '100%',
-    paddingHorizontal: Tokens.spacing[4],
-    alignItems: 'center',
+    position: 'absolute',
   },
   header: {
     width: '100%',
-    maxWidth: 400,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -101,6 +174,18 @@ const styles = StyleSheet.create({
     fontFamily: Tokens.type.fontFamily.mono,
     fontSize: Tokens.type.base,
     fontWeight: '700',
+  },
+  highlightBox: {
+    position: 'absolute',
+    borderRadius: Tokens.radii.lg,
+    borderWidth: 2,
+    borderColor: '#8B5CF6',
+    backgroundColor: 'rgba(139, 92, 246, 0.12)',
+    shadowColor: '#8B5CF6',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.35,
+    shadowRadius: 16,
+    elevation: 8,
   },
 });
 
