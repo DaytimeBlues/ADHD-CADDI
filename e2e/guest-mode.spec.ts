@@ -55,4 +55,18 @@ test.describe('Guest Mode', () => {
     // Guest button should also be visible (not replacing email/password)
     await expect(page.getByText('CONTINUE AS GUEST')).toBeVisible();
   });
+
+  test('guest entry reaches the app shell without Google sign-in', async ({
+    page,
+  }) => {
+    await enableE2ETestMode(page);
+    await page.goto('/Auth/Login');
+    await page.waitForLoadState('networkidle');
+
+    await page.getByTestId('login-guest-button').click();
+
+    await expect(page.getByTestId('home-title')).toBeVisible();
+    await expect(page.getByText('GUEST MODE')).toBeVisible();
+    await expect(page.getByText('EXIT GUEST')).toBeVisible();
+  });
 });
